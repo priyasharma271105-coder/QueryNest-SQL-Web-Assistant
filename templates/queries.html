@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Query Library — QueryNest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+<style>
+/* ── QUERIES PAGE SPECIFIC ── */
+body { font-size: 15px; }
+
+/* NAV */
+.qnav { position: sticky; top: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 13px 44px; background: rgba(22,4,40,0.92); backdrop-filter: blur(22px); border-bottom: 1px solid rgba(255,255,255,0.09); }
+.qnav-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; color: #f0e8ff; text-decoration: none; }
+.qnav-logo span { background: linear-gradient(135deg,#7c3aed,#ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.qnav-right { display: flex; align-items: center; gap: 10px; }
+.qnav-back { display: flex; align-items: center; gap: 6px; padding: 8px 18px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: rgba(220,200,255,0.7); font-size: .85rem; font-weight: 600; text-decoration: none; transition: all .2s; }
+.qnav-back:hover { background: rgba(255,255,255,0.12); color: #f0e8ff; }
+.qnav-seed { display: flex; align-items: center; gap: 6px; padding: 8px 18px; background: linear-gradient(135deg,#7c3aed,#ec4899); border: none; border-radius: 10px; color: #fff; font-size: .85rem; font-weight: 700; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .2s; }
+.qnav-seed:hover { opacity: .85; transform: translateY(-1px); }
+
+/* HERO */
+.q-hero { text-align: center; padding: 52px 24px 36px; position: relative; z-index: 1; }
+.q-hero h1 { font-family: 'Outfit', sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; letter-spacing: -.03em; margin-bottom: 10px; }
+.q-hero h1 span { background: linear-gradient(135deg,#a855f7,#ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.q-hero p { color: rgba(220,200,255,0.55); font-size: 1rem; max-width: 500px; margin: 0 auto 28px; line-height: 1.7; }
+.q-stats { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.q-stat { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); border-radius: 10px; padding: 8px 16px; font-size: .83rem; color: rgba(220,200,255,0.7); }
+.q-stat b { color: #f0e8ff; }
+
+/* TABS */
+.db-tabs { display: flex; justify-content: center; gap: 8px; padding: 0 24px 28px; flex-wrap: wrap; position: relative; z-index: 1; }
+.db-tab { display: flex; align-items: center; gap: 8px; padding: 11px 24px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: rgba(220,200,255,0.6); font-size: .9rem; font-weight: 700; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .25s; }
+.db-tab:hover { background: rgba(255,255,255,0.1); color: #f0e8ff; }
+.db-tab.active { color: #fff; border-color: transparent; }
+.db-tab.active.mongo { background: linear-gradient(135deg,#10b981,#059669); box-shadow: 0 4px 20px rgba(16,185,129,.35); }
+.db-tab.active.mysql { background: linear-gradient(135deg,#f59e0b,#ef4444); box-shadow: 0 4px 20px rgba(245,158,11,.35); }
+.db-tab.active.sql { background: linear-gradient(135deg,#3b82f6,#6366f1); box-shadow: 0 4px 20px rgba(99,102,241,.35); }
+.tab-icon { font-size: 1.2rem; }
+
+/* MAIN LAYOUT */
+.q-layout { display: grid; grid-template-columns: 260px 1fr; gap: 24px; max-width: 1200px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 1; }
+.q-sidebar { position: sticky; top: 75px; height: fit-content; }
+.q-sidebar-inner { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 18px; padding: 18px; }
+.sidebar-title { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: rgba(220,200,255,0.4); margin-bottom: 10px; padding: 0 6px; }
+.sidebar-item { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-radius: 10px; cursor: pointer; font-size: .85rem; font-weight: 600; color: rgba(220,200,255,0.6); transition: all .2s; margin-bottom: 3px; }
+.sidebar-item:hover { background: rgba(255,255,255,0.07); color: #f0e8ff; }
+.sidebar-item.active { background: rgba(124,58,237,0.2); color: #c084fc; border-left: 3px solid #a855f7; }
+.sidebar-item .s-icon { font-size: 1rem; width: 22px; text-align: center; }
+.sidebar-item .s-count { margin-left: auto; font-size: .72rem; background: rgba(255,255,255,0.08); border-radius: 99px; padding: 2px 8px; color: rgba(220,200,255,0.4); }
+.sidebar-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 10px 0; }
+
+/* SEARCH */
+.q-search-wrap { margin-bottom: 20px; position: relative; }
+.q-search { width: 100%; padding: 13px 16px 13px 44px; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 13px; font-size: .92rem; color: #f0e8ff; font-family: 'Plus Jakarta Sans', sans-serif; outline: none; transition: border-color .2s, box-shadow .2s; }
+.q-search:focus { border-color: #a855f7; box-shadow: 0 0 0 3px rgba(168,85,247,.15); }
+.q-search::placeholder { color: rgba(220,200,255,0.3); }
+.search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1rem; color: rgba(220,200,255,0.35); pointer-events: none; }
+
+/* QUERY CARDS GRID */
+.q-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+.q-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 18px; overflow: hidden; transition: border-color .25s, transform .25s, box-shadow .25s; }
+.q-card:hover { border-color: rgba(124,58,237,0.35); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+.q-card-head { padding: 18px 22px 14px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; cursor: pointer; }
+.q-card-info { flex: 1; min-width: 0; }
+.q-card-title { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 800; color: #f0e8ff; margin-bottom: 5px; }
+.q-card-desc { font-size: .82rem; color: rgba(220,200,255,0.5); line-height: 1.5; }
+.q-card-meta { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; }
+.q-tag { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.tag-mongo { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.2); }
+.tag-mysql { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.2); }
+.tag-sql { background: rgba(99,102,241,.15); color: #818cf8; border: 1px solid rgba(99,102,241,.2); }
+.tag-general { background: rgba(168,85,247,.15); color: #c084fc; border: 1px solid rgba(168,85,247,.2); }
+.q-card-toggle { width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: .8rem; color: rgba(220,200,255,0.5); flex-shrink: 0; transition: all .2s; }
+.q-card.open .q-card-toggle { background: rgba(124,58,237,0.25); color: #c084fc; transform: rotate(180deg); }
+
+/* CODE BLOCK */
+.q-card-body { display: none; border-top: 1px solid rgba(255,255,255,0.07); }
+.q-card.open .q-card-body { display: block; }
+.code-tabs { display: flex; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 0 22px; overflow-x: auto; }
+.code-tab { padding: 9px 16px; font-size: .78rem; font-weight: 700; color: rgba(220,200,255,0.45); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all .2s; }
+.code-tab.active { color: #c084fc; border-bottom-color: #a855f7; }
+.code-section { display: none; padding: 20px 22px; }
+.code-section.active { display: block; }
+.code-wrap { position: relative; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.06); }
+.code-lang-badge { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: rgba(220,200,255,0.45); }
+.copy-btn { display: flex; align-items: center; gap: 5px; padding: 4px 11px; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; color: #c084fc; font-size: .72rem; font-weight: 700; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .2s; }
+.copy-btn:hover { background: rgba(124,58,237,0.35); }
+.copy-btn.copied { background: rgba(16,185,129,0.2); border-color: rgba(16,185,129,0.3); color: #34d399; }
+pre { margin: 0; padding: 16px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: .82rem; line-height: 1.7; color: #e2e8f0; }
+.note-box { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2); border-radius: 10px; padding: 12px 15px; font-size: .82rem; color: rgba(220,200,255,0.7); line-height: 1.6; margin-top: 14px; }
+.note-box b { color: #c084fc; }
+
+/* EMPTY STATE */
+.q-empty { text-align: center; padding: 60px 24px; color: rgba(220,200,255,0.4); }
+.q-empty .e-icon { font-size: 3rem; margin-bottom: 12px; }
+.q-empty p { font-size: .9rem; }
+
+/* SECTION HEADER */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-header h2 { font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; color: #f0e8ff; }
+.result-count { font-size: .8rem; color: rgba(220,200,255,0.4); }
+
+/* TOAST */
+#toast { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(14px); background: rgba(16,185,129,0.9); color: #fff; padding: 10px 22px; border-radius: 99px; font-size: .85rem; font-weight: 600; opacity: 0; pointer-events: none; z-index: 600; transition: all .3s; white-space: nowrap; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media(max-width:768px){
+  .q-layout { grid-template-columns: 1fr; }
+  .q-sidebar { position: static; }
+  .qnav { padding: 12px 16px; }
+  .db-tabs { gap: 6px; }
+  .db-tab { padding: 9px 16px; font-size: .82rem; }
+}
+</style>
+</head>
+<body>
+<div class="orb orb-tl"></div>
+<div class="orb orb-tr"></div>
+<div class="orb orb-bl"></div>
+
+<!-- NAV -->
+<nav class="qnav">
+  <a class="qnav-logo" href="/home">🦅 <span>QueryNest</span> Library</a>
+  <div class="qnav-right">
+    <button class="qnav-seed" onclick="seedDB()" id="seedBtn">⚡ Seed Database</button>
+    <a class="qnav-back" href="/home">← Back to Home</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="q-hero">
+  <h1>Query Reference <span>Library</span></h1>
+  <p>Complete reference for MongoDB, MySQL & SQL — with copy-paste ready examples. Saved to your database for offline use.</p>
+  <div class="q-stats">
+    <div class="q-stat">🍃 <b id="mongo-count">—</b> MongoDB queries</div>
+    <div class="q-stat">🐬 <b id="mysql-count">—</b> MySQL queries</div>
+    <div class="q-stat">🗄 <b id="sql-count">—</b> SQL queries</div>
+  </div>
+</div>
+
+<!-- DB TABS -->
+<div class="db-tabs">
+  <button class="db-tab mongo active" onclick="switchDB('mongodb', this)"><span class="tab-icon">🍃</span> MongoDB</button>
+  <button class="db-tab mysql" onclick="switchDB('mysql', this)"><span class="tab-icon">🐬</span> MySQL</button>
+  <button class="db-tab sql" onclick="switchDB('sql', this)"><span class="tab-icon">🗄</span> SQL</button>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="q-layout">
+  <!-- SIDEBAR -->
+  <aside class="q-sidebar">
+    <div class="q-sidebar-inner">
+      <div class="sidebar-title">Categories</div>
+      <div id="sidebar-items">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <div class="q-content">
+    <div class="q-search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="q-search" id="searchInput" placeholder="Search queries, e.g. 'insert', 'join', 'index'..." oninput="filterCards()"/>
+    </div>
+    <div class="section-header">
+      <h2 id="section-title">All Queries</h2>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="result-count" id="result-count"></span>
+        <button id="savePdfBtn" onclick="saveResultsAsPDF()" title="Save results as PDF" style="display:none;align-items:center;gap:6px;padding:6px 16px;background:linear-gradient(135deg,rgba(147,51,234,0.25),rgba(192,38,211,0.2));border:1px solid rgba(147,51,234,0.45);border-radius:8px;color:#c084fc;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;" onmouseover="this.style.background='linear-gradient(135deg,rgba(147,51,234,0.4),rgba(192,38,211,0.35))';this.style.color='#e9d5ff'" onmouseout="this.style.background='linear-gradient(135deg,rgba(147,51,234,0.25),rgba(192,38,211,0.2))';this.style.color='#c084fc'">
+          📄 Save as PDF
+        </button>
+      </div>
+    </div>
+    <div class="q-grid" id="q-grid">
+      <div class="q-empty"><div class="e-icon">⏳</div><p>Loading queries from database...</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast">✅ Copied!</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────
+let allQueries = [];
+let currentDB = 'mongodb';
+let currentCategory = 'all';
+
+// ── ALL QUERY DATA ────────────────────────────────────────────────────
+const QUERIES = {
+  mongodb: [
+    {
+      id: 'mg1', category: 'Collections', title: 'Create Collection',
+      desc: 'Create a new collection (table equivalent) in MongoDB',
+      tags: ['create', 'collection', 'database'],
+      sections: [{
+        label: 'Syntax',
+        code: `// Create collection explicitly\ndb.createCollection("students")\n\n// Create with options\ndb.createCollection("orders", {\n  capped: false,\n  validator: {\n    $jsonSchema: {\n      bsonType: "object",\n      required: ["name", "email"],\n      properties: {\n        name: { bsonType: "string" },\n        email: { bsonType: "string" }\n      }\n    }\n  }\n})\n\n// Auto-create (insert into new collection)\ndb.products.insertOne({ name: "Laptop" })\n// MongoDB creates 'products' collection automatically`,
+        lang: 'javascript'
+      }],
+      note: '💡 MongoDB auto-creates collections on first insert — explicit creation is optional but useful for validation.'
+    },
+    {
+      id: 'mg2', category: 'Insert', title: 'Insert Documents',
+      desc: 'Add one or multiple documents to a collection',
+      tags: ['insert', 'create', 'add', 'insertOne', 'insertMany'],
+      sections: [
+        { label: 'insertOne', code: `// Insert single document\ndb.students.insertOne({\n  name: "Alice",\n  age: 21,\n  email: "alice@example.com",\n  marks: 92.5,\n  subjects: ["Math", "Physics"],\n  createdAt: new Date()\n})\n\n// With custom _id\ndb.students.insertOne({\n  _id: "STU001",\n  name: "Bob",\n  age: 22\n})`, lang: 'javascript' },
+        { label: 'insertMany', code: `// Insert multiple documents at once\ndb.students.insertMany([\n  { name: "Charlie", age: 20, marks: 88 },\n  { name: "Diana",  age: 21, marks: 95 },\n  { name: "Eve",    age: 19, marks: 76 }\n])\n\n// Ordered false = continue on error\ndb.students.insertMany(docs, { ordered: false })`, lang: 'javascript' }
+      ],
+      note: '💡 _id is auto-generated as ObjectId if not provided.'
+    },
+    {
+      id: 'mg3', category: 'Read', title: 'Find / Query Documents',
+      desc: 'Retrieve documents with conditions, projection, sort & limit',
+      tags: ['find', 'select', 'query', 'read', 'search', 'filter'],
+      sections: [
+        { label: 'Basic Find', code: `// Find ALL documents\ndb.students.find()\n\n// Find with condition\ndb.students.find({ age: 21 })\n\n// Multiple conditions (AND)\ndb.students.find({ age: 21, marks: { $gt: 80 } })\n\n// Specific fields only (projection)\ndb.students.find(\n  { age: { $gte: 20 } },\n  { name: 1, marks: 1, _id: 0 }  // 1=show, 0=hide\n)`, lang: 'javascript' },
+        { label: 'Operators', code: `// Comparison operators\ndb.students.find({ marks: { $gt: 90 } })   // greater than\ndb.students.find({ marks: { $gte: 90 } })  // >=\ndb.students.find({ marks: { $lt: 50 } })   // less than\ndb.students.find({ marks: { $lte: 50 } })  // <=\ndb.students.find({ marks: { $ne: 100 } })  // not equal\ndb.students.find({ age: { $in: [20,21,22] } }) // in list\ndb.students.find({ age: { $nin: [10,11] } })   // not in\n\n// OR condition\ndb.students.find({\n  $or: [ { marks: { $gt: 90 } }, { age: { $lt: 20 } } ]\n})\n\n// Pattern match (LIKE)\ndb.students.find({ name: /^Al/ })          // starts with Al\ndb.students.find({ name: /alice/i })       // case-insensitive`, lang: 'javascript' },
+        { label: 'Sort & Limit', code: `// Sort ascending (1) or descending (-1)\ndb.students.find().sort({ marks: -1 })     // highest first\ndb.students.find().sort({ name: 1 })       // alphabetical\n\n// Limit & skip (pagination)\ndb.students.find().limit(10)               // first 10\ndb.students.find().skip(10).limit(10)      // page 2\n\n// Combined\ndb.students.find({ age: { $gte: 18 } })\n  .sort({ marks: -1 })\n  .limit(5)\n  .skip(0)\n\n// findOne - returns single document\ndb.students.findOne({ name: "Alice" })`, lang: 'javascript' }
+      ],
+      note: '💡 Use .pretty() in mongo shell for formatted output: db.students.find().pretty()'
+    },
+    {
+      id: 'mg4', category: 'Update', title: 'Update Documents',
+      desc: 'Modify existing documents using update operators',
+      tags: ['update', 'modify', 'set', 'updateOne', 'updateMany'],
+      sections: [
+        { label: 'updateOne', code: `// Update single field\ndb.students.updateOne(\n  { name: "Alice" },           // filter\n  { $set: { marks: 95 } }     // update\n)\n\n// Update multiple fields\ndb.students.updateOne(\n  { _id: ObjectId("...") },\n  { \n    $set: { marks: 98, grade: "A+" },\n    $currentDate: { updatedAt: true }\n  }\n)\n\n// Increment a value\ndb.students.updateOne(\n  { name: "Alice" },\n  { $inc: { marks: 5 } }       // add 5 to marks\n)`, lang: 'javascript' },
+        { label: 'updateMany', code: `// Update ALL matching documents\ndb.students.updateMany(\n  { marks: { $lt: 50 } },\n  { $set: { status: "fail" } }\n)\n\n// Add item to array\ndb.students.updateOne(\n  { name: "Alice" },\n  { $push: { subjects: "Chemistry" } }\n)\n\n// Remove item from array\ndb.students.updateOne(\n  { name: "Alice" },\n  { $pull: { subjects: "Math" } }\n)\n\n// Rename field\ndb.students.updateMany(\n  {},\n  { $rename: { "marks": "score" } }\n)`, lang: 'javascript' },
+        { label: 'Upsert', code: `// upsert: insert if not found, update if found\ndb.students.updateOne(\n  { email: "new@example.com" },\n  { $set: { name: "New User", age: 25 } },\n  { upsert: true }             // ← key option\n)\n\n// replaceOne - replaces entire document\ndb.students.replaceOne(\n  { name: "Alice" },\n  { name: "Alice Smith", age: 21, marks: 99 }\n)`, lang: 'javascript' }
+      ],
+      note: '💡 Always test updates with find() first to confirm your filter matches correct documents.'
+    },
+    {
+      id: 'mg5', category: 'Delete', title: 'Delete Documents',
+      desc: 'Remove one or many documents from a collection',
+      tags: ['delete', 'remove', 'drop', 'deleteOne', 'deleteMany'],
+      sections: [{
+        label: 'Delete',
+        code: `// Delete single document\ndb.students.deleteOne({ name: "Alice" })\n\n// Delete by _id\ndb.students.deleteOne({ _id: ObjectId("...") })\n\n// Delete ALL matching\ndb.students.deleteMany({ marks: { $lt: 33 } })\n\n// Delete ALL documents (keep collection)\ndb.students.deleteMany({})\n\n// Drop entire collection\ndb.students.drop()\n\n// Drop entire database\ndb.dropDatabase()`,
+        lang: 'javascript'
+      }],
+      note: '⚠️ deleteMany({}) deletes ALL documents. Always double-check your filter!'
+    },
+    {
+      id: 'mg6', category: 'Aggregation', title: 'Aggregation Pipeline',
+      desc: 'Group, count, sum, avg and transform data',
+      tags: ['aggregate', 'group', 'count', 'sum', 'avg', 'pipeline'],
+      sections: [
+        { label: 'Group & Count', code: `// Count students per age group\ndb.students.aggregate([\n  { $group: {\n      _id: "$age",           // group by age\n      count: { $sum: 1 },    // count\n      avgMarks: { $avg: "$marks" },\n      totalMarks: { $sum: "$marks" },\n      maxMarks: { $max: "$marks" },\n      minMarks: { $min: "$marks" }\n  }},\n  { $sort: { count: -1 } }\n])`, lang: 'javascript' },
+        { label: 'Match & Project', code: `// Filter → Transform → Sort\ndb.students.aggregate([\n  { $match: { marks: { $gte: 60 } } },   // WHERE\n  { $project: {\n      name: 1,\n      marks: 1,\n      grade: {\n        $cond: [\n          { $gte: ["$marks", 90] }, "A",\n          { $cond: [\n            { $gte: ["$marks", 75] }, "B", "C"\n          ]}\n        ]\n      }\n  }},\n  { $sort: { marks: -1 } },\n  { $limit: 10 }\n])`, lang: 'javascript' },
+        { label: 'Lookup (JOIN)', code: `// $lookup = LEFT JOIN equivalent\ndb.orders.aggregate([\n  {\n    $lookup: {\n      from: "users",           // join with users collection\n      localField: "user_id",   // orders.user_id\n      foreignField: "_id",     // users._id\n      as: "user_info"          // result field name\n    }\n  },\n  { $unwind: "$user_info" },   // flatten array\n  { $project: {\n      order_id: 1,\n      amount: 1,\n      "user_info.name": 1,\n      "user_info.email": 1\n  }}\n])`, lang: 'javascript' }
+      ],
+      note: '💡 Aggregation pipeline stages run in order: $match early to filter before $group for better performance.'
+    },
+    {
+      id: 'mg7', category: 'Indexes', title: 'Indexes',
+      desc: 'Speed up queries with single, compound and text indexes',
+      tags: ['index', 'performance', 'text', 'compound', 'unique'],
+      sections: [{
+        label: 'Index Types',
+        code: `// Single field index\ndb.students.createIndex({ email: 1 })       // ascending\ndb.students.createIndex({ marks: -1 })      // descending\n\n// Unique index (no duplicates)\ndb.students.createIndex({ email: 1 }, { unique: true })\n\n// Compound index (multiple fields)\ndb.students.createIndex({ age: 1, marks: -1 })\n\n// Text index (full-text search)\ndb.students.createIndex({ name: "text", bio: "text" })\n// Then search:\ndb.students.find({ $text: { $search: "Alice developer" } })\n\n// TTL index (auto-delete after time)\ndb.sessions.createIndex(\n  { createdAt: 1 },\n  { expireAfterSeconds: 3600 }  // delete after 1 hour\n)\n\n// List all indexes\ndb.students.getIndexes()\n\n// Drop index\ndb.students.dropIndex({ email: 1 })`,
+        lang: 'javascript'
+      }],
+      note: '💡 Too many indexes slow down writes. Only index fields you actively query/sort on.'
+    },
+    {
+      id: 'mg8', category: 'Utility', title: 'Useful Utility Commands',
+      desc: 'Count, distinct, stats and database management',
+      tags: ['count', 'distinct', 'stats', 'utility', 'show'],
+      sections: [{
+        label: 'Utilities',
+        code: `// Count documents\ndb.students.countDocuments()\ndb.students.countDocuments({ marks: { $gt: 80 } })\n\n// Distinct values\ndb.students.distinct("age")         // [19, 20, 21, 22]\ndb.students.distinct("city", { marks: { $gt: 80 } })\n\n// Collection stats\ndb.students.stats()\n\n// Show all databases\nshow dbs\n\n// Show all collections\nshow collections\n\n// Switch database\nuse QueryNest\n\n// Explain query (see if index is used)\ndb.students.find({ age: 21 }).explain("executionStats")`,
+        lang: 'javascript'
+      }],
+      note: '💡 Use .explain() to check if your queries are using indexes efficiently.'
+    }
+  ],
+
+  mysql: [
+    {
+      id: 'my1', category: 'DDL', title: 'CREATE TABLE',
+      desc: 'Create tables with data types, constraints and keys',
+      tags: ['create', 'table', 'ddl', 'schema', 'primary key'],
+      sections: [
+        { label: 'Basic', code: `-- Create a students table\nCREATE TABLE students (\n  id         INT AUTO_INCREMENT PRIMARY KEY,\n  name       VARCHAR(100)  NOT NULL,\n  email      VARCHAR(150)  UNIQUE NOT NULL,\n  age        INT           CHECK (age >= 0 AND age <= 150),\n  marks      DECIMAL(5,2)  DEFAULT 0.00,\n  status     ENUM('active','inactive','suspended') DEFAULT 'active',\n  bio        TEXT,\n  created_at TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,\n  updated_at TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP\n);\n\n-- Show table structure\nDESCRIBE students;\nSHOW CREATE TABLE students;`, lang: 'sql' },
+        { label: 'Foreign Keys', code: `-- Parent table\nCREATE TABLE departments (\n  id   INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100) NOT NULL\n);\n\n-- Child table with FOREIGN KEY\nCREATE TABLE employees (\n  id        INT AUTO_INCREMENT PRIMARY KEY,\n  name      VARCHAR(100) NOT NULL,\n  salary    DECIMAL(10,2),\n  dept_id   INT,\n  FOREIGN KEY (dept_id)\n    REFERENCES departments(id)\n    ON DELETE SET NULL\n    ON UPDATE CASCADE\n);\n\n-- Alter table: add column\nALTER TABLE students ADD COLUMN phone VARCHAR(15);\n\n-- Drop column\nALTER TABLE students DROP COLUMN phone;\n\n-- Drop table\nDROP TABLE IF EXISTS students;`, lang: 'sql' }
+      ],
+      note: '💡 Always use IF NOT EXISTS / IF EXISTS to avoid errors in scripts.'
+    },
+    {
+      id: 'my2', category: 'DML', title: 'INSERT Data',
+      desc: 'Add rows to tables — single, bulk and from select',
+      tags: ['insert', 'add', 'dml', 'rows'],
+      sections: [{
+        label: 'INSERT',
+        code: `-- Insert single row\nINSERT INTO students (name, email, age, marks)\nVALUES ('Alice', 'alice@example.com', 21, 92.5);\n\n-- Insert multiple rows\nINSERT INTO students (name, email, age, marks) VALUES\n  ('Bob',     'bob@example.com',   22, 85.0),\n  ('Charlie', 'charlie@test.com',  20, 78.5),\n  ('Diana',   'diana@example.com', 21, 95.0);\n\n-- Insert from SELECT (copy rows)\nINSERT INTO archive_students\nSELECT * FROM students WHERE marks < 33;\n\n-- Insert or update if duplicate key\nINSERT INTO students (email, name, marks)\nVALUES ('alice@example.com', 'Alice', 95)\nON DUPLICATE KEY UPDATE marks = 95;`,
+        lang: 'sql'
+      }],
+      note: '💡 ON DUPLICATE KEY UPDATE is MySQL-specific and very useful for upsert operations.'
+    },
+    {
+      id: 'my3', category: 'DML', title: 'SELECT Queries',
+      desc: 'Fetch data with WHERE, ORDER BY, LIMIT, GROUP BY',
+      tags: ['select', 'read', 'query', 'where', 'order', 'limit'],
+      sections: [
+        { label: 'Basic SELECT', code: `-- Select all columns\nSELECT * FROM students;\n\n-- Select specific columns\nSELECT name, email, marks FROM students;\n\n-- With condition\nSELECT name, marks FROM students\nWHERE marks > 80;\n\n-- Multiple conditions\nSELECT * FROM students\nWHERE age >= 20 AND marks > 75 AND status = 'active';\n\n-- OR condition\nSELECT * FROM students\nWHERE marks > 90 OR age < 19;\n\n-- IN list\nSELECT * FROM students WHERE age IN (20, 21, 22);\n\n-- LIKE pattern\nSELECT * FROM students WHERE name LIKE 'Al%';   -- starts with Al\nSELECT * FROM students WHERE email LIKE '%@gmail.com';\n\n-- BETWEEN range\nSELECT * FROM students WHERE marks BETWEEN 70 AND 90;`, lang: 'sql' },
+        { label: 'Sort & Limit', code: `-- ORDER BY single column\nSELECT * FROM students ORDER BY marks DESC;\nSELECT * FROM students ORDER BY name ASC;\n\n-- ORDER BY multiple columns\nSELECT * FROM students ORDER BY age ASC, marks DESC;\n\n-- LIMIT (pagination)\nSELECT * FROM students LIMIT 10;           -- first 10\nSELECT * FROM students LIMIT 10 OFFSET 20; -- page 3 (rows 21-30)\n\n-- DISTINCT values\nSELECT DISTINCT age FROM students;\n\n-- NULL handling\nSELECT * FROM students WHERE bio IS NULL;\nSELECT * FROM students WHERE bio IS NOT NULL;\nSELECT name, IFNULL(bio, 'No bio') AS bio FROM students;`, lang: 'sql' },
+        { label: 'GROUP BY', code: `-- Count per group\nSELECT age, COUNT(*) AS student_count\nFROM students\nGROUP BY age\nORDER BY age;\n\n-- Aggregate functions\nSELECT\n  status,\n  COUNT(*)        AS total,\n  AVG(marks)      AS avg_marks,\n  MAX(marks)      AS highest,\n  MIN(marks)      AS lowest,\n  SUM(marks)      AS total_marks\nFROM students\nGROUP BY status;\n\n-- HAVING (filter after group)\nSELECT age, AVG(marks) AS avg_marks\nFROM students\nGROUP BY age\nHAVING AVG(marks) > 80\nORDER BY avg_marks DESC;`, lang: 'sql' }
+      ],
+      note: '💡 HAVING filters AFTER grouping; WHERE filters BEFORE grouping.'
+    },
+    {
+      id: 'my4', category: 'DML', title: 'UPDATE & DELETE',
+      desc: 'Modify and remove rows safely',
+      tags: ['update', 'delete', 'modify', 'remove', 'dml'],
+      sections: [{
+        label: 'UPDATE & DELETE',
+        code: `-- Update single field\nUPDATE students SET marks = 95 WHERE name = 'Alice';\n\n-- Update multiple fields\nUPDATE students\nSET marks = 98, status = 'active', updated_at = NOW()\nWHERE id = 1;\n\n-- Update with calculation\nUPDATE students SET marks = marks + 5 WHERE marks < 50;\n\n-- Update all rows\nUPDATE students SET status = 'active';  -- ⚠️ affects all!\n\n-- ─────────────────────────────\n-- DELETE single row\nDELETE FROM students WHERE id = 1;\n\n-- DELETE with condition\nDELETE FROM students WHERE marks < 33;\n\n-- DELETE all rows (keep table structure)\nDELETE FROM students;\n\n-- TRUNCATE (faster, resets AUTO_INCREMENT)\nTRUNCATE TABLE students;`,
+        lang: 'sql'
+      }],
+      note: '⚠️ Always use WHERE in UPDATE/DELETE. Run SELECT with same WHERE first to preview affected rows.'
+    },
+    {
+      id: 'my5', category: 'Joins', title: 'JOINs',
+      desc: 'Combine data from multiple tables',
+      tags: ['join', 'inner join', 'left join', 'right join', 'cross join'],
+      sections: [{
+        label: 'All JOIN Types',
+        code: `-- Sample tables: students, courses, enrollments\n\n-- INNER JOIN: only matching rows in both tables\nSELECT s.name, c.course_name\nFROM students s\nINNER JOIN enrollments e ON s.id = e.student_id\nINNER JOIN courses c     ON e.course_id = c.id;\n\n-- LEFT JOIN: all students, even unenrolled\nSELECT s.name, c.course_name\nFROM students s\nLEFT JOIN enrollments e ON s.id = e.student_id\nLEFT JOIN courses c     ON e.course_id = c.id;\n\n-- RIGHT JOIN: all courses, even empty ones\nSELECT s.name, c.course_name\nFROM students s\nRIGHT JOIN enrollments e ON s.id = e.student_id;\n\n-- Self JOIN: employee and their manager\nSELECT\n  e.name AS employee,\n  m.name AS manager\nFROM employees e\nLEFT JOIN employees m ON e.manager_id = m.id;\n\n-- Multiple JOINs with aggregation\nSELECT\n  s.name,\n  COUNT(e.course_id) AS courses_enrolled\nFROM students s\nLEFT JOIN enrollments e ON s.id = e.student_id\nGROUP BY s.id, s.name\nORDER BY courses_enrolled DESC;`,
+        lang: 'sql'
+      }],
+      note: '💡 INNER JOIN = intersection. LEFT JOIN = all left + matching right (NULLs where no match).'
+    },
+    {
+      id: 'my6', category: 'Indexes', title: 'MySQL Indexes',
+      desc: 'Create indexes to speed up queries',
+      tags: ['index', 'performance', 'unique', 'fulltext', 'explain'],
+      sections: [{
+        label: 'Indexes',
+        code: `-- Create index\nCREATE INDEX idx_age ON students(age);\nCREATE INDEX idx_age_marks ON students(age, marks);\n\n-- Unique index\nCREATE UNIQUE INDEX idx_email ON students(email);\n\n-- Full-text index (for LIKE searches)\nCREATE FULLTEXT INDEX idx_name_bio ON students(name, bio);\n-- Then use:\nSELECT * FROM students\nWHERE MATCH(name, bio) AGAINST('developer' IN BOOLEAN MODE);\n\n-- Show indexes on table\nSHOW INDEX FROM students;\n\n-- Drop index\nDROP INDEX idx_age ON students;\n\n-- EXPLAIN: check if index is used\nEXPLAIN SELECT * FROM students WHERE email = 'alice@example.com';`,
+        lang: 'sql'
+      }],
+      note: '💡 Check EXPLAIN output — "type: ref" or "type: const" means index is being used (good). "type: ALL" = full table scan (bad).'
+    },
+    {
+      id: 'my7', category: 'Utility', title: 'MySQL Utility Commands',
+      desc: 'Database management, show tables, users and more',
+      tags: ['show', 'describe', 'database', 'utility', 'users'],
+      sections: [{
+        label: 'Utilities',
+        code: `-- Show all databases\nSHOW DATABASES;\n\n-- Create & use database\nCREATE DATABASE IF NOT EXISTS querynest;\nUSE querynest;\n\n-- Show tables in current database\nSHOW TABLES;\n\n-- Describe table structure\nDESCRIBE students;\nSHOW COLUMNS FROM students;\n\n-- Show running queries\nSHOW PROCESSLIST;\n\n-- Get current user and database\nSELECT USER(), DATABASE();\n\n-- Table row count and size\nSELECT\n  TABLE_NAME,\n  TABLE_ROWS,\n  ROUND((DATA_LENGTH + INDEX_LENGTH) / 1024, 2) AS size_kb\nFROM information_schema.TABLES\nWHERE TABLE_SCHEMA = DATABASE();`,
+        lang: 'sql'
+      }],
+      note: '💡 information_schema is a virtual database with metadata about all your tables, columns, and more.'
+    }
+  ],
+
+  sql: [
+    {
+      id: 'sq1', category: 'DDL', title: 'CREATE TABLE (Standard SQL)',
+      desc: 'Create tables using ANSI SQL syntax (works in PostgreSQL, SQLite, Oracle)',
+      tags: ['create', 'table', 'ddl', 'ansi', 'schema'],
+      sections: [{
+        label: 'CREATE TABLE',
+        code: `-- Standard SQL CREATE TABLE\nCREATE TABLE employees (\n  id         INTEGER      PRIMARY KEY,  -- or SERIAL in PostgreSQL\n  first_name VARCHAR(50)  NOT NULL,\n  last_name  VARCHAR(50)  NOT NULL,\n  email      VARCHAR(100) UNIQUE,\n  salary     NUMERIC(10,2),\n  dept_id    INTEGER      REFERENCES departments(id),\n  hire_date  DATE         DEFAULT CURRENT_DATE,\n  is_active  BOOLEAN      DEFAULT TRUE\n);\n\n-- ALTER TABLE\nALTER TABLE employees ADD COLUMN phone VARCHAR(20);\nALTER TABLE employees ALTER COLUMN salary SET DEFAULT 30000;\nALTER TABLE employees DROP COLUMN phone;\nALTER TABLE employees RENAME COLUMN email TO work_email;\n\n-- DROP\nDROP TABLE IF EXISTS employees CASCADE;`,
+        lang: 'sql'
+      }],
+      note: '💡 Standard SQL uses INTEGER and NUMERIC. MySQL uses INT and DECIMAL. Both are compatible in most cases.'
+    },
+    {
+      id: 'sq2', category: 'DML', title: 'INSERT, UPDATE, DELETE',
+      desc: 'Standard SQL data manipulation',
+      tags: ['insert', 'update', 'delete', 'dml', 'upsert'],
+      sections: [
+        { label: 'INSERT', code: `-- Standard INSERT\nINSERT INTO employees (first_name, last_name, email, salary)\nVALUES ('Alice', 'Smith', 'alice@co.com', 75000);\n\n-- Multi-row\nINSERT INTO employees (first_name, last_name, salary) VALUES\n  ('Bob',   'Jones',  60000),\n  ('Carol', 'White',  80000);\n\n-- INSERT FROM SELECT\nINSERT INTO salary_archive (emp_id, salary, archived_on)\nSELECT id, salary, CURRENT_DATE FROM employees WHERE salary > 100000;\n\n-- UPSERT (PostgreSQL)\nINSERT INTO employees (id, first_name, salary)\nVALUES (1, 'Alice', 80000)\nON CONFLICT (id) DO UPDATE SET salary = EXCLUDED.salary;`, lang: 'sql' },
+        { label: 'UPDATE & DELETE', code: `-- UPDATE\nUPDATE employees\nSET salary = salary * 1.10\nWHERE dept_id = 3;\n\n-- UPDATE with JOIN (SQL Server / PostgreSQL)\nUPDATE employees\nSET salary = d.budget * 0.05\nFROM departments d\nWHERE employees.dept_id = d.id;\n\n-- Conditional UPDATE\nUPDATE employees\nSET grade = CASE\n  WHEN salary > 100000 THEN 'A'\n  WHEN salary > 60000  THEN 'B'\n  ELSE 'C'\nEND;\n\n-- DELETE\nDELETE FROM employees WHERE is_active = FALSE;\n\n-- DELETE with subquery\nDELETE FROM employees\nWHERE id IN (\n  SELECT emp_id FROM performance WHERE rating < 2\n);`, lang: 'sql' }
+      ],
+      note: '💡 UPSERT syntax differs: MySQL uses ON DUPLICATE KEY, PostgreSQL uses ON CONFLICT, SQL Server uses MERGE.'
+    },
+    {
+      id: 'sq3', category: 'Queries', title: 'Advanced SELECT',
+      desc: 'Subqueries, CTEs, CASE, window functions',
+      tags: ['select', 'subquery', 'cte', 'with', 'case', 'window'],
+      sections: [
+        { label: 'Subqueries', code: `-- Subquery in WHERE\nSELECT name FROM employees\nWHERE salary > (SELECT AVG(salary) FROM employees);\n\n-- Subquery in SELECT\nSELECT\n  name,\n  salary,\n  (SELECT AVG(salary) FROM employees) AS company_avg,\n  salary - (SELECT AVG(salary) FROM employees) AS diff_from_avg\nFROM employees;\n\n-- IN with subquery\nSELECT * FROM employees\nWHERE dept_id IN (SELECT id FROM departments WHERE name = 'Engineering');\n\n-- EXISTS\nSELECT * FROM employees e\nWHERE EXISTS (\n  SELECT 1 FROM orders o WHERE o.emp_id = e.id\n);`, lang: 'sql' },
+        { label: 'CTEs (WITH)', code: `-- CTE (Common Table Expression)\nWITH high_earners AS (\n  SELECT * FROM employees WHERE salary > 80000\n),\ndept_summary AS (\n  SELECT dept_id, COUNT(*) AS cnt, AVG(salary) AS avg_sal\n  FROM employees\n  GROUP BY dept_id\n)\nSELECT\n  h.name,\n  h.salary,\n  d.avg_sal AS dept_avg\nFROM high_earners h\nJOIN dept_summary d ON h.dept_id = d.dept_id;\n\n-- Recursive CTE (hierarchy / org chart)\nWITH RECURSIVE org AS (\n  SELECT id, name, manager_id, 0 AS level\n  FROM employees WHERE manager_id IS NULL  -- top\n  UNION ALL\n  SELECT e.id, e.name, e.manager_id, o.level + 1\n  FROM employees e\n  JOIN org o ON e.manager_id = o.id\n)\nSELECT * FROM org ORDER BY level;`, lang: 'sql' },
+        { label: 'Window Functions', code: `-- ROW_NUMBER, RANK, DENSE_RANK\nSELECT\n  name,\n  salary,\n  dept_id,\n  ROW_NUMBER() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS row_num,\n  RANK()       OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rank,\n  DENSE_RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS dense_rank\nFROM employees;\n\n-- Running total & moving average\nSELECT\n  name, salary, hire_date,\n  SUM(salary)  OVER (ORDER BY hire_date) AS running_total,\n  AVG(salary)  OVER (ORDER BY hire_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS moving_avg\nFROM employees;\n\n-- LAG / LEAD (previous/next row value)\nSELECT\n  name, salary,\n  LAG(salary)  OVER (ORDER BY hire_date) AS prev_salary,\n  LEAD(salary) OVER (ORDER BY hire_date) AS next_salary\nFROM employees;`, lang: 'sql' }
+      ],
+      note: '💡 CTEs make complex queries readable. Window functions work WITHOUT collapsing rows (unlike GROUP BY).'
+    },
+    {
+      id: 'sq4', category: 'Joins', title: 'SQL JOINs & Set Operations',
+      desc: 'All join types plus UNION, INTERSECT, EXCEPT',
+      tags: ['join', 'union', 'intersect', 'except', 'cross join'],
+      sections: [{
+        label: 'JOINs & Sets',
+        code: `-- CROSS JOIN: every combination\nSELECT s.size, c.color FROM sizes s CROSS JOIN colors c;\n\n-- FULL OUTER JOIN: all rows from both tables\nSELECT e.name, d.name\nFROM employees e\nFULL OUTER JOIN departments d ON e.dept_id = d.id;\n\n-- NATURAL JOIN: join on same-named columns (use carefully)\nSELECT * FROM employees NATURAL JOIN departments;\n\n-- UNION: combine results (removes duplicates)\nSELECT name FROM employees\nUNION\nSELECT name FROM contractors;\n\n-- UNION ALL: keep duplicates (faster)\nSELECT name FROM employees\nUNION ALL\nSELECT name FROM contractors;\n\n-- INTERSECT: rows in BOTH results\nSELECT email FROM employees\nINTERSECT\nSELECT email FROM customers;\n\n-- EXCEPT / MINUS: in first but NOT in second\nSELECT email FROM employees\nEXCEPT\nSELECT email FROM unsubscribed;`,
+        lang: 'sql'
+      }],
+      note: '💡 MySQL does not support INTERSECT/EXCEPT natively — use subqueries instead. PostgreSQL supports all.'
+    },
+    {
+      id: 'sq5', category: 'Indexes', title: 'Indexes & Views',
+      desc: 'Create indexes and virtual views',
+      tags: ['index', 'view', 'materialized', 'performance'],
+      sections: [
+        { label: 'Indexes', code: `-- Basic index\nCREATE INDEX idx_emp_email ON employees(email);\n\n-- Unique index\nCREATE UNIQUE INDEX idx_emp_email_unique ON employees(email);\n\n-- Composite index\nCREATE INDEX idx_dept_salary ON employees(dept_id, salary DESC);\n\n-- Partial index (PostgreSQL)\nCREATE INDEX idx_active_emp ON employees(name)\nWHERE is_active = TRUE;\n\n-- Drop index\nDROP INDEX idx_emp_email;`, lang: 'sql' },
+        { label: 'Views', code: `-- Create VIEW (virtual table)\nCREATE VIEW active_employees AS\nSELECT e.id, e.first_name, e.last_name, e.salary, d.name AS department\nFROM employees e\nJOIN departments d ON e.dept_id = d.id\nWHERE e.is_active = TRUE;\n\n-- Query view like a table\nSELECT * FROM active_employees WHERE salary > 70000;\n\n-- Update view definition\nCREATE OR REPLACE VIEW active_employees AS\nSELECT * FROM employees WHERE is_active = TRUE;\n\n-- Drop view\nDROP VIEW IF EXISTS active_employees;\n\n-- Materialized view (PostgreSQL)\nCREATE MATERIALIZED VIEW dept_summary AS\nSELECT dept_id, COUNT(*) AS emp_count, AVG(salary) AS avg_salary\nFROM employees GROUP BY dept_id;\n\n-- Refresh materialized view\nREFRESH MATERIALIZED VIEW dept_summary;`, lang: 'sql' }
+      ],
+      note: '💡 Views simplify complex queries and add a security layer (expose only needed columns).'
+    },
+    {
+      id: 'sq6', category: 'Transactions', title: 'Transactions & Constraints',
+      desc: 'ACID transactions, rollback and constraint management',
+      tags: ['transaction', 'commit', 'rollback', 'acid', 'savepoint'],
+      sections: [{
+        label: 'Transactions',
+        code: `-- Basic transaction\nBEGIN;  -- or START TRANSACTION in MySQL\n  UPDATE accounts SET balance = balance - 500 WHERE id = 1;\n  UPDATE accounts SET balance = balance + 500 WHERE id = 2;\nCOMMIT;  -- save changes\n\n-- Rollback on error\nBEGIN;\n  UPDATE accounts SET balance = balance - 500 WHERE id = 1;\n  -- Something went wrong:\nROLLBACK;  -- undo all changes\n\n-- Savepoint (partial rollback)\nBEGIN;\n  INSERT INTO orders VALUES (...);\n  SAVEPOINT after_order;\n\n  INSERT INTO order_items VALUES (...);  -- fails\n  ROLLBACK TO after_order;              -- undo only items\n\n  COMMIT;  -- order still saved\n\n-- Check constraints\nALTER TABLE employees\n  ADD CONSTRAINT chk_salary CHECK (salary > 0),\n  ADD CONSTRAINT chk_email  CHECK (email LIKE '%@%');`,
+        lang: 'sql'
+      }],
+      note: '💡 Transactions ensure ACID: Atomicity (all or nothing), Consistency, Isolation, Durability.'
+    }
+  ]
+};
+
+// ── CATEGORY CONFIG ────────────────────────────────────────────────────
+const CATEGORIES = {
+  mongodb: ['Collections','Insert','Read','Update','Delete','Aggregation','Indexes','Utility'],
+  mysql:   ['DDL','DML','Joins','Indexes','Utility'],
+  sql:     ['DDL','DML','Queries','Joins','Indexes','Transactions']
+};
+
+// ── INIT ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadFromDB();
+  renderSidebar();
+  renderCards('all');
+  updateStats();
+});
+
+// ── LOAD FROM DB (via API) ─────────────────────────────────────────────
+async function loadFromDB() {
+  try {
+    const res = await fetch('/api/queries/list');
+    const data = await res.json();
+    if (data.success && data.queries.length > 0) {
+      // Merge DB queries into QUERIES object (add if not exists)
+      data.queries.forEach(q => {
+        const db = q.db_type;
+        if (!QUERIES[db]) QUERIES[db] = [];
+        const exists = QUERIES[db].find(x => x.id === q.id || x.title === q.title);
+        if (!exists) QUERIES[db].push(q);
+      });
+      updateStats();
+      renderCards(currentCategory);
+    }
+  } catch(e) {
+    // offline - use built-in data silently
+  }
+}
+
+// ── SEED DB ────────────────────────────────────────────────────────────
+async function seedDB() {
+  const btn = document.getElementById('seedBtn');
+  btn.textContent = '⏳ Seeding...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/queries/seed', { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`✅ ${data.inserted} queries saved to database!`);
+    } else {
+      showToast('⚠️ ' + (data.message || 'Seed failed'));
+    }
+  } catch(e) {
+    showToast('⚠️ Could not connect to server');
+  }
+  btn.textContent = '⚡ Seed Database';
+  btn.disabled = false;
+}
+
+// ── SWITCH DB TAB ──────────────────────────────────────────────────────
+function switchDB(db, el) {
+  currentDB = db;
+  currentCategory = 'all';
+  document.querySelectorAll('.db-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  renderSidebar();
+  renderCards('all');
+}
+
+// ── SIDEBAR ────────────────────────────────────────────────────────────
+function renderSidebar() {
+  const cats = CATEGORIES[currentDB] || [];
+  const container = document.getElementById('sidebar-items');
+  const queries = QUERIES[currentDB] || [];
+
+  let html = `<div class="sidebar-item ${currentCategory==='all'?'active':''}" onclick="filterByCategory('all')">
+    <span class="s-icon">📋</span> All Queries
+    <span class="s-count">${queries.length}</span>
+  </div>
+  <div class="sidebar-divider"></div>`;
+
+  cats.forEach(cat => {
+    const count = queries.filter(q => q.category === cat).length;
+    const icons = {Collections:'🗂',Insert:'➕',Read:'🔍',Update:'✏️',Delete:'🗑',Aggregation:'📊',Indexes:'⚡',Utility:'🛠',DDL:'🏗',DML:'📝',Joins:'🔗',Queries:'🔎',Transactions:'🔐',Views:'👁'};
+    html += `<div class="sidebar-item ${currentCategory===cat?'active':''}" onclick="filterByCategory('${cat}')">
+      <span class="s-icon">${icons[cat]||'📌'}</span> ${cat}
+      <span class="s-count">${count}</span>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ── FILTER BY CATEGORY ─────────────────────────────────────────────────
+function filterByCategory(cat) {
+  currentCategory = cat;
+  document.getElementById('searchInput').value = '';
+  renderSidebar();
+  renderCards(cat);
+  document.querySelector('.q-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── FILTER BY SEARCH ───────────────────────────────────────────────────
+function filterCards() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  if (!q) { renderCards(currentCategory); return; }
+  const queries = QUERIES[currentDB] || [];
+  const filtered = queries.filter(item =>
+    item.title.toLowerCase().includes(q) ||
+    item.desc.toLowerCase().includes(q) ||
+    (item.tags||[]).some(t => t.toLowerCase().includes(q)) ||
+    item.category.toLowerCase().includes(q)
+  );
+  renderGrid(filtered, `Search: "${document.getElementById('searchInput').value}"`);
+}
+
+// ── RENDER CARDS ──────────────────────────────────────────────────────
+function renderCards(cat) {
+  const queries = QUERIES[currentDB] || [];
+  const filtered = cat === 'all' ? queries : queries.filter(q => q.category === cat);
+  const title = cat === 'all' ? 'All Queries' : cat;
+  renderGrid(filtered, title);
+}
+
+function renderGrid(items, title) {
+  _lastItems = items;
+  document.getElementById('section-title').textContent = title;
+  document.getElementById('result-count').textContent = `${items.length} result${items.length!==1?'s':''}`;
+  const pdfBtn = document.getElementById('savePdfBtn');
+  if (pdfBtn) pdfBtn.style.display = items.length ? 'flex' : 'none';
+
+  if (!items.length) {
+    document.getElementById('q-grid').innerHTML = `<div class="q-empty"><div class="e-icon">🔍</div><p>No queries found. Try a different search.</p></div>`;
+    return;
+  }
+
+  const tagClass = { mongodb: 'tag-mongo', mysql: 'tag-mysql', sql: 'tag-sql' };
+  const tc = tagClass[currentDB] || 'tag-general';
+
+  document.getElementById('q-grid').innerHTML = items.map(item => {
+    const sections = item.sections || [];
+    const firstCode = sections[0]?.code || '';
+    const codeTabs = sections.length > 1
+      ? `<div class="code-tabs">${sections.map((s,i)=>`<div class="code-tab${i===0?' active':''}" onclick="switchCodeTab(this,'${item.id}',${i})">${s.label}</div>`).join('')}</div>`
+      : '';
+    const codeSections = sections.map((s,i) => `
+      <div class="code-section${i===0?' active':''}" id="${item.id}-sec-${i}">
+        <div class="code-wrap">
+          <div class="code-header">
+            <span class="code-lang-badge">${s.lang||currentDB}</span>
+            <button class="copy-btn" onclick="copyCode(this, \`${escapeBacktick(s.code)}\`)">📋 Copy</button>
+          </div>
+          <pre>${escHtml(s.code)}</pre>
+        </div>
+        ${item.note && i===sections.length-1 ? `<div class="note-box">${item.note}</div>` : ''}
+      </div>`).join('');
+
+    const tags = (item.tags||[]).slice(0,3).map(t=>`<span class="q-tag ${tc}">${t}</span>`).join('');
+
+    return `<div class="q-card" id="card-${item.id}">
+      <div class="q-card-head" onclick="toggleCard('${item.id}')">
+        <div class="q-card-info">
+          <div class="q-card-title">${item.title}</div>
+          <div class="q-card-desc">${item.desc}</div>
+          <div class="q-card-meta">${tags}</div>
+        </div>
+        <div class="q-card-toggle">▼</div>
+      </div>
+      <div class="q-card-body">
+        ${codeTabs}
+        ${codeSections}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── TOGGLE CARD ───────────────────────────────────────────────────────
+function toggleCard(id) {
+  const card = document.getElementById('card-' + id);
+  card.classList.toggle('open');
+}
+
+// ── SWITCH CODE TAB ────────────────────────────────────────────────────
+function switchCodeTab(el, cardId, idx) {
+  const card = document.getElementById('card-' + cardId);
+  card.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+  card.querySelectorAll('.code-section').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  const sec = document.getElementById(`${cardId}-sec-${idx}`);
+  if (sec) sec.classList.add('active');
+}
+
+// ── COPY CODE ─────────────────────────────────────────────────────────
+function copyCode(btn, code) {
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('copied');
+    showToast('✅ Code copied!');
+    setTimeout(() => { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── UPDATE STATS ──────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('mongo-count').textContent = (QUERIES.mongodb||[]).length;
+  document.getElementById('mysql-count').textContent = (QUERIES.mysql||[]).length;
+  document.getElementById('sql-count').textContent   = (QUERIES.sql||[]).length;
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escapeBacktick(str) {
+  return String(str).replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\${/g,'\\${');
+}
+
+// ── PDF SAVE (direct download, no print dialog) ───────────────────────
+let _lastItems = [];
+
+function saveResultsAsPDF() {
+  if (!_lastItems.length) { showToast('Pehle kuch search karo!', 'warn'); return; }
+
+  const pdfBtn = document.getElementById('savePdfBtn');
+  const origText = pdfBtn.innerHTML;
+  pdfBtn.innerHTML = '⏳ Generating...';
+  pdfBtn.disabled = true;
+
+  const title   = document.getElementById('section-title').textContent || 'QueryNest Results';
+  const db      = (window.currentDB || 'queries').toUpperCase();
+  const dateStr = new Date().toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
+  const timeStr = new Date().toLocaleString('en-IN');
+
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  const itemsHtml = _lastItems.map((item, idx) => {
+    const sections  = item.sections || [];
+    const tagsHtml  = (item.tags||[]).slice(0,5).map(t => `<span class="tag">${esc(t)}</span>`).join('');
+    const codesHtml = sections.map((s, i) => `
+      ${sections.length > 1 ? `<div class="sec-label">${esc(s.label || 'Section '+(i+1))}</div>` : ''}
+      <pre class="code-block">${esc(s.code||'')}</pre>
+      ${item.note && i===sections.length-1 ? `<div class="note-box">💡 ${esc(item.note)}</div>` : ''}
+      ${i < sections.length-1 ? '<hr class="sec-sep">' : ''}
+    `).join('');
+
+    return `
+    <div class="card">
+      <div class="card-num">${idx+1}</div>
+      <div class="card-body">
+        <div class="card-title">${esc(item.title||'Untitled')}</div>
+        <div class="card-desc">${esc(item.desc||'')}</div>
+        ${tagsHtml ? `<div class="tags">${tagsHtml}</div>` : ''}
+        ${codesHtml}
+      </div>
+    </div>`;
+  }).join('');
+
+  const fullHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>QueryNest — ${esc(title)}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',Arial,sans-serif;background:#f8f5ff;color:#1a0a2e;font-size:13px;line-height:1.6;}
+
+  /* header */
+  .hdr{background:linear-gradient(135deg,#6d28d9,#9333ea,#c026d3);padding:28px 40px;color:#fff;display:flex;justify-content:space-between;align-items:center;}
+  .hdr-logo{font-size:24px;font-weight:800;letter-spacing:-.03em;}
+  .hdr-logo span{opacity:.7;font-weight:400;font-size:14px;display:block;margin-top:3px;}
+  .hdr-right{text-align:right;font-size:12px;opacity:.85;}
+  .hdr-right strong{display:block;font-size:18px;font-weight:800;}
+
+  /* title section */
+  .title-bar{background:#fff;border-bottom:3px solid #7c3aed;padding:20px 40px;display:flex;justify-content:space-between;align-items:center;}
+  .title-bar h1{font-size:18px;font-weight:800;color:#3b0764;}
+  .title-bar .cnt{background:#ede9fe;color:#6d28d9;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:700;}
+
+  /* content */
+  .content{padding:28px 40px;}
+
+  /* card */
+  .card{background:#fff;border:1px solid #e9d5ff;border-radius:10px;margin-bottom:18px;overflow:hidden;display:flex;page-break-inside:avoid;}
+  .card-num{background:linear-gradient(180deg,#7c3aed,#9333ea);color:#fff;font-size:14px;font-weight:800;width:36px;min-width:36px;display:flex;align-items:flex-start;justify-content:center;padding:16px 0;font-family:'Inter',sans-serif;}
+  .card-body{flex:1;padding:16px 18px;}
+  .card-title{font-size:14px;font-weight:800;color:#5b21b6;margin-bottom:5px;}
+  .card-desc{font-size:12px;color:#6b7280;margin-bottom:10px;line-height:1.55;}
+
+  /* tags */
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+  .tag{background:#f3f0ff;color:#7c3aed;border:1px solid #ddd6fe;padding:2px 9px;border-radius:99px;font-size:10.5px;font-weight:600;}
+
+  /* code */
+  .sec-label{font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.07em;margin:8px 0 4px;}
+  .code-block{background:#1e1b4b;color:#c4b5fd;padding:12px 14px;border-radius:7px;font-family:'Fira Code','Courier New',monospace;font-size:11px;white-space:pre-wrap;word-break:break-all;line-height:1.65;margin-bottom:6px;border-left:3px solid #7c3aed;}
+  .sec-sep{border:none;border-top:1px dashed #e0d9f7;margin:10px 0;}
+  .note-box{background:#faf5ff;border:1px solid #ddd6fe;border-left:3px solid #7c3aed;border-radius:6px;padding:10px 12px;font-size:11.5px;color:#5b21b6;margin-top:8px;}
+
+  /* footer */
+  .ftr{background:#3b0764;color:rgba(255,255,255,.65);text-align:center;padding:14px;font-size:11px;}
+  .ftr strong{color:#c084fc;}
+
+  @media print{
+    body{background:#fff}
+    .card{page-break-inside:avoid}
+    .hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .card-num{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .code-block{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+  <div class="hdr">
+    <div class="hdr-logo">🔍 QueryNest <span>Developer Query Hub</span></div>
+    <div class="hdr-right"><strong>${esc(db)}</strong>${dateStr}</div>
+  </div>
+  <div class="title-bar">
+    <h1>${esc(title)}</h1>
+    <div class="cnt">${_lastItems.length} result${_lastItems.length!==1?'s':''}</div>
+  </div>
+  <div class="content">
+    ${itemsHtml}
+  </div>
+  <div class="ftr">Generated by <strong>QueryNest</strong> &nbsp;·&nbsp; ${timeStr}</div>
+</body>
+</html>`;
+
+  // Direct download as .html (opens beautifully, user can Ctrl+P → Save as PDF)
+  // OR use Blob to trigger immediate browser PDF print
+  try {
+    const blob = new Blob([fullHtml], {type: 'text/html;charset=utf-8'});
+    const url  = URL.createObjectURL(blob);
+
+    // Open in new tab — browser will auto-trigger print for PDF save
+    const win = window.open(url, '_blank');
+    if (win) {
+      win.addEventListener('load', () => {
+        setTimeout(() => {
+          win.print();
+          setTimeout(() => URL.revokeObjectURL(url), 3000);
+        }, 600);
+      });
+      // Fallback if load event doesn't fire
+      setTimeout(() => {
+        try { win.print(); } catch(e){}
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }, 1800);
+    } else {
+      // Popup blocked — fallback to direct download
+      const a = document.createElement('a');
+      a.href     = url;
+      a.download = `QueryNest_${db}_${Date.now()}.html`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+      showToast('📄 File downloaded! Open in browser → Ctrl+P → Save as PDF', 'ok');
+    }
+  } catch(e) {
+    console.error('PDF error:', e);
+    showToast('Error generating PDF', 'err');
+  }
+
+  setTimeout(() => {
+    pdfBtn.innerHTML = origText;
+    pdfBtn.disabled  = false;
+  }, 2000);
+}
+
+function showToast(msg, type) {
+  let t = document.getElementById('qn-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'qn-toast';
+    t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;transition:opacity .3s;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(t);
+  }
+  const colors = {ok:'#059669', err:'#dc2626', warn:'#d97706', '':'#7c3aed'};
+  t.style.background = colors[type] || colors[''];
+  t.style.color = '#fff';
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+}
+</script>
+</body>
+</html>

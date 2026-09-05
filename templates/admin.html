@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin Panel — QueryNest</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Syne:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #160428;
+  --surface: #0c1022;
+  --surface2: #111828;
+  --border: rgba(99,120,255,0.12);
+  --border-h: rgba(99,120,255,0.3);
+  --text: #e8eaf6;
+  --muted: rgba(160,170,220,0.5);
+  --accent: #6378ff;
+  --green: #22c55e;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --cyan: #22d3ee;
+  --r: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 5% 0%, rgba(99,120,255,0.07) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px; flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh;
+  z-index: 10;
+}
+.sb-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Syne', sans-serif; font-weight: 900;
+  font-size: 1rem; letter-spacing: -0.02em;
+  display: flex; align-items: center; gap: 8px;
+}
+.sb-logo-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: linear-gradient(135deg, #6378ff, #c084fc);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem;
+}
+.sb-badge {
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #818cf8;
+  background: rgba(99,120,255,0.15); border: 1px solid rgba(99,120,255,0.3);
+  padding: 2px 7px; border-radius: 99px; margin-left: 4px;
+}
+.sb-nav { padding: 12px; flex: 1; }
+.sb-nav a {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border-radius: 9px;
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--muted); text-decoration: none;
+  transition: all 0.18s; margin-bottom: 3px;
+  cursor: pointer; border: none; background: none; width: 100%;
+}
+.sb-nav a:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+.sb-nav a.active { background: rgba(99,120,255,0.15); color: #818cf8; }
+.sb-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 0.72rem; color: var(--muted);
+}
+.sb-footer a { color: var(--muted); text-decoration: none; }
+.sb-footer a:hover { color: var(--text); }
+
+/* ── MAIN ── */
+.main { flex: 1; overflow-y: auto; position: relative; z-index: 1; }
+
+.topbar {
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(5,8,16,0.8); backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 5;
+}
+.topbar-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 900; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.tb-btn {
+  padding: 7px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600;
+  border: 1px solid var(--border); background: rgba(255,255,255,0.05);
+  color: var(--muted); cursor: pointer; font-family: 'Space Grotesk', sans-serif;
+  text-decoration: none; transition: all 0.18s;
+}
+.tb-btn:hover { color: var(--text); background: rgba(255,255,255,0.09); }
+
+/* ── PAGES ── */
+.page { display: none; padding: 28px 32px 60px; }
+.page.active { display: block; }
+
+/* ── STAT CARDS ── */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px;
+  position: relative; overflow: hidden;
+}
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.stat-card.c-blue::before   { background: linear-gradient(90deg,#6378ff,transparent); }
+.stat-card.c-green::before  { background: linear-gradient(90deg,#22c55e,transparent); }
+.stat-card.c-amber::before  { background: linear-gradient(90deg,#f59e0b,transparent); }
+.stat-card.c-cyan::before   { background: linear-gradient(90deg,#22d3ee,transparent); }
+.stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 10px; }
+.stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 900; line-height: 1; }
+.stat-card.c-blue   .stat-num { color: #818cf8; }
+.stat-card.c-green  .stat-num { color: #4ade80; }
+.stat-card.c-amber  .stat-num { color: #fbbf24; }
+.stat-card.c-cyan   .stat-num { color: #67e8f9; }
+.stat-icon { font-size: 1.6rem; margin-bottom: 8px; }
+
+/* ── SECTION ── */
+.section-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+}
+.section-count {
+  font-size: 0.75rem; color: var(--muted);
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 3px 10px; border-radius: 99px;
+}
+.search-bar {
+  width: 100%; padding: 9px 14px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 9px; color: var(--text); font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.84rem; outline: none; transition: all 0.2s; margin-bottom: 14px;
+}
+.search-bar:focus { border-color: var(--accent); }
+.search-bar::placeholder { color: var(--muted); }
+
+/* ── TABLE ── */
+.data-table {
+  width: 100%; border-collapse: collapse;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+}
+.data-table th {
+  padding: 11px 16px; text-align: left;
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--muted);
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 11px 16px; font-size: 0.82rem;
+  border-bottom: 1px solid rgba(99,120,255,0.06);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(255,255,255,0.025); }
+
+.cell-mono { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: #818cf8; }
+.cell-muted { color: var(--muted); font-size: 0.78rem; }
+
+.badge-pill {
+  display: inline-flex; align-items: center; padding: 2px 9px;
+  border-radius: 99px; font-size: 0.65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.bp-mongo  { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+.bp-mysql  { background: rgba(245,158,11,0.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+.bp-sql    { background: rgba(99,120,255,0.15);  color: #818cf8; border: 1px solid rgba(99,120,255,0.25); }
+.bp-python { background: rgba(59,130,246,0.15);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
+.bp-java   { background: rgba(245,158,11,0.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+.bp-c      { background: rgba(99,102,241,0.15);  color: #a5b4fc; border: 1px solid rgba(99,102,241,0.25); }
+.bp-cpp    { background: rgba(16,185,129,0.15);  color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+.bp-custom { background: rgba(192,132,252,0.15); color: #d8b4fe; border: 1px solid rgba(192,132,252,0.25); }
+.bp-user   { background: rgba(34,211,238,0.12);  color: #67e8f9; border: 1px solid rgba(34,211,238,0.25); }
+
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, #6378ff, #c084fc);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+
+.empty-row td {
+  text-align: center; padding: 40px;
+  color: var(--muted); font-size: 0.85rem;
+}
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); padding: 9px 20px;
+  border-radius: 99px; font-size: 0.8rem; font-weight: 600;
+  opacity: 0; pointer-events: none; z-index: 999; transition: all 0.25s;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media(max-width:900px) {
+  .sidebar { display: none; }
+  .topbar, .page { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">🦅</div>
+    QueryNest
+    <span class="sb-badge">Admin</span>
+  </div>
+  <nav class="sb-nav">
+    <a class="active" onclick="showPage('overview', this)">📊 Overview</a>
+    <a onclick="showPage('users', this)">👥 Users</a>
+    <a onclick="showPage('files', this)">💾 Saved Files</a>
+    <a onclick="showPage('programs', this)">💻 Programs</a>
+  </nav>
+  <div class="sb-footer">
+    <a href="/home">← Back to Home</a>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Admin Dashboard</div>
+    <div class="topbar-right">
+      <a class="tb-btn" href="/home">← Home</a>
+      <a class="tb-btn" href="/logout">Logout</a>
+    </div>
+  </div>
+
+  <!-- ══ OVERVIEW PAGE ══ -->
+  <div class="page active" id="page-overview">
+    <div class="stats-grid">
+      <div class="stat-card c-blue">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-num">{{ stats.get('total_users', 0) }}</div>
+      </div>
+      <div class="stat-card c-green">
+        <div class="stat-icon">💾</div>
+        <div class="stat-label">Saved Files</div>
+        <div class="stat-num">{{ stats.get('total_files', 0) }}</div>
+      </div>
+      <div class="stat-card c-amber">
+        <div class="stat-icon">💻</div>
+        <div class="stat-label">Programs</div>
+        <div class="stat-num">{{ stats.get('total_programs', 0) }}</div>
+      </div>
+      <div class="stat-card c-cyan">
+        <div class="stat-icon">📦</div>
+        <div class="stat-label">Total Records</div>
+        <div class="stat-num">{{ stats.get('total_users', 0) + stats.get('total_files', 0) + stats.get('total_programs', 0) }}</div>
+      </div>
+    </div>
+
+    <!-- Recent Users -->
+    <div class="section-hd">
+      <span class="section-title">Recent Users</span>
+      <span class="section-count">{{ all_users|length }} total</span>
+    </div>
+    <table class="data-table" style="margin-bottom:28px">
+      <thead><tr>
+        <th>User</th><th>Email</th><th>Phone</th><th>User ID</th><th>Joined</th>
+      </tr></thead>
+      <tbody>
+        {% for u in all_users[:5] %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:9px">
+              <div class="avatar">{{ u.name[0].upper() if u.name else 'U' }}</div>
+              <span>{{ u.name or '—' }}</span>
+            </div>
+          </td>
+          <td>{{ u.email or '—' }}</td>
+          <td class="cell-muted">{{ u.phone or '—' }}</td>
+          <td><span class="cell-mono">{{ u.user_id or '—' }}</span></td>
+          <td class="cell-muted">{{ u.created_at if u.created_at is string else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr class="empty-row"><td colspan="5">No users in database</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Recent Files -->
+    <div class="section-hd">
+      <span class="section-title">Recent Saved Files</span>
+      <span class="section-count">{{ saved_files|length }} total</span>
+    </div>
+    <table class="data-table">
+      <thead><tr>
+        <th>Name</th><th>Type</th><th>User ID</th><th>Saved</th>
+      </tr></thead>
+      <tbody>
+        {% for f in saved_files[:5] %}
+        <tr>
+          <td>{{ f.name or '—' }}</td>
+          <td>
+            <span class="badge-pill bp-{{ f.db_type or 'sql' }}">{{ f.db_type or 'sql' }}</span>
+          </td>
+          <td><span class="cell-mono">{{ f.user_id or '—' }}</span></td>
+          <td class="cell-muted">{{ f.created_at if f.created_at is string else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr class="empty-row"><td colspan="4">No saved files yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══ USERS PAGE ══ -->
+  <div class="page" id="page-users">
+    <div class="section-hd">
+      <span class="section-title">All Users</span>
+      <span class="section-count" id="user-count">{{ all_users|length }}</span>
+    </div>
+    <input class="search-bar" id="user-search" placeholder="🔍  Search by name, email, phone..." oninput="filterTable('user-tbody','user-search',['name','email','phone'])"/>
+    <table class="data-table">
+      <thead><tr>
+        <th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>User ID</th><th>Role</th><th>Joined</th>
+      </tr></thead>
+      <tbody id="user-tbody">
+        {% for u in all_users %}
+        <tr data-name="{{ u.name|lower }}" data-email="{{ u.email|lower }}" data-phone="{{ u.phone or '' }}">
+          <td class="cell-muted">{{ loop.index }}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:9px">
+              <div class="avatar">{{ u.name[0].upper() if u.name else 'U' }}</div>
+              {{ u.name or '—' }}
+            </div>
+          </td>
+          <td>{{ u.email or '—' }}</td>
+          <td class="cell-muted">{{ u.phone or '—' }}</td>
+          <td><span class="cell-mono">{{ u.user_id or '—' }}</span></td>
+          <td><span class="badge-pill bp-user">{{ u.role or 'Free' }}</span></td>
+          <td class="cell-muted">{{ u.created_at if u.created_at is string else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr class="empty-row"><td colspan="7">No users registered yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══ FILES PAGE ══ -->
+  <div class="page" id="page-files">
+    <div class="section-hd">
+      <span class="section-title">All Saved Files</span>
+      <span class="section-count" id="file-count">{{ saved_files|length }}</span>
+    </div>
+    <input class="search-bar" id="file-search" placeholder="🔍  Search by name, type, user ID..." oninput="filterTable('file-tbody','file-search',['name','dbtype','userid'])"/>
+    <table class="data-table">
+      <thead><tr>
+        <th>#</th><th>File Name</th><th>DB Type</th><th>Description</th><th>User ID</th><th>File ID</th><th>Saved On</th>
+      </tr></thead>
+      <tbody id="file-tbody">
+        {% for f in saved_files %}
+        <tr data-name="{{ f.name|lower }}" data-dbtype="{{ f.db_type or '' }}" data-userid="{{ f.user_id or '' }}">
+          <td class="cell-muted">{{ loop.index }}</td>
+          <td>{{ f.name or '—' }}</td>
+          <td><span class="badge-pill bp-{{ f.db_type or 'sql' }}">{{ f.db_type or 'sql' }}</span></td>
+          <td class="cell-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.description or '—' }}</td>
+          <td><span class="cell-mono">{{ f.user_id or '—' }}</span></td>
+          <td><span class="cell-mono" style="color:var(--muted)">{{ f.id or '—' }}</span></td>
+          <td class="cell-muted">{{ f.created_at if f.created_at is string else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr class="empty-row"><td colspan="7">No saved files found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══ PROGRAMS PAGE ══ -->
+  <div class="page" id="page-programs">
+    <div class="section-hd">
+      <span class="section-title">All Saved Programs</span>
+      <span class="section-count" id="prog-count">{{ saved_programs|length }}</span>
+    </div>
+    <input class="search-bar" id="prog-search" placeholder="🔍  Search by name, language, topic..." oninput="filterTable('prog-tbody','prog-search',['name','lang','topic'])"/>
+    <table class="data-table">
+      <thead><tr>
+        <th>#</th><th>Program Name</th><th>Language</th><th>Topic</th><th>Description</th><th>User ID</th><th>Saved On</th>
+      </tr></thead>
+      <tbody id="prog-tbody">
+        {% for p in saved_programs %}
+        <tr data-name="{{ p.name|lower }}" data-lang="{{ p.lang or '' }}" data-topic="{{ p.topic|lower if p.topic else '' }}">
+          <td class="cell-muted">{{ loop.index }}</td>
+          <td>{{ p.name or '—' }}</td>
+          <td><span class="badge-pill bp-{{ p.lang or 'python' }}">{{ p.lang or 'python' }}</span></td>
+          <td class="cell-muted">{{ p.topic or '—' }}</td>
+          <td class="cell-muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ p.description or '—' }}</td>
+          <td><span class="cell-mono">{{ p.user_id or '—' }}</span></td>
+          <td class="cell-muted">{{ p.created_at if p.created_at is string else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr class="empty-row"><td colspan="7">No saved programs found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.sb-nav a').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+function filterTable(tbodyId, searchId, attrs) {
+  const q = document.getElementById(searchId).value.toLowerCase().trim();
+  const rows = document.getElementById(tbodyId).querySelectorAll('tr[data-name]');
+  let visible = 0;
+  rows.forEach(row => {
+    const match = !q || attrs.some(a => (row.dataset[a] || '').includes(q));
+    row.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>

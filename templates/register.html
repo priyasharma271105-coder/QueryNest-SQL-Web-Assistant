@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Register — QueryNest</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+</head>
+<body class="auth-page">
+<div class="orb orb-tl"></div>
+<div class="orb orb-br"></div>
+
+<div class="card card-md">
+  <div class="logo"><h1>🔍 QueryNest</h1><p>Your Ultimate Query Companion</p></div>
+
+  <!-- Step 1 -->
+  <div id="step1" class="step active">
+    <div class="form-header"><h2>Create Account ✨</h2><p>Join thousands of developers on QueryNest</p></div>
+    <div id="msg1" class="message"></div>
+    <form id="registerForm">
+      <div class="form-group"><label>👤 Full Name</label><input type="text" id="reg-name" required placeholder="Enter your full name"/></div>
+      <div class="form-group"><label>📧 Email Address</label><input type="email" id="reg-email" required placeholder="your.email@example.com"/></div>
+      <div class="form-group"><label>📱 Phone Number</label><input type="tel" id="reg-phone" required placeholder="+91 98765 43210"/></div>
+      <div class="form-group"><label>🔒 Password</label><input type="password" id="reg-password" required placeholder="Create a strong password (min 6 chars)"/></div>
+      <button type="submit" class="btn btn-primary" id="sendOtpBtn">📨 Send OTP</button>
+    </form>
+    <div class="links">Already have an account? <a href="/login">Login here</a><div class="divider">───</div><a href="/">← Back to Home</a></div>
+  </div>
+
+  <!-- Step 2 -->
+  <div id="step2" class="step">
+    <div class="form-header"><h2>Verify Email 🔐</h2><p>Enter the 6-digit OTP sent to your email</p></div>
+    <div id="emailDisplay" class="message info"></div>
+    <div id="msg2" class="message"></div>
+    <form id="verifyForm">
+      <div class="form-group"><label>🔢 Enter OTP</label><input type="text" id="otp" required maxlength="6" placeholder="Enter 6-digit OTP" style="font-size:22px;letter-spacing:.3em;text-align:center"/></div>
+      <button type="submit" class="btn btn-primary" id="verifyBtn">✅ Verify & Create Account</button>
+      <button type="button" class="btn btn-secondary" id="backBtn" style="margin-top:8px">← Back</button>
+    </form>
+    <div class="links">Already have an account? <a href="/login">Login here</a></div>
+  </div>
+</div>
+<script>/* QueryNest — Shared JS */
+
+const QN = {
+  saveUser(d){localStorage.setItem('qn_user',JSON.stringify(d));localStorage.setItem('qn_loggedIn','true')},
+  getUser(){try{return JSON.parse(localStorage.getItem('qn_user'))||{}}catch{return{}}},
+  isLoggedIn(){return localStorage.getItem('qn_loggedIn')==='true'},
+  signOut(){localStorage.removeItem('qn_user');localStorage.removeItem('qn_loggedIn')}
+};
+
+function showMsg(id,msg,type){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.className='message '+type;
+  el.textContent=msg;
+  el.style.display='block';
+}
+function btnLoad(btn,txt){btn.disabled=true;btn.dataset.orig=btn.innerHTML;btn.innerHTML=`<span class="loading"></span>${txt}`}
+function btnReset(btn){btn.disabled=false;btn.innerHTML=btn.dataset.orig||btn.innerHTML}
+async function apiPost(url,body){
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return r.json();
+}
+function goStep(a,b){document.getElementById(a)?.classList.remove('active');document.getElementById(b)?.classList.add('active')}
+
+/* LOGIN */
+function initLogin(){
+  const form=document.getElementById('loginForm');if(!form)return;
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const email=document.getElementById('email').value.trim();
+    const password=document.getElementById('password').value;
+    if(!email||!password){showMsg('message','Please fill in all fields!','error');return}
+    const btn=document.getElementById('loginBtn');
+    btnLoad(btn,'Logging in...');
+    try{
+      const d=await apiPost('/api/login',{email,password});
+      if(d.success){
+        showMsg('message',d.message,'success');
+        QN.saveUser(d.user||{email});
+        setTimeout(()=>{window.location.href=d.redirect||'/home'},1000);
+      }else{showMsg('message',d.message,'error')}
+    }catch{showMsg('message','Connection error. Please try again.','error')}
+    finally{btnReset(btn)}
+  });
+}
+
+/* REGISTER */
+function initRegister(){
+  const form=document.getElementById('registerForm');if(!form)return;
+  let ud={};
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const name=document.getElementById('reg-name').value.trim();
+    const email=document.getElementById('reg-email').value.trim();
+    const phone=document.getElementById('reg-phone').value.trim();
+    const password=document.getElementById('reg-password').value;
+    if(!name||!email||!phone||!password){showMsg('msg1','Please fill in all fields!','error');return}
+    ud={name,email,phone,password};
+    const btn=document.getElementById('sendOtpBtn');
+    btnLoad(btn,'Sending OTP...');
+    try{
+      const d=await apiPost('/api/send-otp',{email});
+      if(d.success){
+        showMsg('msg1',d.message,'success');
+        const ed=document.getElementById('emailDisplay');
+        if(ed){ed.textContent='OTP sent to: '+email;ed.style.display='block'}
+        setTimeout(()=>goStep('step1','step2'),900);
+      }else{showMsg('msg1',d.message,'error')}
+    }catch{showMsg('msg1','Connection error.','error')}
+    finally{btnReset(btn)}
+  });
+  document.getElementById('verifyForm')?.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const otp=document.getElementById('otp').value.trim();
+    if(!otp||otp.length!==6){showMsg('msg2','Enter a valid 6-digit OTP!','error');return}
+    const btn=document.getElementById('verifyBtn');
+    btnLoad(btn,'Verifying...');
+    try{
+      const d=await apiPost('/api/register',{...ud,otp});
+      if(d.success){
+        showMsg('msg2',d.message,'success');
+        QN.saveUser({name:ud.name,email:ud.email,phone:ud.phone});
+        setTimeout(()=>{window.location.href=d.redirect||'/home'},1500);
+      }else{showMsg('msg2',d.message,'error')}
+    }catch{showMsg('msg2','Connection error.','error')}
+    finally{btnReset(btn)}
+  });
+  document.getElementById('backBtn')?.addEventListener('click',()=>{
+    goStep('step2','step1');
+    document.getElementById('otp').value='';
+    document.getElementById('msg2').style.display='none';
+  });
+}
+
+/* FORGOT PASSWORD */
+function initForgot(){
+  const form=document.getElementById('requestForm');if(!form)return;
+  let userEmail='';
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const email=document.getElementById('fp-email').value.trim();
+    if(!email){showMsg('msg1','Please enter your email!','error');return}
+    userEmail=email;
+    const btn=document.getElementById('sendCodeBtn');
+    btnLoad(btn,'Sending Code...');
+    try{
+      const d=await apiPost('/api/forgot-password/send-otp',{email});
+      if(d.success){
+        showMsg('msg1',d.message,'success');
+        const ed=document.getElementById('emailDisplay');
+        if(ed){ed.textContent='Reset code sent to: '+email;ed.style.display='block'}
+        setTimeout(()=>goStep('step1','step2'),1200);
+      }else{showMsg('msg1',d.message,'error')}
+    }catch{showMsg('msg1','Connection error.','error')}
+    finally{btnReset(btn)}
+  });
+  document.getElementById('resetForm')?.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const otp=document.getElementById('fp-otp').value.trim();
+    const np=document.getElementById('fp-newpw').value;
+    const cp=document.getElementById('fp-confirmpw').value;
+    if(!otp||otp.length!==6){showMsg('msg2','Enter valid 6-digit code!','error');return}
+    if(!np||np.length<6){showMsg('msg2','Password must be at least 6 characters!','error');return}
+    if(np!==cp){showMsg('msg2','Passwords do not match!','error');return}
+    const btn=document.getElementById('resetBtn');
+    btnLoad(btn,'Resetting...');
+    try{
+      const d=await apiPost('/api/forgot-password/reset',{email:userEmail,otp,new_password:np});
+      if(d.success){
+        showMsg('msg2',d.message,'success');
+        setTimeout(()=>{window.location.href='/login'},2000);
+      }else{showMsg('msg2',d.message,'error')}
+    }catch{showMsg('msg2','Connection error.','error')}
+    finally{btnReset(btn)}
+  });
+  document.getElementById('backBtn')?.addEventListener('click',()=>{
+    goStep('step2','step1');
+    ['fp-otp','fp-newpw','fp-confirmpw'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+    document.getElementById('msg2').style.display='none';
+  });
+}
+
+/* DASHBOARD */
+function initDashboard(){
+  if(!document.getElementById('mainChoices'))return;
+  const main=document.getElementById('mainChoices');
+  window.selectCategory=function(cat){
+    main.style.opacity='0';main.style.transform='scale(.95)';
+    setTimeout(()=>{
+      main.style.display='none';
+      document.querySelectorAll('.sub-choices').forEach(c=>c.classList.remove('show'));
+      document.getElementById(cat+'Choices')?.classList.add('show');
+    },260);
+  };
+  window.resetSelection=function(){
+    document.querySelectorAll('.sub-choices').forEach(c=>c.classList.remove('show'));
+    main.style.display='grid';
+    setTimeout(()=>{main.style.opacity='1';main.style.transform='scale(1)'},10);
+  };
+  window.searchIn=function(cat,type){window.location.href=`/search?category=${cat}&type=${type}`};
+}
+
+/* HOME */
+function initHome(){
+  if(!document.getElementById('home'))return;
+
+  window.showPage=function(name){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById(name)?.classList.add('active');
+    document.querySelectorAll('.nav-links button').forEach(b=>b.classList.remove('active-nav'));
+    if(name!=='profile')document.getElementById('nav-'+name)?.classList.add('active-nav');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  window.switchTab=function(id,btn){
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('tab-show'));
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('tab-active'));
+    document.getElementById('tab-'+id)?.classList.add('tab-show');
+    btn.classList.add('tab-active');
+  };
+
+  window.openEditModal=()=>{document.getElementById('editModal')?.classList.add('open');document.body.style.overflow='hidden'};
+  window.closeEditModal=()=>{document.getElementById('editModal')?.classList.remove('open');document.body.style.overflow=''};
+  window.handleOverlayClick=(e)=>{if(e.target===document.getElementById('editModal'))closeEditModal()};
+
+  function getInitials(){
+    const fn=(document.getElementById('edit-fname')?.value.trim()[0]||'').toUpperCase();
+    const ln=(document.getElementById('edit-lname')?.value.trim()[0]||'').toUpperCase();
+    return fn+ln||'U';
+  }
+  ['edit-fname','edit-lname'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('input',()=>{
+      const mp=document.getElementById('modal-av-preview');if(mp)mp.textContent=getInitials();
+    });
+  });
+
+  window.saveProfile=function(){
+    const f={};
+    ['fname','lname','email','phone','role','location','bio'].forEach(k=>{f[k]=document.getElementById('edit-'+k)?.value.trim()||''});
+    const initials=getInitials();
+    const name=(f.fname+' '+f.lname).trim();
+
+    const setText=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+    setText('profile-name',name);
+    setText('profile-role',f.role);
+    setText('profile-bio',f.bio||'Welcome to QueryNest!');
+    setText('profile-email','✉ '+f.email);
+    setText('profile-phone','📞 '+f.phone);
+    setText('profile-location','📍 '+f.location);
+
+    const av=document.getElementById('profile-avatar');
+    if(av){const dot=av.querySelector('.av-dot');av.textContent=initials;if(dot)av.appendChild(dot)}
+
+    // Update queries count
+    const q=document.getElementById('profile-queries');
+    if(q&&q.textContent==='0')q.textContent=Math.floor(Math.random()*50)+1;
+
+    closeEditModal();
+    const toast=document.getElementById('toast');
+    if(toast){toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2500)}
+
+    QN.saveUser({name,email:f.email,phone:f.phone,role:f.role,location:f.location,bio:f.bio});
+  };
+
+  function loadUserData(){
+    const u=QN.getUser();
+    if(!u.name&&!u.email)return;
+    const parts=(u.name||'').split(' ');
+    const fn=parts[0]||'';
+    const ln=parts.slice(1).join(' ')||'';
+    const initials=((fn[0]||'')+(ln[0]||'')).toUpperCase()||fn.slice(0,2).toUpperCase()||'U';
+
+    const setText=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+    setText('profile-name',u.name||'User');
+    setText('profile-role',u.role||'QueryNest User');
+    setText('profile-bio',u.bio||'Welcome to QueryNest!');
+    setText('profile-email','✉ '+(u.email||''));
+    setText('profile-phone','📞 '+(u.phone||''));
+    setText('profile-location','📍 '+(u.location||''));
+
+    const av=document.getElementById('profile-avatar');
+    if(av){const dot=av.querySelector('.av-dot');av.textContent=initials;if(dot)av.appendChild(dot)}
+
+    const setVal=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||''};
+    setVal('edit-fname',fn);setVal('edit-lname',ln);
+    setVal('edit-email',u.email);setVal('edit-phone',u.phone);
+    setVal('edit-role',u.role);setVal('edit-location',u.location);
+    setVal('edit-bio',u.bio);
+    const mp=document.getElementById('modal-av-preview');if(mp)mp.textContent=initials;
+  }
+
+  window.signOut=function(){
+    if(confirm('Are you sure you want to sign out?')){
+      QN.signOut();window.location.href='/login';
+    }
+  };
+
+  loadUserData();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  initLogin();initRegister();initForgot();initDashboard();initHome();
+});</script>
+</body></html>

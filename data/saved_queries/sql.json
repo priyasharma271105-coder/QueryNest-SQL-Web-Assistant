@@ -1,0 +1,371 @@
+[
+  {
+    "title": "SQL Create Table Standard",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "create",
+      "table",
+      "ddl",
+      "ansi",
+      "sql",
+      "schema",
+      "primary key"
+    ],
+    "content": "-- Standard ANSI SQL CREATE TABLE\nCREATE TABLE employees (                               -- naya table banao\n    id         INTEGER      PRIMARY KEY,               -- unique identifier — duplicate nahi ho sakta\n    first_name VARCHAR(50)  NOT NULL,                  -- empty nahi ho sakta\n    last_name  VARCHAR(50)  NOT NULL,                  -- empty nahi ho sakta\n    email      VARCHAR(100) UNIQUE,                    -- duplicate values allowed nahi\n    salary     NUMERIC(10,2),\n    dept_id    INTEGER      REFERENCES departments(id),\n    hire_date  DATE         DEFAULT CURRENT_DATE,      -- agar value na di to yeh use hogi\n    is_active  BOOLEAN      DEFAULT TRUE               -- agar value na di to yeh use hogi\n);\n\n-- View structure\nSELECT column_name, data_type, is_nullable             -- data fetch karo\nFROM information_schema.columns                        -- kis table se\nWHERE table_name = 'employees';                        -- condition lagao\n\n-- Alter: add column\nALTER TABLE employees ADD COLUMN phone VARCHAR(20);    -- table modify karo\n\n-- Drop column\nALTER TABLE employees DROP COLUMN phone;               -- table modify karo\n\n-- Drop table safely\nDROP TABLE IF EXISTS employees CASCADE;                -- table delete karo"
+  },
+  {
+    "title": "SQL Select Statement",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "select",
+      "sql",
+      "query",
+      "fetch",
+      "read",
+      "column"
+    ],
+    "content": "-- Select all columns\nSELECT * FROM employees;                               -- data fetch karo\n\n-- Select specific columns\nSELECT first_name, last_name, salary FROM employees;   -- data fetch karo\n\n-- Column aliases\nSELECT first_name AS name, salary AS monthly_pay FROM employees; -- data fetch karo\n\n-- Calculated column\nSELECT first_name, salary,                             -- data fetch karo\n    salary * 12 AS annual_salary                       -- alias naam do\nFROM employees;                                        -- kis table se\n\n-- Distinct values\nSELECT DISTINCT dept_id FROM employees;                -- data fetch karo\n\n-- Null handling\nSELECT first_name, COALESCE(phone, 'N/A') AS contact FROM employees; -- data fetch karo"
+  },
+  {
+    "title": "SQL Where Clause",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "where",
+      "condition",
+      "filter",
+      "sql",
+      "and",
+      "or",
+      "not",
+      "like",
+      "between",
+      "in"
+    ],
+    "content": "-- Basic condition\nSELECT * FROM employees WHERE salary > 50000;          -- data fetch karo\n\n-- AND condition\nSELECT * FROM employees WHERE salary > 50000 AND is_active = TRUE; -- data fetch karo\n\n-- OR condition\nSELECT * FROM employees WHERE dept_id = 1 OR dept_id = 2; -- data fetch karo\n\n-- NOT condition\nSELECT * FROM employees WHERE NOT is_active = FALSE;   -- data fetch karo\n\n-- BETWEEN range\nSELECT * FROM employees WHERE salary BETWEEN 40000 AND 80000; -- data fetch karo\n\n-- LIKE pattern\nSELECT * FROM employees WHERE first_name LIKE 'A%';     -- starts with A\nSELECT * FROM employees WHERE email LIKE '%@gmail.com'; -- Gmail users\n\n-- IN list\nSELECT * FROM employees WHERE dept_id IN (1, 2, 3);    -- data fetch karo\n\n-- IS NULL\nSELECT * FROM employees WHERE email IS NULL;           -- data fetch karo\nSELECT * FROM employees WHERE email IS NOT NULL;       -- data fetch karo"
+  },
+  {
+    "title": "SQL Order By and Limit",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "order by",
+      "sort",
+      "asc",
+      "desc",
+      "limit",
+      "offset",
+      "sql",
+      "pagination",
+      "fetch"
+    ],
+    "content": "-- Sort ascending\nSELECT * FROM employees ORDER BY salary ASC;           -- data fetch karo\n\n-- Sort descending (highest salary first)\nSELECT * FROM employees ORDER BY salary DESC;          -- data fetch karo\n\n-- Sort by multiple columns\nSELECT * FROM employees ORDER BY dept_id ASC, salary DESC; -- data fetch karo\n\n-- Limit results (PostgreSQL / SQLite)\nSELECT * FROM employees ORDER BY salary DESC LIMIT 10; -- data fetch karo\n\n-- Pagination: page 2\nSELECT * FROM employees ORDER BY salary DESC LIMIT 10 OFFSET 10; -- data fetch karo\n\n-- SQL Server syntax (FETCH NEXT)\nSELECT * FROM employees                                -- data fetch karo\nORDER BY salary DESC                                   -- sort karo\nOFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY;                -- skip karo"
+  },
+  {
+    "title": "SQL Group By and Aggregate Functions",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "group by",
+      "count",
+      "sum",
+      "avg",
+      "min",
+      "max",
+      "aggregate",
+      "sql",
+      "having"
+    ],
+    "content": "-- Count employees per department\nSELECT dept_id, COUNT(*) AS headcount                  -- data fetch karo\nFROM employees                                         -- kis table se\nGROUP BY dept_id;                                      -- group banao\n\n-- Multiple aggregates\nSELECT dept_id,                                        -- data fetch karo\n    COUNT(*)        AS headcount,                      -- rows count karo\n    AVG(salary)     AS avg_salary,                     -- average nikalo\n    SUM(salary)     AS total_payroll,                  -- total nikalo\n    MAX(salary)     AS highest_salary,                 -- maximum value\n    MIN(salary)     AS lowest_salary                   -- minimum value\nFROM employees                                         -- kis table se\nGROUP BY dept_id;                                      -- group banao\n\n-- HAVING: filter groups (departments with > 5 employees)\nSELECT dept_id, COUNT(*) AS headcount                  -- data fetch karo\nFROM employees                                         -- kis table se\nGROUP BY dept_id                                       -- group banao\nHAVING COUNT(*) > 5                                    -- group filter karo\nORDER BY headcount DESC;                               -- sort karo\n\n-- NOTE: WHERE filters rows BEFORE grouping\n-- HAVING filters groups AFTER grouping"
+  },
+  {
+    "title": "SQL Insert Data",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "insert",
+      "add",
+      "data",
+      "sql",
+      "dml",
+      "values"
+    ],
+    "content": "-- Insert single row\nINSERT INTO employees (first_name, last_name, salary, hire_date) -- data add karo\nVALUES ('Alice', 'Smith', 75000, '2023-01-15');        -- jo values insert karni hain\n\n-- Insert multiple rows\nINSERT INTO employees (first_name, last_name, salary) VALUES -- data add karo\n    ('Bob',     'Jones',  65000),\n    ('Charlie', 'Brown',  58000),\n    ('Diana',   'Prince', 82000);\n\n-- PostgreSQL UPSERT (ON CONFLICT)\nINSERT INTO employees (id, first_name, salary)         -- data add karo\nVALUES (1, 'Alice', 80000)                             -- jo values insert karni hain\nON CONFLICT (id) DO UPDATE\n    SET salary = EXCLUDED.salary;                      -- naya value set karo\n\n-- Insert from SELECT\nINSERT INTO employee_archive                           -- data add karo\nSELECT * FROM employees WHERE is_active = FALSE;       -- data fetch karo"
+  },
+  {
+    "title": "SQL Update",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "update",
+      "modify",
+      "set",
+      "sql",
+      "dml",
+      "case"
+    ],
+    "content": "-- Update single field\nUPDATE employees SET salary = 80000 WHERE id = 1;      -- condition lagao\n\n-- Update multiple fields\nUPDATE employees                                       -- data update karo\nSET salary = 85000, is_active = TRUE                   -- naya value set karo\nWHERE email = 'alice@company.com';                     -- condition lagao\n\n-- Increase salary by 10% for a department\nUPDATE employees                                       -- data update karo\nSET salary = salary * 1.10                             -- naya value set karo\nWHERE dept_id = 3;                                     -- condition lagao\n\n-- Conditional update with CASE\nUPDATE employees                                       -- data update karo\nSET grade = CASE                                       -- naya value set karo\n    WHEN salary > 100000 THEN 'Senior'\n    WHEN salary > 60000  THEN 'Mid'\n    ELSE 'Junior'\nEND;\n\n-- Update from another table (SQL standard)\nUPDATE employees e                                     -- data update karo\nSET salary = e.salary * 1.05                           -- naya value set karo\nWHERE e.dept_id IN (                                   -- condition lagao\n    SELECT id FROM departments WHERE performance_score > 90 -- data fetch karo\n);"
+  },
+  {
+    "title": "SQL Delete",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "delete",
+      "remove",
+      "truncate",
+      "sql",
+      "dml"
+    ],
+    "content": "-- Delete specific row\nDELETE FROM employees WHERE id = 5;                    -- kis table se\n\n-- Delete with condition\nDELETE FROM employees WHERE is_active = FALSE;         -- kis table se\n\n-- Delete using subquery\nDELETE FROM employees                                  -- kis table se\nWHERE id IN (                                          -- condition lagao\n    SELECT emp_id FROM performance WHERE rating < 2    -- data fetch karo\n);\n\n-- Delete all rows (table stays)\nDELETE FROM employees;                                 -- kis table se\n\n-- TRUNCATE: faster, resets sequences\nTRUNCATE TABLE employees;\n\n-- Drop entire table\nDROP TABLE IF EXISTS employees;                        -- table delete karo\n\n-- WARNING: Always add WHERE clause! Run SELECT first to preview."
+  },
+  {
+    "title": "SQL Inner Join",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "inner join",
+      "join",
+      "sql",
+      "combine",
+      "tables"
+    ],
+    "content": "-- INNER JOIN: returns only rows where there is a MATCH in BOTH tables\n-- If a row in left table has no match in right table, it is EXCLUDED\n\n-- Basic INNER JOIN: students with their courses\nSELECT\n    s.name         AS student_name,   -- column from students table (alias s)\n    s.marks,                          -- marks from students\n    c.course_name                     -- column from courses table (alias c)\nFROM students s                       -- 's' is alias for students table\nINNER JOIN enrollments e              -- join through bridge table\n    ON s.id = e.student_id            -- connection: student id must match\nINNER JOIN courses c                  -- join to courses table\n    ON e.course_id = c.id;            -- connection: course id must match\n\n-- Only students who ARE enrolled and the course EXISTS appear\n-- Unenrolled students are EXCLUDED (that's what INNER means)\n\n-- With WHERE filter: only top-performing enrolled students\nSELECT s.name, s.marks, c.course_name                  -- data fetch karo\nFROM students s                                        -- kis table se\nINNER JOIN enrollments e ON s.id = e.student_id        -- tables jodo\nINNER JOIN courses c     ON e.course_id = c.id         -- tables jodo\nWHERE s.marks > 75          -- apply filter AFTER joining\nORDER BY s.marks DESC;      -- sort highest marks first"
+  },
+  {
+    "title": "SQL Left Right Full Outer Join",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "left join",
+      "right join",
+      "full outer join",
+      "outer join",
+      "sql",
+      "null"
+    ],
+    "content": "-- LEFT JOIN: all rows from left table + matching from right\n-- (NULL for right side where no match)\nSELECT e.first_name, d.name AS dept                    -- data fetch karo\nFROM employees e                                       -- kis table se\nLEFT JOIN departments d ON e.dept_id = d.id;           -- tables jodo\n\n-- RIGHT JOIN: all rows from right table + matching from left\nSELECT e.first_name, d.name AS dept                    -- data fetch karo\nFROM employees e                                       -- kis table se\nRIGHT JOIN departments d ON e.dept_id = d.id;          -- tables jodo\n\n-- FULL OUTER JOIN: all rows from both tables\nSELECT e.first_name, d.name AS dept                    -- data fetch karo\nFROM employees e                                       -- kis table se\nFULL OUTER JOIN departments d ON e.dept_id = d.id;     -- tables jodo\n\n-- Self JOIN: employee with their manager\nSELECT e.first_name AS employee, m.first_name AS manager -- data fetch karo\nFROM employees e                                       -- kis table se\nLEFT JOIN employees m ON e.manager_id = m.id;          -- tables jodo\n\n-- CROSS JOIN: every combination\nSELECT s.size, c.color                                 -- data fetch karo\nFROM sizes s CROSS JOIN colors c;                      -- kis table se"
+  },
+  {
+    "title": "SQL Subquery",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "subquery",
+      "nested",
+      "correlated",
+      "exists",
+      "sql",
+      "in"
+    ],
+    "content": "-- Subquery in WHERE\nSELECT first_name, salary FROM employees               -- data fetch karo\nWHERE salary > (SELECT AVG(salary) FROM employees);    -- data fetch karo\n\n-- Subquery with IN\nSELECT first_name FROM employees                       -- data fetch karo\nWHERE dept_id IN (SELECT id FROM departments WHERE location = 'NY'); -- data fetch karo\n\n-- EXISTS subquery\nSELECT first_name FROM employees e                     -- data fetch karo\nWHERE EXISTS (                                         -- condition lagao\n    SELECT 1 FROM orders o WHERE o.emp_id = e.id       -- data fetch karo\n);\n\n-- Correlated subquery\nSELECT e.first_name, e.salary,                         -- data fetch karo\n    (SELECT AVG(salary) FROM employees WHERE dept_id = e.dept_id) AS dept_avg -- data fetch karo\nFROM employees e;                                      -- kis table se\n\n-- Subquery in FROM (derived table)\nSELECT dept_id, avg_sal FROM (                         -- data fetch karo\n    SELECT dept_id, AVG(salary) AS avg_sal             -- data fetch karo\n    FROM employees GROUP BY dept_id                    -- kis table se\n) AS dept_averages                                     -- alias naam do\nWHERE avg_sal > 60000;                                 -- condition lagao"
+  },
+  {
+    "title": "SQL CTE With Clause",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "cte",
+      "with",
+      "common table expression",
+      "sql",
+      "recursive"
+    ],
+    "content": "-- CTE (Common Table Expression): temporary named result set\n-- Defined with WITH keyword, exists only for the duration of the query\n-- Makes complex queries more readable (like creating a temporary view)\n\n-- ── Simple CTE ────────────────────────────────────────────────\nWITH high_earners AS (\n    -- This is the CTE definition — like a temporary table\n    SELECT * FROM employees WHERE salary > 80000  -- filter for high earners\n)\n-- Main query uses the CTE like a regular table\nSELECT * FROM high_earners                             -- data fetch karo\nWHERE dept_id = 1;  -- can add more filters to the CTE result\n\n-- ── Multiple CTEs (separate with commas) ──────────────────────\nWITH\ndept_avg AS (\n    SELECT dept_id, AVG(salary) AS avg_sal   -- average salary per dept\n    FROM employees GROUP BY dept_id                    -- kis table se\n),\nabove_avg AS (\n    SELECT e.first_name, e.salary, d.avg_sal  -- employees earning above their dept avg\n    FROM employees e                                   -- kis table se\n    JOIN dept_avg d ON e.dept_id = d.dept_id           -- tables jodo\n    WHERE e.salary > d.avg_sal               -- compare with department average\n)\nSELECT * FROM above_avg ORDER BY salary DESC;  -- use second CTE in main query\n\n-- ── Recursive CTE (hierarchical data like org charts) ─────────\nWITH RECURSIVE org_chart AS (\n    -- Base case: start with top-level managers (no manager_id)\n    SELECT id, first_name, manager_id, 0 AS level      -- data fetch karo\n    FROM employees WHERE manager_id IS NULL            -- kis table se\n\n    UNION ALL   -- combine base case with recursive case\n\n    -- Recursive case: find employees of each manager\n    SELECT e.id, e.first_name, e.manager_id, oc.level + 1  -- increment level\n    FROM employees e                                   -- kis table se\n    JOIN org_chart oc ON e.manager_id = oc.id  -- connect to previous level\n)\nSELECT * FROM org_chart ORDER BY level;  -- show hierarchy from top down"
+  },
+  {
+    "title": "SQL Window Functions",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "window function",
+      "row_number",
+      "rank",
+      "dense_rank",
+      "lag",
+      "lead",
+      "over",
+      "partition by",
+      "sql"
+    ],
+    "content": "-- Window functions compute value ACROSS related rows WITHOUT collapsing them\n-- Unlike GROUP BY, each row keeps its identity\n\n-- ROW_NUMBER: assigns sequential number within each partition\nSELECT name, salary, dept_id,                          -- data fetch karo\n    ROW_NUMBER() OVER (\n        PARTITION BY dept_id    -- restart numbering for each department\n        ORDER BY salary DESC    -- highest salary gets row number 1\n    ) AS row_num                                       -- alias naam do\nFROM employees;                                        -- kis table se\n\n-- RANK: like ROW_NUMBER but ties get same rank (gaps after ties: 1,1,3)\nSELECT name, salary,                                   -- data fetch karo\n    RANK() OVER (ORDER BY salary DESC) AS salary_rank  -- sort karo\nFROM employees;                                        -- kis table se\n\n-- DENSE_RANK: like RANK but no gaps (1,1,2 — not 1,1,3)\nSELECT name, salary,                                   -- data fetch karo\n    DENSE_RANK() OVER (ORDER BY salary DESC) AS dense_rank -- sort karo\nFROM employees;                                        -- kis table se\n\n-- LAG: access value from PREVIOUS row (salary change analysis)\nSELECT name, salary,                                   -- data fetch karo\n    LAG(salary) OVER (ORDER BY hire_date) AS prev_salary,      -- previous row's salary\n    salary - LAG(salary) OVER (ORDER BY hire_date) AS change   -- salary increase/decrease\nFROM employees;                                        -- kis table se\n\n-- LEAD: access value from NEXT row\nSELECT name, salary,                                   -- data fetch karo\n    LEAD(salary) OVER (ORDER BY hire_date) AS next_salary -- sort karo\nFROM employees;                                        -- kis table se\n\n-- Running total (cumulative sum)\nSELECT name, salary,                                   -- data fetch karo\n    SUM(salary) OVER (                                 -- total nikalo\n        ORDER BY hire_date                             -- sort karo\n        ROWS UNBOUNDED PRECEDING   -- sum from first row to current row\n    ) AS running_total                                 -- alias naam do\nFROM employees;                                        -- kis table se"
+  },
+  {
+    "title": "SQL Union Intersect Except",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "union",
+      "union all",
+      "intersect",
+      "except",
+      "minus",
+      "set operation",
+      "sql"
+    ],
+    "content": "-- UNION: combine results, remove duplicates\nSELECT name FROM employees                             -- data fetch karo\nUNION\nSELECT name FROM contractors;                          -- data fetch karo\n\n-- UNION ALL: combine results, keep duplicates (faster)\nSELECT email FROM employees                            -- data fetch karo\nUNION ALL\nSELECT email FROM contractors;                         -- data fetch karo\n\n-- INTERSECT: rows that exist in BOTH queries\nSELECT email FROM employees                            -- data fetch karo\nINTERSECT\nSELECT email FROM customers;                           -- data fetch karo\n\n-- EXCEPT (MINUS in Oracle): in first but NOT in second\nSELECT email FROM employees                            -- data fetch karo\nEXCEPT\nSELECT email FROM unsubscribed;                        -- data fetch karo\n\n-- NOTE: MySQL does not support INTERSECT/EXCEPT natively\n-- Use subquery instead:\nSELECT email FROM employees                            -- data fetch karo\nWHERE email IN (SELECT email FROM customers);  -- MySQL INTERSECT alternative\n\nSELECT email FROM employees                            -- data fetch karo\nWHERE email NOT IN (SELECT email FROM unsubscribed);  -- MySQL EXCEPT alternative"
+  },
+  {
+    "title": "SQL Case Expression",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "case",
+      "when",
+      "then",
+      "else",
+      "conditional",
+      "sql",
+      "if"
+    ],
+    "content": "-- CASE expression: conditional logic inside SQL queries\n-- Like if-else but for column values\n\n-- ── Searched CASE (most flexible) ────────────────────────────\nSELECT\n    first_name,\n    salary,\n    CASE\n        WHEN salary > 100000 THEN 'Senior'    -- if salary > 100000\n        WHEN salary > 60000  THEN 'Mid'       -- else if salary > 60000\n        WHEN salary > 40000  THEN 'Junior'    -- else if salary > 40000\n        ELSE                      'Entry'     -- none of the above\n    END AS level                              -- column alias for the result\nFROM employees;                                        -- kis table se\n\n-- ── Simple CASE (like switch statement) ──────────────────────\nSELECT\n    first_name,\n    CASE dept_id            -- evaluate dept_id once\n        WHEN 1 THEN 'Engineering'   -- when equals 1\n        WHEN 2 THEN 'Marketing'     -- when equals 2\n        WHEN 3 THEN 'Sales'         -- when equals 3\n        ELSE       'Other'          -- for any other value\n    END AS department_name                             -- alias naam do\nFROM employees;                                        -- kis table se\n\n-- ── CASE in WHERE clause ──────────────────────────────────────\nSELECT * FROM employees                                -- data fetch karo\nWHERE CASE                                             -- condition lagao\n    WHEN dept_id = 1 THEN salary > 80000   -- Engineering: high threshold\n    ELSE                   salary > 50000  -- Other depts: lower threshold\nEND;\n\n-- ── CASE in aggregate (conditional count) ────────────────────\nSELECT\n    COUNT(CASE WHEN salary > 80000 THEN 1 END) AS high_earners,  -- count seniors\n    COUNT(CASE WHEN salary <= 80000 THEN 1 END) AS others,        -- count others\n    COUNT(*) AS total                                               -- total employees\nFROM employees;                                        -- kis table se"
+  },
+  {
+    "title": "SQL Create View",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "view",
+      "create view",
+      "virtual table",
+      "sql",
+      "materialized view"
+    ],
+    "content": "-- Create a simple view\nCREATE VIEW active_employees AS                        -- virtual table banao\nSELECT e.id, e.first_name, e.last_name, e.salary, d.name AS department -- data fetch karo\nFROM employees e                                       -- kis table se\nJOIN departments d ON e.dept_id = d.id                 -- tables jodo\nWHERE e.is_active = TRUE;                              -- condition lagao\n\n-- Use view like a table\nSELECT * FROM active_employees WHERE salary > 70000;   -- data fetch karo\n\n-- Update view data (if updatable)\nCREATE OR REPLACE VIEW active_employees AS\nSELECT * FROM employees WHERE is_active = TRUE;        -- data fetch karo\n\n-- Drop view\nDROP VIEW IF EXISTS active_employees;\n\n-- Materialized View (PostgreSQL only - stores actual data)\nCREATE MATERIALIZED VIEW dept_summary AS\nSELECT dept_id, COUNT(*) AS emp_count, AVG(salary) AS avg_salary -- data fetch karo\nFROM employees GROUP BY dept_id;                       -- kis table se\n\n-- Refresh materialized view\nREFRESH MATERIALIZED VIEW dept_summary;"
+  },
+  {
+    "title": "SQL Create Index",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "index",
+      "create index",
+      "unique",
+      "partial index",
+      "sql",
+      "performance"
+    ],
+    "content": "-- Single column index\nCREATE INDEX idx_emp_email ON employees(email);        -- search fast karne ke liye\n\n-- Unique index (enforces no duplicates)\nCREATE UNIQUE INDEX idx_email_unique ON employees(email); -- duplicate values allowed nahi\n\n-- Composite index (queries filtering dept + salary)\nCREATE INDEX idx_dept_salary ON employees(dept_id, salary DESC); -- search fast karne ke liye\n\n-- Partial index (PostgreSQL): only index active employees\nCREATE INDEX idx_active_emp ON employees(last_name)    -- search fast karne ke liye\nWHERE is_active = TRUE;                                -- condition lagao\n\n-- Drop index\nDROP INDEX idx_emp_email;                              -- search fast karne ke liye\n\n-- Check query execution plan\nEXPLAIN SELECT * FROM employees WHERE email = 'alice@company.com'; -- data fetch karo\n\n-- TIPS:\n-- Add indexes on columns you frequently use in WHERE, JOIN, ORDER BY\n-- Too many indexes slow down INSERT/UPDATE/DELETE\n-- Use EXPLAIN to check if your query actually uses the index"
+  },
+  {
+    "title": "SQL Transaction ACID",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "transaction",
+      "commit",
+      "rollback",
+      "savepoint",
+      "begin",
+      "acid",
+      "sql"
+    ],
+    "content": "-- Start transaction\nBEGIN;\n\n  -- Transfer ₹500 from account 1 to account 2\n  UPDATE accounts SET balance = balance - 500 WHERE id = 1; -- condition lagao\n  UPDATE accounts SET balance = balance + 500 WHERE id = 2; -- condition lagao\n\nCOMMIT;  -- Make changes permanent\n\n-- Rollback on error\nBEGIN;\n  UPDATE accounts SET balance = balance - 500 WHERE id = 1; -- condition lagao\nROLLBACK;  -- Undo everything since BEGIN\n\n-- Savepoint: partial rollback\nBEGIN;\n  INSERT INTO orders VALUES (1, 'Order A', 1000);      -- data add karo\n  SAVEPOINT after_order;\n  INSERT INTO order_items VALUES (1, 'Item X', 500);  -- risky operation\n  ROLLBACK TO after_order;  -- undo only the item insert\nCOMMIT;                                                -- changes save karo\n\n-- Add constraint to table\nALTER TABLE employees                                  -- table modify karo\nADD CONSTRAINT chk_salary CHECK (salary > 0);          -- value validation lagao\n\n-- ACID: Atomicity (all or nothing), Consistency, Isolation, Durability"
+  },
+  {
+    "title": "SQL Constraints",
+    "language": "sql",
+    "db_type": "sql",
+    "tags": [
+      "constraints",
+      "not null",
+      "unique",
+      "check",
+      "default",
+      "primary key",
+      "foreign key",
+      "sql"
+    ],
+    "content": "CREATE TABLE students (                                -- naya table banao\n    id         INTEGER      PRIMARY KEY,           -- must be unique, not null\n    name       VARCHAR(100) NOT NULL,              -- cannot be empty\n    email      VARCHAR(150) UNIQUE,                -- no duplicates\n    age        INTEGER      CHECK (age > 0 AND age < 120), -- valid range\n    class      VARCHAR(20)  DEFAULT '10th',        -- default value\n    dept_id    INTEGER      REFERENCES departments(id)  -- foreign key\n);\n\n-- Named constraints (easier to drop/manage)\nCREATE TABLE orders (                                  -- naya table banao\n    id         INTEGER,\n    amount     NUMERIC(10,2),\n    customer_id INTEGER,\n    CONSTRAINT pk_orders PRIMARY KEY (id),             -- unique identifier — duplicate nahi ho sakta\n    CONSTRAINT chk_amount CHECK (amount > 0),          -- value validation lagao\n    CONSTRAINT fk_customer FOREIGN KEY (customer_id)   -- doosre table se link karo\n        REFERENCES customers(id) ON DELETE CASCADE\n);\n\n-- Add constraint after table creation\nALTER TABLE students                                   -- table modify karo\nADD CONSTRAINT chk_marks CHECK (marks >= 0 AND marks <= 100); -- value validation lagao"
+  },
+  {
+    "title": "SQL Create Table Students",
+    "language": "sql",
+    "tags": [
+      "create",
+      "table",
+      "students",
+      "sql"
+    ],
+    "content": "-- Create students table with all common columns\nCREATE TABLE students (                                -- naya table banao\n    id         INTEGER PRIMARY KEY,         -- unique identifier for each student\n    name       VARCHAR(100) NOT NULL,       -- student name (required field)\n    age        INTEGER,                     -- age in years\n    class      VARCHAR(20),                 -- class like '10th', '11th'\n    marks      DECIMAL(5,2) DEFAULT 0.00,  -- marks out of 100 (max 999.99)\n    email      VARCHAR(150) UNIQUE,         -- email must be unique\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- auto-set when record created\n);\n\n-- Insert sample students\nINSERT INTO students (name, age, class, marks, email) VALUES -- data add karo\n    ('Alice',   20, '10th', 92.5, 'alice@example.com'),  -- student 1\n    ('Bob',     21, '11th', 78.0, 'bob@example.com'),    -- student 2\n    ('Charlie', 19, '10th', 85.5, 'charlie@example.com'), -- student 3\n    ('Diana',   20, '12th', 95.0, 'diana@example.com');   -- student 4\n\n-- View all students\nSELECT * FROM students;                                -- data fetch karo\n-- View top students sorted by marks\nSELECT * FROM students WHERE marks > 80 ORDER BY marks DESC; -- data fetch karo"
+  },
+  {
+    "title": "SQL Create Table Teachers",
+    "language": "sql",
+    "tags": [
+      "create",
+      "table",
+      "teachers",
+      "sql"
+    ],
+    "content": "-- Create teachers table\nCREATE TABLE teachers (                                -- naya table banao\n    id         INTEGER PRIMARY KEY,        -- auto unique ID\n    name       VARCHAR(100) NOT NULL,      -- teacher's full name (required)\n    subject    VARCHAR(50),                -- subject they teach e.g. 'Mathematics'\n    age        INTEGER,                    -- age in years\n    salary     DECIMAL(10,2),             -- monthly salary\n    email      VARCHAR(150) UNIQUE,        -- unique work email\n    phone      VARCHAR(15)                 -- contact number\n);\n\n-- Insert sample teachers\nINSERT INTO teachers (name, subject, age, salary, email, phone) VALUES -- data add karo\n    ('Mr. Sharma',  'Mathematics', 45, 55000.00, 'sharma@school.com', '9876543210'),\n    ('Ms. Priya',   'Science',     38, 48000.00, 'priya@school.com',  '9876543211'),\n    ('Mr. Verma',   'English',     52, 60000.00, 'verma@school.com',  '9876543212'),\n    ('Ms. Gupta',   'History',     41, 45000.00, 'gupta@school.com',  '9876543213');\n\n-- View all teachers\nSELECT * FROM teachers;                                -- data fetch karo\n-- View teachers earning above 50000\nSELECT name, subject, salary FROM teachers WHERE salary > 50000 ORDER BY salary DESC; -- data fetch karo"
+  },
+  {
+    "title": "SQL Create Table Employees",
+    "language": "sql",
+    "tags": [
+      "create",
+      "table",
+      "employees",
+      "sql"
+    ],
+    "content": "-- Create employees table\nCREATE TABLE employees (                               -- naya table banao\n    id          INTEGER PRIMARY KEY,        -- unique employee ID\n    name        VARCHAR(100) NOT NULL,      -- employee full name\n    department  VARCHAR(50),               -- department e.g. 'Engineering'\n    designation VARCHAR(50),               -- job title e.g. 'Senior Developer'\n    salary      DECIMAL(10,2),             -- monthly salary\n    email       VARCHAR(150) UNIQUE,        -- unique work email\n    hire_date   DATE,                       -- date employee joined\n    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- record creation time\n);\n\n-- Insert sample employees\nINSERT INTO employees (name, department, designation, salary, email, hire_date) VALUES -- data add karo\n    ('Rahul Sharma', 'Engineering', 'Senior Developer',  75000, 'rahul@co.com', '2023-01-15'),\n    ('Priya Singh',  'Marketing',   'Marketing Manager', 65000, 'priya@co.com', '2022-06-01'),\n    ('Amit Kumar',   'HR',          'HR Executive',      50000, 'amit@co.com',  '2021-03-10'),\n    ('Sunita Devi',  'Finance',     'Accountant',        58000, 'sunita@co.com','2020-11-20');\n\n-- View all employees\nSELECT * FROM employees;                               -- data fetch karo\n-- View employees sorted by salary\nSELECT name, department, salary FROM employees WHERE salary > 55000 ORDER BY salary DESC; -- data fetch karo"
+  },
+  {
+    "title": "SQL Create Table Products",
+    "language": "sql",
+    "tags": [
+      "create",
+      "table",
+      "products",
+      "sql"
+    ],
+    "content": "-- Create products table\nCREATE TABLE products (                                -- naya table banao\n    id          INTEGER PRIMARY KEY,        -- unique product ID\n    name        VARCHAR(100) NOT NULL,      -- product name (required)\n    description TEXT,                       -- detailed product description\n    price       DECIMAL(10,2) NOT NULL,    -- price in rupees (required)\n    quantity    INTEGER DEFAULT 0,          -- stock quantity (default 0)\n    category    VARCHAR(50),               -- product category\n    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- when added to system\n);\n\n-- Insert sample products\nINSERT INTO products (name, description, price, quantity, category) VALUES -- data add karo\n    ('Laptop',      'High-performance laptop', 55000.00, 10,  'Electronics'),  -- product 1\n    ('Mobile Phone','Latest smartphone',        25000.00, 50,  'Electronics'),  -- product 2\n    ('Headphones',  'Wireless noise-cancelling', 5000.00, 100, 'Electronics'),  -- product 3\n    ('Notebook',    'A4 ruled notebook',           150.00, 200, 'Stationery'); -- product 4\n\n-- View all products\nSELECT * FROM products;                                -- data fetch karo\n-- View products by category with total stock value\nSELECT category, COUNT(*) AS items, SUM(price * quantity) AS total_value -- data fetch karo\nFROM products GROUP BY category;                       -- kis table se"
+  },
+  {
+    "title": "SQL Having Clause",
+    "language": "sql",
+    "tags": [
+      "having",
+      "group by",
+      "filter groups",
+      "sql"
+    ],
+    "content": "-- HAVING filters GROUPS after GROUP BY\n-- WHERE filters ROWS before grouping\n-- Key difference: WHERE cannot use aggregate functions, HAVING can\n\n-- Example 1: Departments with more than 3 employees\nSELECT department, COUNT(*) AS emp_count    -- count employees per dept\nFROM employees                                         -- kis table se\nGROUP BY department                          -- group into departments\nHAVING COUNT(*) > 3;                        -- keep only groups with 4+ employees\n\n-- Example 2: Classes where average marks exceed 80\nSELECT class,                                          -- data fetch karo\n    COUNT(*) AS students,                    -- number of students\n    ROUND(AVG(marks), 2) AS avg_marks       -- average marks (2 decimal places)\nFROM students                                          -- kis table se\nGROUP BY class                               -- group by class\nHAVING AVG(marks) > 80                      -- filter: only classes with avg > 80\nORDER BY avg_marks DESC;                    -- sort by average descending\n\n-- Example 3: Product categories with total inventory value > 100000\nSELECT\n    category,\n    COUNT(*)               AS products,     -- number of products\n    SUM(price * quantity)  AS total_value   -- total stock value\nFROM products                                          -- kis table se\nGROUP BY category                                      -- group banao\nHAVING SUM(price * quantity) > 100000;     -- only high-value categories"
+  },
+  {
+    "title": "SQL Stored Functions",
+    "language": "sql",
+    "tags": [
+      "function",
+      "create function",
+      "sql",
+      "postgresql"
+    ],
+    "content": "-- PostgreSQL / Standard SQL Function\nCREATE OR REPLACE FUNCTION get_grade(marks NUMERIC)\nRETURNS VARCHAR AS $$\nBEGIN                                                  -- transaction shuru karo\n    IF    marks >= 90 THEN RETURN 'A';\n    ELSIF marks >= 75 THEN RETURN 'B';\n    ELSIF marks >= 60 THEN RETURN 'C';\n    ELSE                   RETURN 'F';\n    END IF;\nEND;\n$$ LANGUAGE plpgsql;\n\n-- Use the function\nSELECT name, marks, get_grade(marks) AS grade          -- data fetch karo\nFROM students;                                         -- kis table se\n\n-- Simple function\nCREATE OR REPLACE FUNCTION full_name(first VARCHAR, last VARCHAR)\nRETURNS VARCHAR AS $$\n    SELECT first || ' ' || last;                       -- data fetch karo\n$$ LANGUAGE SQL;\n\nSELECT full_name('Alice', 'Smith');                    -- data fetch karo"
+  },
+  {
+    "title": "SQL Trigger",
+    "language": "sql",
+    "tags": [
+      "trigger",
+      "after insert",
+      "before update",
+      "sql"
+    ],
+    "content": "-- Create audit table\nCREATE TABLE audit_log (                               -- naya table banao\n    id         INTEGER PRIMARY KEY,                    -- unique identifier — duplicate nahi ho sakta\n    table_name VARCHAR(50),\n    action     VARCHAR(20),\n    record_id  INTEGER,\n    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP     -- agar value na di to yeh use hogi\n);\n\n-- PostgreSQL trigger function\nCREATE OR REPLACE FUNCTION log_student_change()\nRETURNS TRIGGER AS $$\nBEGIN                                                  -- transaction shuru karo\n    INSERT INTO audit_log (table_name, action, record_id) -- data add karo\n    VALUES ('students', TG_OP, NEW.id);                -- jo values insert karni hain\n    RETURN NEW;\nEND;\n$$ LANGUAGE plpgsql;\n\n-- Attach trigger\nCREATE TRIGGER after_student_insert\nAFTER INSERT ON students\nFOR EACH ROW\nEXECUTE FUNCTION log_student_change();\n\n-- Test\nINSERT INTO students (name, marks) VALUES ('Test', 80); -- data add karo\nSELECT * FROM audit_log;                               -- data fetch karo"
+  },
+  {
+    "title": "SQL Pivot and Crosstab",
+    "language": "sql",
+    "tags": [
+      "pivot",
+      "crosstab",
+      "conditional aggregate",
+      "sql"
+    ],
+    "content": "-- Conditional aggregation (manual pivot)\nSELECT\n    student_id,\n    MAX(CASE WHEN subject = 'Math'     THEN marks END) AS math, -- maximum value\n    MAX(CASE WHEN subject = 'Science'  THEN marks END) AS science, -- maximum value\n    MAX(CASE WHEN subject = 'English'  THEN marks END) AS english, -- maximum value\n    ROUND(AVG(marks), 2)                               AS overall_avg -- average nikalo\nFROM exam_results                                      -- kis table se\nGROUP BY student_id                                    -- group banao\nORDER BY overall_avg DESC;                             -- sort karo\n\n-- Count by status in columns\nSELECT\n    department,\n    COUNT(*) FILTER (WHERE status = 'active')   AS active, -- condition lagao\n    COUNT(*) FILTER (WHERE status = 'inactive') AS inactive, -- condition lagao\n    COUNT(*) AS total                                  -- rows count karo\nFROM employees                                         -- kis table se\nGROUP BY department;                                   -- group banao"
+  }
+]

@@ -1,0 +1,535 @@
+[
+  {
+    "title": "MongoDB Create Database and Collection",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "create",
+      "database",
+      "collection",
+      "mongodb",
+      "use",
+      "show"
+    ],
+    "content": "// Step 1: Select or create a database\nuse school_db                                          // database switch karo\n\n// Step 2: Create collection explicitly\ndb.createCollection('students')                        // naya collection banao\n\n// Create with validation (optional)\ndb.createCollection('orders', {                        // naya collection banao\n  validator: {\n    $jsonSchema: {\n      bsonType: 'object',\n      required: ['name', 'email'],\n      properties: {\n        name:  { bsonType: 'string' },\n        email: { bsonType: 'string' }\n      }\n    }\n  }\n})\n\n// Auto-create on first insert (no explicit createCollection needed)\ndb.products.insertOne({ name: 'Laptop', price: 50000 }) // ek document insert karo\n\n// Utility commands\nshow dbs           // list all databases\nshow collections   // list collections in current db\ndb.stats()         // database statistics"
+  },
+  {
+    "title": "MongoDB Insert Documents",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "insert",
+      "insertone",
+      "insertmany",
+      "mongodb",
+      "add",
+      "document"
+    ],
+    "content": "// ── insertOne: add a single document ──────────────────────────\ndb.students.insertOne({                                // ek document insert karo\n    name:      'Alice',              // string field\n    age:       20,                   // number field\n    class:     '10th',               // class string\n    marks:     92.5,                 // decimal number\n    email:     'alice@example.com',  // unique identifier\n    subjects:  ['Math', 'Physics'],  // array field (list of values)\n    address:   { city: 'Mumbai', state: 'MH' },  // embedded document (nested object)\n    createdAt: new Date()            // current date/time\n})\n// Returns: { acknowledged: true, insertedId: ObjectId(\"...\") }\n\n// ── insertMany: add multiple documents at once ────────────────\ndb.students.insertMany([                               // multiple documents insert karo\n    { name: 'Bob',     age: 21, class: '11th', marks: 78.0 },   // first document\n    { name: 'Charlie', age: 19, class: '10th', marks: 85.5 },   // second document\n    { name: 'Diana',   age: 20, class: '12th', marks: 91.0 },   // third document\n    { name: 'Evan',    age: 22, class: '11th', marks: 74.5 }    // fourth document\n])\n// Returns: { acknowledged: true, insertedIds: { 0: ObjectId, 1: ObjectId, ... } }\n\n// ── Continue on error: ordered: false ─────────────────────────\n// By default (ordered: true), insertMany stops on first error\n// With ordered: false, it continues and reports all errors at end\ndb.students.insertMany(docs, { ordered: false })       // multiple documents insert karo"
+  },
+  {
+    "title": "MongoDB Find Query",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "find",
+      "query",
+      "read",
+      "select",
+      "filter",
+      "search",
+      "mongodb",
+      "findone"
+    ],
+    "content": "// Find all documents\ndb.students.find()                                     // documents dhundo\n\n// Pretty print (readable format)\ndb.students.find().pretty()                            // documents dhundo\n\n// Find with condition (equal)\ndb.students.find({ class: '10th' })                    // documents dhundo\n\n// Find with comparison\ndb.students.find({ marks: { $gt: 80 } })               // documents dhundo\n\n// Multiple conditions (AND by default)\ndb.students.find({ marks: { $gt: 75 }, class: '10th' }) // documents dhundo\n\n// Find one document\ndb.students.findOne({ name: 'Alice' })                 // ek document dhundo\n\n// Count matching documents\ndb.students.countDocuments({ marks: { $gt: 80 } })     // greater than\n\n// Find with projection (show only name and marks, hide _id)\ndb.students.find(                                      // documents dhundo\n  { marks: { $gt: 80 } },                              // greater than\n  { name: 1, marks: 1, _id: 0 }\n)"
+  },
+  {
+    "title": "MongoDB Query Operators",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "gt",
+      "lt",
+      "gte",
+      "lte",
+      "ne",
+      "in",
+      "nin",
+      "or",
+      "and",
+      "nor",
+      "operators",
+      "mongodb",
+      "comparison"
+    ],
+    "content": "// Comparison operators\ndb.students.find({ marks: { $gt:  80 } })  // marks > 80\ndb.students.find({ marks: { $gte: 80 } })  // marks >= 80\ndb.students.find({ marks: { $lt:  50 } })  // marks < 50\ndb.students.find({ marks: { $lte: 50 } })  // marks <= 50\ndb.students.find({ marks: { $ne:  0  } })  // marks != 0\n\n// IN and NOT IN\ndb.students.find({ age: { $in:  [19, 20, 21] } })  // age IN list\ndb.students.find({ age: { $nin: [19, 20] } })       // age NOT IN list\n\n// OR condition\ndb.students.find({                                     // documents dhundo\n  $or: [                                               // any ek condition True ho\n    { marks: { $gt: 90 } },                            // greater than\n    { class: '12th' }\n  ]\n})\n\n// AND condition (explicit)\ndb.students.find({                                     // documents dhundo\n  $and: [                                              // dono conditions True hon\n    { marks: { $gt: 70 } },                            // greater than\n    { marks: { $lt: 90 } }                             // less than\n  ]\n})\n\n// NOR: none of the conditions\ndb.students.find({                                     // documents dhundo\n  $nor: [{ class: '10th' }, { marks: { $lt: 50 } }]    // less than\n})\n\n// LIKE (regex pattern)\ndb.students.find({ name: /^Al/i })   // starts with Al (case insensitive)\ndb.students.find({ name: /ali/i })   // contains 'ali'"
+  },
+  {
+    "title": "MongoDB Sort Limit Skip Pagination",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "sort",
+      "limit",
+      "skip",
+      "pagination",
+      "order",
+      "mongodb",
+      "ascending",
+      "descending"
+    ],
+    "content": "// Sort ascending (1 = ASC)\ndb.students.find().sort({ name: 1 })                   // documents dhundo\n\n// Sort descending (-1 = DESC)\ndb.students.find().sort({ marks: -1 })                 // documents dhundo\n\n// Sort by multiple fields\ndb.students.find().sort({ class: 1, marks: -1 })       // documents dhundo\n\n// Limit results\ndb.students.find().limit(5)                            // documents dhundo\n\n// Skip records (for pagination)\ndb.students.find().skip(10).limit(5)   // page 3 (5 per page)\n\n// Top 3 students by marks\ndb.students.find(                                      // documents dhundo\n  {},\n  { name: 1, marks: 1, _id: 0 }\n).sort({ marks: -1 }).limit(3)\n\n// Pagination helper\nconst page = 2\nconst pageSize = 10\ndb.students.find().skip((page-1) * pageSize).limit(pageSize) // documents dhundo"
+  },
+  {
+    "title": "MongoDB Update Documents",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "update",
+      "updateone",
+      "updatemany",
+      "set",
+      "inc",
+      "push",
+      "pull",
+      "upsert",
+      "mongodb"
+    ],
+    "content": "// Update single field (updateOne)\ndb.students.updateOne(                                 // ek document update karo\n  { name: 'Alice' },         // filter\n  { $set: { marks: 97 } }    // update\n)\n\n// Update multiple fields\ndb.students.updateOne(                                 // ek document update karo\n  { name: 'Alice' },\n  {\n    $set: { marks: 99, grade: 'A+' },                  // field update karo\n    $currentDate: { updatedAt: true }\n  }\n)\n\n// Increment a field\ndb.students.updateOne(                                 // ek document update karo\n  { name: 'Bob' },\n  { $inc: { marks: 5 } }   // increase marks by 5\n)\n\n// Update many documents\ndb.students.updateMany(                                // multiple documents update karo\n  { marks: { $lt: 50 } },  // filter: all failing students\n  { $set: { status: 'fail' } }                         // field update karo\n)\n\n// Push element to array\ndb.students.updateOne(                                 // ek document update karo\n  { name: 'Alice' },\n  { $push: { subjects: 'Chemistry' } }                 // array mein add karo\n)\n\n// Pull (remove) element from array\ndb.students.updateOne(                                 // ek document update karo\n  { name: 'Alice' },\n  { $pull: { subjects: 'Math' } }\n)\n\n// Upsert: insert if not found\ndb.students.updateOne(                                 // ek document update karo\n  { email: 'new@example.com' },\n  { $set: { name: 'New Student', age: 20 } },          // field update karo\n  { upsert: true }  // creates new doc if filter not found\n)"
+  },
+  {
+    "title": "MongoDB Delete Documents",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "delete",
+      "deleteone",
+      "deletemany",
+      "drop",
+      "remove",
+      "mongodb"
+    ],
+    "content": "// Delete one matching document\ndb.students.deleteOne({ name: 'Alice' })               // ek document delete karo\n\n// Delete all matching documents\ndb.students.deleteMany({ marks: { $lt: 33 } })         // multiple documents delete karo\n\n// Delete all documents (collection stays)\ndb.students.deleteMany({})                             // multiple documents delete karo\n\n// Drop entire collection\ndb.students.drop()                                     // collection delete karo\n\n// Drop entire database\ndb.dropDatabase()                                      // database delete karo\n\n// WARNING: deleteMany({}) deletes ALL documents!\n// Always test your filter with find() first:\ndb.students.find({ marks: { $lt: 33 } })  // preview first\ndb.students.deleteMany({ marks: { $lt: 33 } })  // then delete"
+  },
+  {
+    "title": "MongoDB Aggregation Pipeline",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "aggregate",
+      "pipeline",
+      "group",
+      "match",
+      "project",
+      "sort",
+      "count",
+      "sum",
+      "avg",
+      "mongodb"
+    ],
+    "content": "// Count and average per class\ndb.students.aggregate([                                // aggregation pipeline chalo\n  { $group: {                                          // documents group karo\n      _id: '$class',\n      count:      { $sum: 1 },                         // sum nikalo\n      avgMarks:   { $avg: '$marks' },                  // average nikalo\n      totalMarks: { $sum: '$marks' },                  // sum nikalo\n      maxMarks:   { $max: '$marks' },                  // maximum value\n      minMarks:   { $min: '$marks' }                   // minimum value\n  }},\n  { $sort: { count: -1 } }                             // documents sort karo\n])\n\n// Full pipeline: filter → transform → sort → limit\ndb.students.aggregate([                                // aggregation pipeline chalo\n  // Stage 1: Filter (like WHERE)\n  { $match: { marks: { $gte: 60 } } },                 // documents filter karo\n  \n  // Stage 2: Add computed field\n  { $project: {                                        // fields select karo\n      name:  1,\n      marks: 1,\n      grade: { $cond: [{ $gte: ['$marks', 90] }, 'A', 'B'] } // greater than or equal\n  }},\n  \n  // Stage 3: Sort\n  { $sort: { marks: -1 } },                            // documents sort karo\n  \n  // Stage 4: Limit results\n  { $limit: 10 }                                       // result limit karo\n])\n\n// TIP: Use $match early in pipeline to filter before $group for performance"
+  },
+  {
+    "title": "MongoDB Lookup Join",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "lookup",
+      "join",
+      "aggregate",
+      "unwind",
+      "mongodb",
+      "populate"
+    ],
+    "content": "// $lookup = JOIN in MongoDB\n// Join orders with users collection\ndb.orders.aggregate([                                  // aggregation pipeline chalo\n  {\n    $lookup: {                                         // doosre collection se join karo\n      from:         'users',      // collection to join\n      localField:   'user_id',    // field in orders\n      foreignField: '_id',        // field in users\n      as:           'user_info'   // output array field name\n    }\n  },\n  \n  // $unwind: flatten the array (1 doc per order)\n  { $unwind: '$user_info' },                           // array ko flat karo\n  \n  // Project only needed fields\n  {\n    $project: {                                        // fields select karo\n      order_id: 1,\n      amount:   1,\n      'user_info.name':  1,\n      'user_info.email': 1\n    }\n  },\n  \n  // Sort by amount\n  { $sort: { amount: -1 } }                            // documents sort karo\n])\n\n// Multiple lookups\ndb.orders.aggregate([                                  // aggregation pipeline chalo\n  { $lookup: { from: 'users',    localField: 'user_id',    foreignField: '_id', as: 'user' }}, // doosre collection se join karo\n  { $lookup: { from: 'products', localField: 'product_id', foreignField: '_id', as: 'product' }}, // doosre collection se join karo\n  { $unwind: '$user' },                                // array ko flat karo\n  { $unwind: '$product' }                              // array ko flat karo\n])"
+  },
+  {
+    "title": "MongoDB Indexes",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "index",
+      "createindex",
+      "unique",
+      "compound",
+      "text",
+      "ttl",
+      "performance",
+      "mongodb"
+    ],
+    "content": "// Single field index (speeds up queries on email)\ndb.students.createIndex({ email: 1 })                  // index banao — search fast hoga\n\n// Unique index (prevents duplicate emails)\ndb.students.createIndex({ email: 1 }, { unique: true }) // index banao — search fast hoga\n\n// Compound index (queries filtering class AND marks)\ndb.students.createIndex({ class: 1, marks: -1 })       // index banao — search fast hoga\n\n// Text search index\ndb.students.createIndex({ name: 'text', bio: 'text' }) // index banao — search fast hoga\n\n// Text search query\ndb.students.find({ $text: { $search: 'Alice developer' } }) // documents dhundo\n\n// Sort by text relevance score\ndb.students.find(                                      // documents dhundo\n  { $text: { $search: 'Alice' } },\n  { score: { $meta: 'textScore' } }\n).sort({ score: { $meta: 'textScore' } })\n\n// TTL index: auto-delete documents after 1 hour\ndb.sessions.createIndex(                               // index banao — search fast hoga\n  { createdAt: 1 },\n  { expireAfterSeconds: 3600 }\n)\n\n// List all indexes\ndb.students.getIndexes()\n\n// Drop specific index\ndb.students.dropIndex({ email: 1 })\n\n// Drop all indexes (except _id)\ndb.students.dropIndexes()"
+  },
+  {
+    "title": "MongoDB Text Search",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "text search",
+      "fulltext",
+      "regex",
+      "search",
+      "mongodb"
+    ],
+    "content": "// Option 1: Text Index (fast, requires setup)\n// Step 1: Create text index\ndb.articles.createIndex({ title: 'text', content: 'text' }) // index banao — search fast hoga\n\n// Step 2: Search\ndb.articles.find({ $text: { $search: 'mongodb database' } }) // documents dhundo\n\n// Boolean text search\ndb.articles.find({ $text: { $search: '\"exact phrase\"' } }) // documents dhundo\ndb.articles.find({ $text: { $search: 'mongodb -mysql' } })  // exclude mysql\n\n// Option 2: Regex search (slower, no index needed)\ndb.students.find({ name: /alice/i })           // case insensitive\ndb.students.find({ name: /^Ali/i })            // starts with Ali\ndb.students.find({ email: /@gmail\\.com$/i })   // ends with @gmail.com\n\n// Option 3: $regex operator\ndb.students.find({ name: { $regex: 'ali', $options: 'i' } }) // documents dhundo"
+  },
+  {
+    "title": "MongoDB Projection Select Fields",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "projection",
+      "select fields",
+      "include",
+      "exclude",
+      "mongodb"
+    ],
+    "content": "// Include specific fields (1 = include)\ndb.students.find(                                      // documents dhundo\n  {},                               // no filter = all docs\n  { name: 1, marks: 1, class: 1 }   // show only these fields\n)\n// NOTE: _id is included by default\n\n// Exclude _id\ndb.students.find(                                      // documents dhundo\n  { marks: { $gt: 80 } },                              // greater than\n  { name: 1, marks: 1, _id: 0 }  // _id: 0 to hide it\n)\n\n// Exclude specific fields (0 = exclude)\ndb.students.find(                                      // documents dhundo\n  {},\n  { password: 0, __v: 0 }  // hide sensitive fields\n)\n\n// Nested field projection\ndb.students.find(                                      // documents dhundo\n  {},\n  { name: 1, 'address.city': 1, _id: 0 }\n)\n\n// Array slice: show only first 2 subjects\ndb.students.find(                                      // documents dhundo\n  {},\n  { name: 1, subjects: { $slice: 2 } }\n)"
+  },
+  {
+    "title": "MongoDB Distinct and Count",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "distinct",
+      "count",
+      "countdocuments",
+      "estimated",
+      "utility",
+      "mongodb"
+    ],
+    "content": "// Count all documents\ndb.students.countDocuments()\n\n// Count with filter\ndb.students.countDocuments({ marks: { $gt: 80 } })     // greater than\ndb.students.countDocuments({ class: '10th' })\n\n// Estimated count (faster, uses metadata)\ndb.students.estimatedDocumentCount()\n\n// Distinct: unique values\ndb.students.distinct('class')          // all unique class values\ndb.students.distinct('age')            // all unique ages\n\n// Distinct with filter\ndb.students.distinct('name', { class: '10th' })\n\n// Collection stats\ndb.students.stats()\n\n// Database stats\ndb.stats()"
+  },
+  {
+    "title": "MongoDB Array Operations",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "array",
+      "elemmatch",
+      "push",
+      "pull",
+      "addtoset",
+      "each",
+      "mongodb"
+    ],
+    "content": "// Find docs where subjects array contains 'Math'\ndb.students.find({ subjects: 'Math' })                 // documents dhundo\n\n// Array contains ALL specified values\ndb.students.find({ subjects: { $all: ['Math', 'Physics'] } }) // documents dhundo\n\n// Array size check\ndb.students.find({ subjects: { $size: 3 } })  // exactly 3 subjects\n\n// elemMatch: array element matching condition\ndb.students.find({ scores: { $elemMatch: { $gt: 80, $lt: 95 } } }) // documents dhundo\n\n// Push single element\ndb.students.updateOne(                                 // ek document update karo\n  { name: 'Alice' },\n  { $push: { subjects: 'Biology' } }                   // array mein add karo\n)\n\n// Push multiple elements\ndb.students.updateOne(                                 // ek document update karo\n  { name: 'Alice' },\n  { $push: { subjects: { $each: ['Biology', 'Art'] } } } // array mein add karo\n)\n\n// Add to set (no duplicates)\ndb.students.updateOne(                                 // ek document update karo\n  { name: 'Alice' },\n  { $addToSet: { subjects: 'Math' } }  // won't add if already exists\n)\n\n// Pull (remove) from array\ndb.students.updateOne(                                 // ek document update karo\n  { name: 'Alice' },\n  { $pull: { subjects: 'Math' } }\n)\n\n// Pull multiple values\ndb.students.updateOne(                                 // ek document update karo\n  { name: 'Alice' },\n  { $pullAll: { subjects: ['Math', 'Physics'] } }\n)"
+  },
+  {
+    "title": "MongoDB Exists and Type Checks",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "exists",
+      "type",
+      "bson",
+      "null",
+      "mongodb"
+    ],
+    "content": "// Check if field exists\ndb.students.find({ email: { $exists: true } })   // has email field\ndb.students.find({ email: { $exists: false } })  // missing email field\n\n// Null check\ndb.students.find({ email: null })        // email is null OR missing\ndb.students.find({ email: { $ne: null } })  // email exists and not null\n\n// Type check\ndb.students.find({ marks: { $type: 'double' } })  // marks is a number\ndb.students.find({ name:  { $type: 'string' } })  // name is a string\ndb.students.find({ _id:   { $type: 'objectId' } }) // objectId type\n\n// Multiple type check\ndb.students.find({ age: { $type: ['int', 'double'] } }) // documents dhundo\n\n// Convert type in aggregate\ndb.students.aggregate([                                // aggregation pipeline chalo\n  { $project: {                                        // fields select karo\n      name: 1,\n      marks_str: { $toString: '$marks' },  // number to string\n      age_int:   { $toInt: '$age' }         // string to int\n  }}\n])"
+  },
+  {
+    "title": "MongoDB Aggregate Math and Conditions",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "aggregate",
+      "cond",
+      "switch",
+      "math",
+      "add",
+      "multiply",
+      "divide",
+      "mongodb"
+    ],
+    "content": "// ── $cond: if-then-else inside aggregation ────────────────────\ndb.students.aggregate([                                // aggregation pipeline chalo\n    {\n        $project: {                                    // fields select karo\n            name:  1,               // include name field\n            marks: 1,               // include marks field\n            grade: {\n                $cond: {\n                    if:   { $gte: ['$marks', 90] },  // if marks >= 90\n                    then: 'A',                         // return 'A'\n                    else: {\n                        $cond: {\n                            if:   { $gte: ['$marks', 75] },  // else if marks >= 75\n                            then: 'B',                         // return 'B'\n                            else: 'C'                          // else return 'C'\n                        }\n                    }\n                }\n            },\n            bonus:   { $multiply: ['$marks', 0.1] },  // 10% of marks\n            rounded: { $round: ['$marks', 1] }         // round to 1 decimal\n        }\n    }\n])\n\n// ── $switch: multiple conditions (like switch statement) ───────\ndb.students.aggregate([                                // aggregation pipeline chalo\n    {\n        $project: {                                    // fields select karo\n            name: 1,\n            performance: {\n                $switch: {\n                    branches: [                                         // list of cases\n                        { case: { $gte: ['$marks', 90] }, then: 'Excellent' },  // case 1\n                        { case: { $gte: ['$marks', 75] }, then: 'Good'      },  // case 2\n                        { case: { $gte: ['$marks', 60] }, then: 'Average'   }   // case 3\n                    ],\n                    default: 'Below Average'    // if no case matches\n                }\n            }\n        }\n    }\n])"
+  },
+  {
+    "title": "MongoDB Explain and Performance",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "explain",
+      "performance",
+      "index",
+      "executionstats",
+      "mongodb"
+    ],
+    "content": "// Check if index is being used\ndb.students.find({ marks: { $gt: 80 } }).explain('executionStats') // documents dhundo\n\n// Look for 'IXSCAN' in executionStages (index used ✅)\n// If you see 'COLLSCAN' = full collection scan ❌ (slow, add index)\n\n// Check query execution time\ndb.students.find({ marks: { $gt: 80 } }).explain('allPlansExecution') // documents dhundo\n\n// Profile slow queries (> 100ms)\ndb.setProfilingLevel(1, 100)\ndb.system.profile.find().sort({ ts: -1 }).limit(5)\n\n// Index hint: force use of specific index\ndb.students.find({ marks: { $gt: 80 } }).hint({ marks: 1 }) // documents dhundo\n\n// Disable index (force collection scan for testing)\ndb.students.find({ marks: { $gt: 80 } }).hint({ $natural: 1 }) // documents dhundo\n\n// Collection stats (size, index info)\ndb.students.stats()\ndb.students.totalIndexSize()\n\n// List all indexes with details\ndb.students.getIndexes()"
+  },
+  {
+    "title": "MongoDB Utility Commands",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "utility",
+      "show",
+      "use",
+      "drop",
+      "rename",
+      "mongodb",
+      "commands"
+    ],
+    "content": "// Database navigation\nshow dbs                    // list all databases\nuse school_db               // switch to database\ndb.getName()                // current database name\n\n// Collection operations\nshow collections            // list collections\ndb.getCollectionNames()     // as array\n\n// Rename collection\ndb.students.renameCollection('pupils')\n\n// Copy collection\ndb.students.aggregate([                                // aggregation pipeline chalo\n  { $match: {} },                                      // documents filter karo\n  { $out: 'students_backup' }  // output to new collection\n])\n\n// Drop collection\ndb.students.drop()                                     // collection delete karo\n\n// Drop database\ndb.dropDatabase()                                      // database delete karo\n\n// Current operations\ndb.currentOp()\n\n// Kill slow operation\ndb.killOp(opid)\n\n// Server status\ndb.serverStatus()\n\n// User management\ndb.createUser({\n  user: 'admin',\n  pwd:  'password123',\n  roles: [{ role: 'readWrite', db: 'school_db' }]\n})"
+  },
+  {
+    "title": "MongoDB Create Students Collection",
+    "language": "mongodb",
+    "tags": [
+      "create",
+      "collection",
+      "students",
+      "insert",
+      "mongodb"
+    ],
+    "content": "// Step 1: Select database\nuse school_db                                          // database switch karo\n\n// Step 2: Insert students\ndb.students.insertMany([                               // multiple documents insert karo\n    { name: 'Alice',   age: 20, class: '10th', marks: 92.5, email: 'alice@example.com' },\n    { name: 'Bob',     age: 21, class: '11th', marks: 78.0, email: 'bob@example.com'   },\n    { name: 'Charlie', age: 19, class: '10th', marks: 85.5, email: 'charlie@test.com'  },\n    { name: 'Diana',   age: 20, class: '12th', marks: 95.0, email: 'diana@example.com' }\n])\n\n// Step 3: Find all\ndb.students.find().pretty()                            // documents dhundo\n\n// Step 4: Find top students\ndb.students.find({ marks: { $gt: 85 } }).sort({ marks: -1 }) // documents dhundo\n\n// Step 5: Count\ndb.students.countDocuments()"
+  },
+  {
+    "title": "MongoDB Create Teachers Collection",
+    "language": "mongodb",
+    "tags": [
+      "create",
+      "collection",
+      "teachers",
+      "insert",
+      "mongodb"
+    ],
+    "content": "use school_db                                          // database switch karo\n\n// Insert teachers\ndb.teachers.insertMany([                               // multiple documents insert karo\n    { name: 'Mr. Sharma', subject: 'Mathematics', age: 45, salary: 55000, email: 'sharma@school.com' },\n    { name: 'Ms. Priya',  subject: 'Science',     age: 38, salary: 48000, email: 'priya@school.com'  },\n    { name: 'Mr. Verma',  subject: 'English',     age: 52, salary: 60000, email: 'verma@school.com'  }\n])\n\n// Find all teachers\ndb.teachers.find().pretty()                            // documents dhundo\n\n// Find by subject\ndb.teachers.find({ subject: 'Mathematics' })           // documents dhundo\n\n// Find with salary filter\ndb.teachers.find({ salary: { $gt: 50000 } }).sort({ salary: -1 }) // documents dhundo\n\n// Update salary\ndb.teachers.updateOne(                                 // ek document update karo\n    { name: 'Mr. Sharma' },\n    { $set: { salary: 60000 } }                        // field update karo\n)"
+  },
+  {
+    "title": "MongoDB $where and Complex Queries",
+    "language": "mongodb",
+    "tags": [
+      "complex query",
+      "expr",
+      "where",
+      "computed",
+      "mongodb"
+    ],
+    "content": "// $expr: compare two fields\ndb.students.find({                                     // documents dhundo\n    $expr: { $gt: ['$marks', '$passing_marks'] }       // greater than\n})\n\n// Find students where marks > age * 3\ndb.students.find({                                     // documents dhundo\n    $expr: { $gt: ['$marks', { $multiply: ['$age', 3] }] } // greater than\n})\n\n// Multiple conditions with $and\ndb.students.find({                                     // documents dhundo\n    $and: [                                            // dono conditions True hon\n        { marks: { $gte: 60 } },                       // greater than or equal\n        { age:   { $lte: 22 } },                       // less than or equal\n        { class: { $in: ['10th', '11th'] } }           // list mein se match karo\n    ]\n})\n\n// $not operator\ndb.students.find({                                     // documents dhundo\n    marks: { $not: { $lt: 60 } }  // marks NOT less than 60\n})\n\n// $regex with options\ndb.students.find({                                     // documents dhundo\n    name: { $regex: '^A', $options: 'i' }  // starts with A\n})"
+  },
+  {
+    "title": "MongoDB Populate Reference Data",
+    "language": "mongodb",
+    "tags": [
+      "reference",
+      "populate",
+      "lookup",
+      "relationship",
+      "mongodb"
+    ],
+    "content": "// One-to-many relationship example\n// Step 1: Create departments\ndb.departments.insertMany([                            // multiple documents insert karo\n    { _id: 'eng',  name: 'Engineering' },\n    { _id: 'mkt',  name: 'Marketing'   },\n    { _id: 'hr',   name: 'HR'          }\n])\n\n// Step 2: Create employees with dept reference\ndb.employees.insertMany([                              // multiple documents insert karo\n    { name: 'Alice',   dept_id: 'eng', salary: 75000 },\n    { name: 'Bob',     dept_id: 'mkt', salary: 65000 },\n    { name: 'Charlie', dept_id: 'eng', salary: 80000 }\n])\n\n// Step 3: Lookup (JOIN)\ndb.employees.aggregate([                               // aggregation pipeline chalo\n    {\n        $lookup: {                                     // doosre collection se join karo\n            from:         'departments',\n            localField:   'dept_id',\n            foreignField: '_id',\n            as:           'department'\n        }\n    },\n    { $unwind: '$department' },                        // array ko flat karo\n    { $project: { name: 1, salary: 1, 'department.name': 1, _id: 0 } } // fields select karo\n])"
+  },
+  {
+    "title": "MongoDB Transactions",
+    "language": "mongodb",
+    "tags": [
+      "transaction",
+      "session",
+      "acid",
+      "mongodb"
+    ],
+    "content": "// MongoDB Transactions — ACID guarantees for multiple operations\n// Requires: MongoDB 4.0+ and Replica Set (or Atlas cluster)\n// Useful when you need ALL operations to succeed or ALL to fail\n\nconst session = db.getMongo().startSession()    // create a session\nconst studentsColl = session.getDatabase('school_db').students  // get collection via session\nconst auditColl    = session.getDatabase('school_db').audit     // another collection\n\ntry {\n    session.startTransaction()   // begin transaction — all following ops are atomic\n\n    // Operation 1: update student marks\n    studentsColl.updateOne(\n        { name: 'Alice' },           // filter: find Alice\n        { $set: { marks: 95 } }      // update: set marks to 95\n    )\n\n    // Operation 2: log the change in audit collection\n    auditColl.insertOne({\n        action:    'marks_updated',   // what happened\n        student:   'Alice',           // who was affected\n        new_marks: 95,                // new value\n        timestamp: new Date()         // when it happened\n    })\n\n    session.commitTransaction()       // SUCCESS: save all changes permanently\n    print('Transaction committed successfully!')\n\n} catch (error) {\n    session.abortTransaction()        // FAILURE: undo ALL changes (rollback)\n    print('Transaction failed, rolled back:', error)\n\n} finally {\n    session.endSession()              // always cleanup the session\n}"
+  },
+  {
+    "title": "MongoDB Geospatial Queries",
+    "language": "mongodb",
+    "tags": [
+      "geospatial",
+      "2dsphere",
+      "near",
+      "location",
+      "mongodb"
+    ],
+    "content": "// Create collection with geo index\ndb.places.createIndex({ location: '2dsphere' })        // index banao — search fast hoga\n\n// Insert places with coordinates [longitude, latitude]\ndb.places.insertMany([                                 // multiple documents insert karo\n    { name: 'Mumbai',    location: { type: 'Point', coordinates: [72.8777, 19.0760] } },\n    { name: 'Delhi',     location: { type: 'Point', coordinates: [77.1025, 28.7041] } },\n    { name: 'Bangalore', location: { type: 'Point', coordinates: [77.5946, 12.9716] } }\n])\n\n// Find places near a point (within 500km)\ndb.places.find({                                       // documents dhundo\n    location: {\n        $near: {\n            $geometry: { type: 'Point', coordinates: [72.8777, 19.0760] },\n            $maxDistance: 500000  // 500km in meters\n        }\n    }\n})\n\n// Find places within a circle\ndb.places.find({                                       // documents dhundo\n    location: {\n        $geoWithin: {\n            $centerSphere: [[72.8777, 19.0760], 5 / 3963.2]  // 5 mile radius\n        }\n    }\n})"
+  },
+  {
+    "title": "MongoDB Faceted Search",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "facet",
+      "faceted search",
+      "aggregate",
+      "mongodb"
+    ],
+    "content": "// Faceted search — get results + counts in one query\ndb.products.aggregate([                                // aggregation pipeline chalo\n  { $match: { status: 'active' } },                    // documents filter karo\n  {\n    $facet: {\n      byCategory: [\n        { $group: { _id: '$category', count: { $sum: 1 } } }, // documents group karo\n        { $sort: { count: -1 } }                       // documents sort karo\n      ],\n      priceRanges: [\n        { $bucket: { groupBy: '$price',\n            boundaries: [0, 100, 500, 1000, 5000],\n            default: '5000+',\n            output: { count: { $sum: 1 }, avg: { $avg: '$price' } } // sum nikalo\n        }}\n      ],\n      totalCount: [ { $count: 'total' } ]\n    }\n  }\n])"
+  },
+  {
+    "title": "MongoDB Add/Remove Array Field",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "addToSet",
+      "pull",
+      "push",
+      "array",
+      "mongodb"
+    ],
+    "content": "// Add unique item to array (no duplicates)\ndb.users.updateOne(                                    // ek document update karo\n  { _id: userId },\n  { $addToSet: { tags: 'nodejs' } }\n)\n\n// Add multiple unique items\ndb.users.updateOne(                                    // ek document update karo\n  { _id: userId },\n  { $addToSet: { tags: { $each: ['python', 'java'] } } }\n)\n\n// Remove from array\ndb.users.updateOne(                                    // ek document update karo\n  { _id: userId },\n  { $pull: { tags: 'java' } }          // single value\n)\n\n// Remove multiple values\ndb.users.updateOne(                                    // ek document update karo\n  { _id: userId },\n  { $pull: { scores: { $lt: 50 } } }  // condition-based removal\n)"
+  },
+  {
+    "title": "MongoDB Date Queries",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "date",
+      "ISODate",
+      "date range",
+      "mongodb"
+    ],
+    "content": "// Insert with date\ndb.events.insertOne({                                  // ek document insert karo\n  name: 'Hackathon',\n  date: new Date('2024-06-15'),\n  createdAt: new Date()                                // current timestamp\n})\n\n// Find in date range\ndb.events.find({                                       // documents dhundo\n  date: {\n    $gte: new Date('2024-01-01'),                      // greater than or equal\n    $lte: new Date('2024-12-31')                       // less than or equal\n  }\n})\n\n// Aggregate by month\ndb.orders.aggregate([                                  // aggregation pipeline chalo\n  {\n    $group: {                                          // documents group karo\n      _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },\n      total: { $sum: '$amount' },                      // sum nikalo\n      count: { $sum: 1 }                               // sum nikalo\n    }\n  },\n  { $sort: { '_id.year': 1, '_id.month': 1 } }         // documents sort karo\n])"
+  },
+  {
+    "title": "MongoDB Conditional Update",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "conditional",
+      "update",
+      "case",
+      "switch",
+      "mongodb"
+    ],
+    "content": "// Update with condition using aggregation pipeline (MongoDB 4.2+)\ndb.students.updateMany(                                // multiple documents update karo\n  {},\n  [\n    {\n      $set: {                                          // field update karo\n        grade: {\n          $switch: {\n            branches: [\n              { case: { $gte: ['$marks', 90] }, then: 'A+' }, // greater than or equal\n              { case: { $gte: ['$marks', 80] }, then: 'A' }, // greater than or equal\n              { case: { $gte: ['$marks', 70] }, then: 'B' }, // greater than or equal\n              { case: { $gte: ['$marks', 60] }, then: 'C' } // greater than or equal\n            ],\n            default: 'F'\n          }\n        }\n      }\n    }\n  ]\n)"
+  },
+  {
+    "title": "MongoDB Multiple Collection Lookup",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "lookup",
+      "join",
+      "multiple",
+      "pipeline",
+      "mongodb"
+    ],
+    "content": "// Join orders -> users -> products in one pipeline\ndb.orders.aggregate([                                  // aggregation pipeline chalo\n  {\n    $lookup: {                                         // doosre collection se join karo\n      from: 'users',\n      localField: 'user_id',\n      foreignField: '_id',\n      as: 'user'\n    }\n  },\n  { $unwind: '$user' },                                // array ko flat karo\n  { $unwind: '$items' },                               // array ko flat karo\n  {\n    $lookup: {                                         // doosre collection se join karo\n      from: 'products',\n      localField: 'items.product_id',\n      foreignField: '_id',\n      as: 'items.product'\n    }\n  },\n  { $unwind: '$items.product' },                       // array ko flat karo\n  {\n    $project: {                                        // fields select karo\n      orderId: 1,\n      'user.name': 1,\n      'user.email': 1,\n      'items.quantity': 1,\n      'items.product.name': 1,\n      'items.product.price': 1\n    }\n  }\n])"
+  },
+  {
+    "title": "MongoDB Pagination with Total Count",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "pagination",
+      "count",
+      "skip",
+      "limit",
+      "mongodb"
+    ],
+    "content": "// Efficient pagination with total count\nasync function getPaginated(collection, filter, page, pageSize) {\n  const result = await collection.aggregate([\n    { $match: filter },                                // documents filter karo\n    {\n      $facet: {\n        data: [\n          { $sort: { createdAt: -1 } },                // documents sort karo\n          { $skip: (page - 1) * pageSize },\n          { $limit: pageSize }                         // result limit karo\n        ],\n        total: [ { $count: 'count' } ]\n      }\n    }\n  ]).toArray();\n\n  return {\n    data: result[0].data,\n    total: result[0].total[0]?.count || 0,\n    page,\n    pages: Math.ceil((result[0].total[0]?.count || 0) / pageSize)\n  };\n}"
+  },
+  {
+    "title": "MongoDB Rename Drop Field",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "rename",
+      "unset",
+      "drop field",
+      "schema",
+      "mongodb"
+    ],
+    "content": "// Rename a field\ndb.users.updateMany(                                   // multiple documents update karo\n  {},\n  { $rename: { 'old_field_name': 'new_field_name' } }\n)\n\n// Remove a field\ndb.users.updateMany(                                   // multiple documents update karo\n  {},\n  { $unset: { 'deprecated_field': '' } }\n)\n\n// Remove multiple fields\ndb.users.updateMany(                                   // multiple documents update karo\n  {},\n  { $unset: { 'temp': '', 'debug_info': '', 'legacy': '' } }\n)\n\n// Add default value for missing field\ndb.users.updateMany(                                   // multiple documents update karo\n  { status: { $exists: false } },\n  { $set: { status: 'active' } }                       // field update karo\n)"
+  },
+  {
+    "title": "MongoDB Sample and Random Documents",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "sample",
+      "random",
+      "aggregate",
+      "mongodb"
+    ],
+    "content": "// Get 5 random documents\ndb.users.aggregate([                                   // aggregation pipeline chalo\n  { $sample: { size: 5 } }\n])\n\n// Random with filter\ndb.products.aggregate([                                // aggregation pipeline chalo\n  { $match: { category: 'electronics', inStock: true } }, // documents filter karo\n  { $sample: { size: 3 } },\n  { $project: { name: 1, price: 1 } }                  // fields select karo\n])\n\n// Random without aggregation (small collections)\nconst count = await db.users.countDocuments();\nconst skip = Math.floor(Math.random() * count);\nconst randomUser = await db.users.findOne({}, { skip }); // ek document dhundo"
+  },
+  {
+    "title": "MongoDB Compound Index",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "compound index",
+      "index",
+      "performance",
+      "mongodb"
+    ],
+    "content": "// Create compound index\ndb.users.createIndex({ lastName: 1, firstName: 1 })    // index banao — search fast hoga\n\n// With options\ndb.orders.createIndex(                                 // index banao — search fast hoga\n  { user_id: 1, createdAt: -1 },\n  { name: 'idx_user_date', background: true }\n)\n\n// Partial index (only on active records)\ndb.products.createIndex(                               // index banao — search fast hoga\n  { price: 1 },\n  { partialFilterExpression: { inStock: true } }\n)\n\n// TTL index (auto-delete after expiry)\ndb.sessions.createIndex(                               // index banao — search fast hoga\n  { createdAt: 1 },\n  { expireAfterSeconds: 3600 }  // expires after 1 hour\n)\n\n// View all indexes\ndb.users.getIndexes()\n\n// Drop index\ndb.users.dropIndex('idx_user_date')"
+  },
+  {
+    "title": "MongoDB Aggregation Group Stats",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "group",
+      "statistics",
+      "avg",
+      "sum",
+      "min",
+      "max",
+      "mongodb"
+    ],
+    "content": "// Group by department with multiple stats\ndb.employees.aggregate([                               // aggregation pipeline chalo\n  {\n    $group: {                                          // documents group karo\n      _id: '$department',\n      totalEmployees:  { $sum: 1 },                    // sum nikalo\n      avgSalary:       { $avg: '$salary' },            // average nikalo\n      maxSalary:       { $max: '$salary' },            // maximum value\n      minSalary:       { $min: '$salary' },            // minimum value\n      totalSalaryBill: { $sum: '$salary' },            // sum nikalo\n      names:           { $push: '$name' }              // array mein add karo\n    }\n  },\n  { $sort: { avgSalary: -1 } },                        // documents sort karo\n  {\n    $project: {                                        // fields select karo\n      department: '$_id',\n      totalEmployees: 1,\n      avgSalary: { $round: ['$avgSalary', 2] },\n      maxSalary: 1, minSalary: 1,\n      totalSalaryBill: 1\n    }\n  }\n])"
+  },
+  {
+    "title": "MongoDB Update Array Element by Index",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "array",
+      "positional",
+      "index",
+      "update",
+      "mongodb"
+    ],
+    "content": "// Update first matched array element\ndb.orders.updateOne(                                   // ek document update karo\n  { 'items.productId': 'P001' },\n  { $set: { 'items.$.quantity': 5 } }  // $ = positional operator\n)\n\n// Update all matched elements\ndb.students.updateMany(                                // multiple documents update karo\n  { 'scores.subject': 'Math' },\n  { $set: { 'scores.$[elem].grade': 'A' } },           // field update karo\n  { arrayFilters: [ { 'elem.subject': 'Math' } ] }\n)\n\n// Update element by index\ndb.users.updateOne(                                    // ek document update karo\n  { _id: userId },\n  { $set: { 'addresses.0.isPrimary': true } }  // first element\n)"
+  },
+  {
+    "title": "MongoDB Schema Validation",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "schema",
+      "validation",
+      "jsonSchema",
+      "mongodb"
+    ],
+    "content": "// Create collection with JSON Schema validation\ndb.createCollection('users', {                         // naya collection banao\n  validator: {\n    $jsonSchema: {\n      bsonType: 'object',\n      required: ['name', 'email', 'age'],\n      properties: {\n        name: {\n          bsonType: 'string',\n          minLength: 2,\n          description: 'Name must be a string, at least 2 chars'\n        },\n        email: {\n          bsonType: 'string',\n          pattern: '^[\\\\w.]+@[\\\\w]+\\\\.[\\\\w]+$',\n          description: 'Must be a valid email'\n        },\n        age: {\n          bsonType: 'int',\n          minimum: 0,\n          maximum: 120\n        },\n        role: {\n          enum: ['admin', 'user', 'moderator']\n        }\n      }\n    }\n  },\n  validationAction: 'error'  // 'warn' to log without rejecting\n})"
+  },
+  {
+    "title": "MongoDB BulkWrite Operations",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "bulkwrite",
+      "batch",
+      "upsert",
+      "mongodb"
+    ],
+    "content": "// BulkWrite — batch multiple operations\ndb.products.bulkWrite([\n  {\n    insertOne: {\n      document: { name: 'Laptop', price: 50000, stock: 10 }\n    }\n  },\n  {\n    updateOne: {\n      filter: { name: 'Phone' },\n      update: { $inc: { stock: -1 } }                  // value badhao/ghatao\n    }\n  },\n  {\n    updateMany: {\n      filter: { price: { $lt: 100 } },                 // less than\n      update: { $set: { category: 'budget' } }         // field update karo\n    }\n  },\n  {\n    deleteOne: {\n      filter: { stock: 0, discontinued: true }\n    }\n  },\n  {\n    replaceOne: {\n      filter: { _id: itemId },\n      replacement: { name: 'New Item', price: 999 },\n      upsert: true                                     // na mile to insert karo\n    }\n  }\n], { ordered: false })  // continue even if one fails"
+  },
+  {
+    "title": "MongoDB Change Streams",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "change stream",
+      "watch",
+      "realtime",
+      "mongodb"
+    ],
+    "content": "// Watch a collection for changes (Node.js)\nconst collection = db.collection('orders');\nconst changeStream = collection.watch([\n  { $match: { operationType: { $in: ['insert', 'update'] } } } // documents filter karo\n]);\n\nchangeStream.on('change', (change) => {\n  if (change.operationType === 'insert') {\n    console.log('New order:', change.fullDocument);\n    // Trigger email, notification, etc.\n  }\n  if (change.operationType === 'update') {\n    console.log('Updated fields:', change.updateDescription.updatedFields);\n  }\n});\n\n// Resume after disconnect\nconst token = changeStream.resumeToken;\nconst resumedStream = collection.watch([], { resumeAfter: token });"
+  },
+  {
+    "title": "MongoDB Nested Document Query",
+    "language": "mongodb",
+    "db_type": "mongodb",
+    "tags": [
+      "nested",
+      "embedded",
+      "dot notation",
+      "query",
+      "mongodb"
+    ],
+    "content": "// Query nested (embedded) documents using dot notation\n// Document structure: { address: { city: 'Mumbai', pincode: '400001' } }\n\n// Exact nested field match\ndb.users.find({ 'address.city': 'Mumbai' })            // documents dhundo\n\n// Nested with operators\ndb.users.find({                                        // documents dhundo\n  'address.city': 'Mumbai',\n  'address.pincode': { $in: ['400001', '400002'] }     // list mein se match karo\n})\n\n// Array of embedded docs\n// { orders: [ { status: 'shipped', amount: 1000 }, ... ] }\ndb.users.find({ 'orders.status': 'shipped' })          // documents dhundo\n\n// $elemMatch — all conditions on SAME element\ndb.users.find({                                        // documents dhundo\n  orders: {\n    $elemMatch: { status: 'shipped', amount: { $gt: 500 } } // greater than\n  }\n})"
+  }
+]

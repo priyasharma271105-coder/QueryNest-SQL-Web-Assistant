@@ -1,0 +1,529 @@
+[
+  {
+    "title": "Python Hello World and Print",
+    "language": "python",
+    "tags": [
+      "hello world",
+      "print",
+      "basic",
+      "beginner",
+      "python"
+    ],
+    "content": "# Hello World — first program every coder writes\nprint('Hello, World!')           # print text to screen\nprint('Welcome to QueryNest!')   # another print statement\n\n# Variables — store values with names\nname = 'Alice'   # string variable (text)\nage  = 20        # integer variable (whole number)\nmarks = 92.5     # float variable (decimal number)\n\n# f-string — format variables inside strings\nprint(f'Name: {name}, Age: {age}')          # embed variables\nprint(f'{name} scored {marks:.1f}% marks')  # .1f = 1 decimal place\n\n# print() options\nprint('Python', 'is', 'awesome', sep='-')  # sep = separator between items\nprint('Loading', end='...')                 # end = what to print at end\nprint('Done!')                              # continues same line above\n\n# input() — read from user\n# number = int(input('Enter a number: '))  # read integer from user\n# print('You entered:', number)"
+  },
+  {
+    "title": "Python Variables and Data Types",
+    "language": "python",
+    "tags": [
+      "variables",
+      "data types",
+      "int",
+      "float",
+      "string",
+      "bool",
+      "python"
+    ],
+    "content": "# ── Data Types in Python ──────────────────────────────────────\n\n# Integer — whole numbers (no decimal)\nage      = 20\nmarks    = 95\nyear     = 2024\n\n# Float — decimal numbers\nprice    = 99.99\npi       = 3.14159\n\n# String — text enclosed in quotes\nname     = 'Alice'          # single quotes\ncity     = \"Mumbai\"         # double quotes work too\n\n# Boolean — True or False only\nis_active = True\nis_admin  = False\n\n# None — represents no value / empty\nphone    = None             # variable exists but has no value\n\n# ── Check the type of any variable ────────────────────────────\nprint(type(age))            # <class 'int'>\nprint(type(price))          # <class 'float'>\nprint(type(name))           # <class 'str'>\nprint(type(is_active))      # <class 'bool'>\nprint(type(phone))          # <class 'NoneType'>\n\n# ── Type Conversion ────────────────────────────────────────────\nprint(int('42'))            # string '42' → integer 42\nprint(float('3.14'))        # string '3.14' → float 3.14\nprint(str(100))             # integer 100 → string '100'\nprint(bool(0))              # 0 → False (zero is always False)\nprint(bool(1))              # 1 → True (non-zero is always True)\nprint(bool(''))             # empty string → False\nprint(bool('hello'))        # non-empty string → True"
+  },
+  {
+    "title": "Python If Else Conditions",
+    "language": "python",
+    "tags": [
+      "if",
+      "else",
+      "elif",
+      "conditions",
+      "python"
+    ],
+    "content": "marks = 85   # the value we want to check\n\n# ── Simple if-else ─────────────────────────────────────────────\nif marks >= 60:              # if condition is True\n    print('Pass')            # this runs when condition is True\nelse:                        # otherwise\n    print('Fail')            # this runs when condition is False\n\n# ── if-elif-else (multiple conditions) ────────────────────────\nif marks >= 90:              # check first condition\n    grade = 'A'              # highest grade\nelif marks >= 80:            # check second condition (only if first was False)\n    grade = 'B'              # second grade\nelif marks >= 70:            # check third condition\n    grade = 'C'              # third grade\nelif marks >= 60:            # check fourth condition\n    grade = 'D'              # passing grade\nelse:                        # none of the above matched\n    grade = 'F'              # failing grade\nprint(f'Grade: {grade}')     # Grade: B\n\n# ── One-line ternary (shorthand if-else) ──────────────────────\nresult = 'Pass' if marks >= 60 else 'Fail'   # value if True else value if False\nprint(result)                                 # Pass\n\n# ── Logical operators ─────────────────────────────────────────\nage = 20\nif age >= 18 and age <= 60:   # AND — both conditions must be True\n    print('Working age')                               # output print karo\n\nif marks > 90 or age < 18:   # OR — at least one must be True\n    print('Special case')                              # output print karo\n\nif not (marks < 60):          # NOT — reverses the condition\n    print('Not failing')      # same as: if marks >= 60\n\n# ── Membership check ──────────────────────────────────────────\nday = 'Monday'\nif day in ['Saturday', 'Sunday']:   # 'in' checks if value is in list\n    print('Weekend')                                   # output print karo\nelse:                                                  # jab koi condition na mile\n    print('Weekday')                # Weekday"
+  },
+  {
+    "title": "Python For Loop",
+    "language": "python",
+    "tags": [
+      "for loop",
+      "range",
+      "iterate",
+      "python",
+      "loop"
+    ],
+    "content": "# ── Basic for loop with range() ───────────────────────────────\nfor i in range(1, 6):          # range(1,6) = 1,2,3,4,5 (6 is excluded)\n    print(f'i = {i}')          # prints i = 1, i = 2 ... i = 5\n\n# range(start, stop, step)\nfor i in range(0, 10, 2):     # step=2 means skip every other number\n    print(i, end=' ')          # 0 2 4 6 8\nprint()                        # new line\n\n# ── Loop over a list ───────────────────────────────────────────\nfruits = ['apple', 'banana', 'cherry']   # list to iterate over\nfor fruit in fruits:                      # 'fruit' holds each item one by one\n    print(fruit)                          # apple, then banana, then cherry\n\n# ── enumerate() — get index and value together ────────────────\nfor idx, fruit in enumerate(fruits):   # idx = 0,1,2 | fruit = each item\n    print(f'{idx}: {fruit}')           # 0: apple, 1: banana, 2: cherry\n\n# ── Loop over string — each character ─────────────────────────\nfor char in 'Python':          # iterates over each character\n    print(char, end=' ')       # P y t h o n\nprint()                                                # output print karo\n\n# ── Nested loop ────────────────────────────────────────────────\nfor i in range(1, 4):          # outer loop: 1, 2, 3\n    for j in range(1, 4):      # inner loop runs completely for each outer step\n        print(f'{i}x{j}={i*j}', end='  ')   # multiplication table\n    print()                    # new line after each row\n\n# ── break (stop loop) and continue (skip current) ────────────\nfor i in range(1, 11):                                 # loop — har element ke liye\n    if i == 5: continue        # skip 5, go to next iteration\n    if i == 8: break           # stop the loop entirely at 8\n    print(i, end=' ')          # prints: 1 2 3 4 6 7\n\n# ── List comprehension — compact loop ─────────────────────────\nsquares = [x**2 for x in range(1, 6)]   # creates list in one line\nprint('\\nSquares:', squares)            # [1, 4, 9, 16, 25]"
+  },
+  {
+    "title": "Python While Loop",
+    "language": "python",
+    "tags": [
+      "while",
+      "loop",
+      "python"
+    ],
+    "content": "# ── Basic while loop ──────────────────────────────────────────\nn = 5                          # starting value\nwhile n > 0:                   # keep looping as long as n > 0\n    print(n, end=' ')          # print current value\n    n -= 1                     # decrease n by 1 (MUST do this or infinite loop!)\nprint('Done!')                 # 5 4 3 2 1 Done!\n\n# ── Sum using while ────────────────────────────────────────────\nnum   = 1                      # start from 1\ntotal = 0                      # accumulator (stores running total)\nwhile num <= 100:              # loop from 1 to 100\n    total += num               # add current number to total\n    num   += 1                 # move to next number\nprint(f'Sum 1-100 = {total}')  # Sum 1-100 = 5050\n\n# ── while with break ──────────────────────────────────────────\ncount = 0\nwhile True:                    # infinite loop — runs forever UNLESS break\n    count += 1                 # increment counter\n    if count >= 5:             # check exit condition\n        break                  # exit the loop\nprint(f'Count: {count}')       # Count: 5\n\n# ── while with else ───────────────────────────────────────────\nx = 3\nwhile x > 0:                   # runs 3 times\n    print(x, end=' ')          # 3 2 1\n    x -= 1\nelse:                          # runs once when condition becomes False (not on break)\n    print('Loop finished normally')                    # output print karo\n\n# ── do-while equivalent in Python (using while True + break) ──\nattempt = 0\nwhile True:                    # simulate do-while\n    attempt += 1               # always runs at least once\n    print(f'Attempt {attempt}')                        # output print karo\n    if attempt >= 3:           # condition checked after body runs\n        break                  # stop after 3 attempts"
+  },
+  {
+    "title": "Python Functions",
+    "language": "python",
+    "tags": [
+      "function",
+      "def",
+      "return",
+      "parameter",
+      "python",
+      "lambda"
+    ],
+    "content": "# ── Basic function definition ──────────────────────────────────\ndef greet(name):               # 'def' keyword, 'name' is a parameter\n    return f'Hello, {name}!'  # 'return' sends value back to caller\n\nprint(greet('Alice'))          # Hello, Alice! — calling the function\n\n# ── Default parameter value ────────────────────────────────────\ndef power(base, exp=2):        # exp=2 is default (used if not provided)\n    return base ** exp         # ** is exponentiation\n\nprint(power(3))                # 9  (3^2 — uses default exp=2)\nprint(power(2, 10))            # 1024 (2^10 — overrides default)\n\n# ── Multiple return values ─────────────────────────────────────\ndef min_max(lst):              # returns two values at once\n    return min(lst), max(lst)  # Python packs them into a tuple\n\nlo, hi = min_max([3, 1, 7, 2, 9])   # unpack the two returned values\nprint(f'Min: {lo}, Max: {hi}')       # Min: 1, Max: 9\n\n# ── *args — accept any number of arguments ────────────────────\ndef total(*nums):              # *nums collects all arguments into a tuple\n    return sum(nums)           # sum all the numbers\n\nprint(total(1, 2, 3))         # 6\nprint(total(1, 2, 3, 4, 5))  # 15 — works with any count\n\n# ── **kwargs — accept keyword arguments ───────────────────────\ndef profile(**info):           # **info collects key=value pairs into a dict\n    for k, v in info.items():  # loop over key-value pairs\n        print(f'  {k}: {v}')                           # output print karo\n\nprofile(name='Alice', age=20, city='Mumbai')  # pass any named args\n\n# ── Lambda — anonymous one-line function ──────────────────────\nsquare = lambda x: x ** 2     # lambda parameter: expression\nprint(square(7))               # 49\n\n# Lambda with map() — apply to each element\nnums = [1, 2, 3, 4, 5]\ndoubled = list(map(lambda x: x * 2, nums))   # apply lambda to every item\nprint(doubled)                                # [2, 4, 6, 8, 10]"
+  },
+  {
+    "title": "Python Lists",
+    "language": "python",
+    "tags": [
+      "list",
+      "append",
+      "remove",
+      "sort",
+      "slice",
+      "python"
+    ],
+    "content": "# ── Create a list ─────────────────────────────────────────────\nstudents = ['Alice', 'Bob', 'Charlie', 'Diana']  # list of strings\nmarks    = [92, 78, 85, 91, 74]                  # list of numbers\n\n# ── Access elements ────────────────────────────────────────────\nprint(students[0])     # Alice    — index 0 = first element\nprint(students[-1])    # Diana    — index -1 = last element\nprint(students[1:3])   # ['Bob', 'Charlie'] — slice [start:end] (end excluded)\nprint(students[:2])    # ['Alice', 'Bob']   — first 2 elements\nprint(students[2:])    # ['Charlie', 'Diana'] — from index 2 to end\n\n# ── Modify list ────────────────────────────────────────────────\nstudents.append('Eve')          # add 'Eve' at the end\nstudents.insert(1, 'Frank')     # insert 'Frank' at index 1\nstudents.remove('Bob')          # remove first occurrence of 'Bob'\npopped = students.pop()         # remove and return last element\nstudents.pop(0)                 # remove element at index 0\nstudents[0] = 'ALICE'           # update element at index 0\n\n# ── List information ───────────────────────────────────────────\nprint(len(students))             # number of elements in list\nprint('Charlie' in students)     # True — check if element exists\nprint(students.index('Charlie')) # get index of 'Charlie'\nprint(students.count('Alice'))   # count how many times 'Alice' appears\n\n# ── Sorting ────────────────────────────────────────────────────\nmarks.sort()                     # sort in place (ascending) — modifies original\nmarks.sort(reverse=True)         # sort in place (descending)\nsorted_copy = sorted(marks)      # returns new sorted list (original unchanged)\n\n# ── Useful operations ──────────────────────────────────────────\nprint(sum(marks))                # total of all elements\nprint(min(marks), max(marks))    # smallest and largest value\nmarks.reverse()                  # reverse the list in place\n\n# ── List comprehension — create list with one line ────────────\nabove_80 = [m for m in marks if m > 80]   # filter: keep only marks > 80\ndoubled  = [m * 2 for m in marks]         # transform: double each mark\nprint(above_80)                                        # output print karo"
+  },
+  {
+    "title": "Python Dictionary",
+    "language": "python",
+    "tags": [
+      "dictionary",
+      "dict",
+      "key value",
+      "python"
+    ],
+    "content": "# ── Create a dictionary (key-value pairs) ─────────────────────\nstudent = {\n    'name':   'Alice',     # key: 'name', value: 'Alice'\n    'age':    20,           # key: 'age',  value: 20\n    'marks':  92.5,         # key: 'marks', value: 92.5\n    'active': True          # key: 'active', value: True\n}\n\n# ── Access values ──────────────────────────────────────────────\nprint(student['name'])                  # Alice — access by key\nprint(student.get('phone', 'N/A'))      # N/A — safe access (no error if key missing)\n\n# ── Add / Update ───────────────────────────────────────────────\nstudent['email'] = 'alice@example.com'  # add new key-value pair\nstudent['marks'] = 95                   # update existing key\n\n# ── Delete ─────────────────────────────────────────────────────\ndel student['active']            # delete key (raises error if missing)\nstudent.pop('class', None)       # delete safely (None = no error if missing)\n\n# ── Loop through dictionary ────────────────────────────────────\nfor key in student:              # loop over keys\n    print(key, '->', student[key])                     # output print karo\n\nfor key, val in student.items(): # loop over key-value pairs together\n    print(f'{key}: {val}')                             # output print karo\n\nprint(list(student.keys()))      # list of all keys\nprint(list(student.values()))    # list of all values\n\n# ── Check if key exists ────────────────────────────────────────\nprint('name' in student)         # True\nprint(len(student))              # number of key-value pairs\n\n# ── Nested dictionary ─────────────────────────────────────────\nclassroom = {\n    'Alice': {'marks': 92, 'grade': 'A'},   # value is another dict\n    'Bob':   {'marks': 78, 'grade': 'B'},\n}\nprint(classroom['Alice']['grade'])  # A — access nested value\n\n# ── Dictionary comprehension ──────────────────────────────────\nsquares = {x: x**2 for x in range(1, 6)}   # {1:1, 2:4, 3:9, 4:16, 5:25}\nprint(squares)                                         # output print karo"
+  },
+  {
+    "title": "Python Tuples and Sets",
+    "language": "python",
+    "tags": [
+      "tuple",
+      "set",
+      "immutable",
+      "python"
+    ],
+    "content": "# ══════════════════════════════════════════════\n# TUPLE — ordered, immutable (cannot change after creation)\n# ══════════════════════════════════════════════\npoint   = (10, 20)                  # tuple with 2 elements\ncolors  = ('red', 'green', 'blue')  # tuple of strings\n\nprint(point[0])       # 10 — access by index (same as list)\nx, y = point          # tuple unpacking — assigns 10 to x, 20 to y\nprint(x, y)           # 10 20\n\n# Why use tuples? They are immutable (cannot be modified — safer)\n# point[0] = 99       # ERROR! tuples cannot be changed\n\n# Tuple can be used as dictionary key (lists cannot)\nlocations = {(0,0): 'Origin', (1,0): 'Right'}  # tuple as dict key\nprint(locations[(0,0)])   # Origin\n\n# Named tuple — like a struct\nfrom collections import namedtuple                     # specific function import karo\nStudent = namedtuple('Student', ['name', 'age', 'marks'])  # define fields\ns = Student('Alice', 20, 92.5)   # create instance\nprint(s.name, s.marks)           # Alice 92.5 — access by name\n\n# ══════════════════════════════════════════════\n# SET — unordered collection of UNIQUE values\n# ══════════════════════════════════════════════\nnums   = {1, 2, 3, 2, 1}   # duplicates removed automatically → {1, 2, 3}\nfruits = {'apple', 'banana', 'cherry'}\n\nfruits.add('mango')       # add element\nfruits.discard('banana')  # remove safely (no error if not found)\nfruits.remove('apple')    # remove (raises error if not found)\n\n# ── Set operations (like math sets) ───────────────────────────\na = {1, 2, 3, 4}\nb = {3, 4, 5, 6}\nprint(a | b)   # union — all elements from both:  {1,2,3,4,5,6}\nprint(a & b)   # intersection — common elements:  {3,4}\nprint(a - b)   # difference — in a but not in b:  {1,2}\nprint(a ^ b)   # symmetric diff — not in both:    {1,2,5,6}"
+  },
+  {
+    "title": "Python String Methods",
+    "language": "python",
+    "tags": [
+      "string",
+      "upper",
+      "lower",
+      "split",
+      "join",
+      "replace",
+      "python"
+    ],
+    "content": "s = 'Hello, QueryNest!'   # the string we will work with\n\n# ── Case methods ───────────────────────────────────────────────\nprint(s.upper())          # HELLO, QUERYNEST! — all uppercase\nprint(s.lower())          # hello, querynest! — all lowercase\nprint(s.title())          # Hello, Querynest! — first letter of each word capitalized\nprint(s.swapcase())       # hELLO, qUERYnEST! — swap upper↔lower\n\n# ── Search methods ─────────────────────────────────────────────\nprint(s.find('Query'))    # 7 — returns index where 'Query' starts (-1 if not found)\nprint(s.count('l'))       # 2 — count occurrences of 'l'\nprint(s.startswith('He')) # True — does string start with 'He'?\nprint(s.endswith('!'))    # True — does string end with '!'?\nprint('query' in s.lower())  # True — 'in' checks if substring exists\n\n# ── Modify methods ─────────────────────────────────────────────\nprint(s.replace('Hello', 'Hi'))      # Hi, QueryNest! — replace all occurrences\nprint('  hello  '.strip())           # 'hello' — remove whitespace from both ends\nprint('  hello  '.lstrip())          # 'hello  ' — remove from left only\nprint('  hello  '.rstrip())          # '  hello' — remove from right only\n\n# ── Split and Join ─────────────────────────────────────────────\nwords = s.split(', ')                # ['Hello', 'QueryNest!'] — split by ', '\ncsv   = 'Alice,Bob,Charlie'\nparts = csv.split(',')               # ['Alice', 'Bob', 'Charlie'] — split by ','\njoined = ' | '.join(['A', 'B', 'C'])  # 'A | B | C' — join list into string\n\n# ── f-string formatting ────────────────────────────────────────\nname  = 'Alice'\nmarks = 92.567\nprint(f'Name: {name}, Marks: {marks:.2f}')  # 2 decimal places → 92.57\nprint(f'{name!u}')    # Alice — !u = uppercase (Python 3.12+)\n\n# ── String checks ──────────────────────────────────────────────\nprint('123'.isdigit())     # True — all characters are digits\nprint('abc'.isalpha())     # True — all characters are letters\nprint('abc123'.isalnum())  # True — all alphanumeric\n\n# ── Reverse a string ───────────────────────────────────────────\nprint(s[::-1])   # !tsenheyruQ ,olleH — step=-1 reverses the string"
+  },
+  {
+    "title": "Python File Read Write",
+    "language": "python",
+    "tags": [
+      "file",
+      "read",
+      "write",
+      "open",
+      "python"
+    ],
+    "content": "# ── Write to file ─────────────────────────────────────────────\n# 'w' mode = write (creates new file, overwrites if exists)\nwith open('students.txt', 'w') as f:   # 'with' auto-closes file\n    f.write('Alice,20,92.5\\n')          # \\n = newline\n    f.write('Bob,21,78.0\\n')\n    f.write('Charlie,19,85.5\\n')\nprint('File written!')                                 # output print karo\n\n# ── Read entire file at once ───────────────────────────────────\n# 'r' mode = read (file must exist)\nwith open('students.txt', 'r') as f:                   # file open karo\n    content = f.read()               # reads ALL content as one string\nprint(content)                                         # output print karo\n\n# ── Read line by line ──────────────────────────────────────────\nwith open('students.txt', 'r') as f:                   # file open karo\n    for line in f:                   # each 'line' includes the \\n at end\n        parts = line.strip().split(',')   # .strip() removes \\n, .split(',') splits by comma\n        name, age, marks = parts[0], parts[1], parts[2]\n        print(f'{name}: age={age}, marks={marks}')     # output print karo\n\n# ── Append to file (add without deleting existing content) ────\n# 'a' mode = append\nwith open('students.txt', 'a') as f:                   # file open karo\n    f.write('Diana,20,91.0\\n')       # adds to end of file\n\n# ── Read all lines as a list ───────────────────────────────────\nwith open('students.txt', 'r') as f:                   # file open karo\n    lines = f.readlines()            # returns list of strings\nprint(f'{len(lines)} students')                        # output print karo\n\n# ── Write and Read JSON ────────────────────────────────────────\nimport json                          # import json module\ndata = [{'name': 'Alice', 'marks': 92}, {'name': 'Bob', 'marks': 78}]\n\nwith open('data.json', 'w') as f:                      # file open karo\n    json.dump(data, f, indent=2)     # write Python object as JSON with indentation\n\nwith open('data.json', 'r') as f:                      # file open karo\n    loaded = json.load(f)            # read JSON back into Python object\nprint(loaded[0]['name'])             # Alice"
+  },
+  {
+    "title": "Python OOP Class and Objects",
+    "language": "python",
+    "tags": [
+      "class",
+      "object",
+      "oop",
+      "method",
+      "python"
+    ],
+    "content": "class Student:                                         # class define karo\n    school = 'QueryNest Academy'   # class variable — shared by ALL instances\n    count  = 0                     # tracks total number of students created\n\n    def __init__(self, name, age, marks):   # constructor — runs when object is created\n        self.name  = name    # instance variable — unique to each object\n        self.age   = age     # 'self' refers to the current object\n        self.marks = marks                             # instance variable ya method\n        Student.count += 1   # increment class variable\n\n    def get_grade(self):     # instance method — has 'self' parameter\n        if self.marks >= 90: return 'A'   # check marks and return grade\n        if self.marks >= 75: return 'B'                # condition check karo\n        if self.marks >= 60: return 'C'                # condition check karo\n        return 'F'           # default: failing grade\n\n    def study(self, hours):  # method with extra parameter\n        self.marks = min(100, self.marks + hours)  # studying improves marks\n\n    def __str__(self):       # special method — defines print() output\n        return f'{self.name} (Grade: {self.get_grade()})' # value return karo\n\n    @classmethod             # class method — works on the class, not instance\n    def get_count(cls):      # 'cls' refers to the class itself\n        return cls.count                               # value return karo\n\n    @staticmethod            # static method — no self or cls needed\n    def is_passing(marks):   # utility function that doesn't need the object\n        return marks >= 60                             # value return karo\n\n# ── Create objects (instances of the class) ───────────────────\ns1 = Student('Alice', 20, 92.5)   # calls __init__ automatically\ns2 = Student('Bob',   21, 78.0)\ns3 = Student('Charlie', 19, 55.0)\n\nprint(s1)                          # Alice (Grade: A) — calls __str__\nprint(s2.get_grade())              # B\nprint(Student.count)               # 3 — class variable\nprint(Student.get_count())         # 3 — class method\nprint(Student.is_passing(75))      # True — static method\n\n# ── Sort objects by attribute ──────────────────────────────────\nstudents = [s1, s2, s3]\nstudents.sort(key=lambda s: s.marks, reverse=True)   # sort by marks descending\nprint('Top student:', students[0].name)               # Alice"
+  },
+  {
+    "title": "Python Inheritance",
+    "language": "python",
+    "tags": [
+      "inheritance",
+      "extends",
+      "super",
+      "override",
+      "python",
+      "oop"
+    ],
+    "content": "class Person:                      # parent (base) class\n    def __init__(self, name, age):  # constructor of parent class\n        self.name = name            # attribute shared by all children\n        self.age  = age                                # instance variable ya method\n\n    def introduce(self):            # method that can be overridden\n        return f'Hi, I am {self.name}, age {self.age}' # value return karo\n\n    def __str__(self):              # string representation\n        return f'Person({self.name})'                  # value return karo\n\n# ── Student INHERITS from Person ──────────────────────────────\nclass Student(Person):              # Student extends Person\n    def __init__(self, name, age, marks):              # function define karo\n        super().__init__(name, age) # call parent's __init__ (reuse parent code)\n        self.marks = marks          # add new attribute specific to Student\n\n    def introduce(self):            # OVERRIDE parent's method\n        base = super().introduce()  # call parent's version first\n        return f'{base}, marks: {self.marks}'  # then add extra info\n\n    def get_grade(self):            # new method only Student has\n        return 'A' if self.marks >= 90 else 'B' if self.marks >= 75 else 'C' # value return karo\n\n# ── Teacher INHERITS from Person ──────────────────────────────\nclass Teacher(Person):              # Teacher also extends Person\n    def __init__(self, name, age, subject):            # function define karo\n        super().__init__(name, age) # reuse parent constructor\n        self.subject = subject      # Teacher-specific attribute\n\n    def introduce(self):                               # function define karo\n        return f'{super().introduce()}, teaches {self.subject}' # value return karo\n\n# ── Usage ──────────────────────────────────────────────────────\ns = Student('Alice', 20, 93)\nt = Teacher('Mr. Sharma', 40, 'Maths')\n\nprint(s.introduce())               # uses Student's overridden method\nprint(t.introduce())               # uses Teacher's overridden method\n\n# isinstance() — check if object is of a certain class\nprint(isinstance(s, Person))   # True  — Student IS a Person\nprint(isinstance(s, Student))  # True  — s is a Student\nprint(isinstance(s, Teacher))  # False — s is NOT a Teacher"
+  },
+  {
+    "title": "Python Exception Handling",
+    "language": "python",
+    "tags": [
+      "exception",
+      "try",
+      "except",
+      "finally",
+      "python"
+    ],
+    "content": "# ── Basic try-except ──────────────────────────────────────────\ntry:                                 # code that might raise an error goes here\n    x = int(input('Enter number: ')) # ValueError if user types 'abc'\n    result = 100 / x                 # ZeroDivisionError if x is 0\n    print(f'Result: {result}')                         # output print karo\nexcept ValueError:                   # catches invalid integer conversion\n    print('Error: Please enter a valid number!')       # output print karo\nexcept ZeroDivisionError:            # catches division by zero\n    print('Error: Cannot divide by zero!')             # output print karo\nexcept Exception as e:               # catches ANY other exception\n    print(f'Unexpected error: {e}')  # 'e' contains error details\nelse:                                # runs only if NO exception occurred\n    print('No errors occurred!')                       # output print karo\nfinally:                             # ALWAYS runs, error or not\n    print('This always runs')        # good for cleanup code\n\n# ── Custom exception ───────────────────────────────────────────\nclass InvalidMarksError(Exception):  # inherit from Exception\n    def __init__(self, marks):                         # function define karo\n        self.marks = marks           # store the bad value\n        super().__init__(f'Invalid marks: {marks}. Must be 0-100')  # set message\n\ndef set_marks(m):                                      # function define karo\n    if not 0 <= m <= 100:           # validate the input\n        raise InvalidMarksError(m)  # 'raise' triggers the exception\n    return m                        # only returns if valid\n\ntry:                                                   # error pakadne ki koshish karo\n    set_marks(150)                  # 150 is invalid, raises error\nexcept InvalidMarksError as e:                         # error mil gayi — handle karo\n    print(e)                        # Invalid marks: 150. Must be 0-100\n    print(f'Bad value was: {e.marks}')  # access the stored bad value\n\n# ── Catch multiple exceptions at once ─────────────────────────\ntry:                                                   # error pakadne ki koshish karo\n    data = [1, 2, 3]\n    print(data[10])                  # IndexError — index out of range\nexcept (IndexError, KeyError) as e:  # handle both in one except block\n    print(f'Access error: {e}')                        # output print karo"
+  },
+  {
+    "title": "Python Prime Number — Check & Print",
+    "language": "python",
+    "tags": [
+      "prime",
+      "prime number",
+      "check prime",
+      "is prime",
+      "prime numbers",
+      "python",
+      "algorithm"
+    ],
+    "content": "# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n# Prime Number kya hota hai?\n# Jo number sirf 1 aur khud se divide ho — e.g. 2, 3, 5, 7, 11 ...\n# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n# ── Part 1: Check karo — ek number prime hai ya nahi ──────────\ndef is_prime(n):\n    if n < 2:\n        return False                  # 0 aur 1 prime nahi hote\n    if n == 2:\n        return True                   # 2 sabse chhota prime hai\n    if n % 2 == 0:\n        return False                  # baaki even numbers prime nahi hote\n    for i in range(3, int(n**0.5) + 1, 2):   # sirf odd numbers check karo\n        if n % i == 0:\n            return False              # divisor mila — prime nahi\n    return True                       # koi divisor nahi mila — prime hai!\n\n# Test karo\nnum = 37\nif is_prime(num):\n    print(f\"{num} is PRIME ✓\")       # 37 is PRIME ✓\nelse:\n    print(f\"{num} is NOT prime ✗\")\n\n# ── Part 2: Range mein saare prime numbers nikalo ─────────────\nprimes = [n for n in range(2, 51) if is_prime(n)]\nprint(\"Primes (2 to 50):\", primes)\nprint(\"Total count:\", len(primes))\n# Output: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]\n# Total count: 15\n\n# ── Part 3: Sieve of Eratosthenes — bade range ke liye fast ───\ndef sieve(limit):\n    is_p = [True] * (limit + 1)      # pehle sab prime maan lo\n    is_p[0] = is_p[1] = False        # 0 aur 1 prime nahi hote\n    for i in range(2, int(limit**0.5) + 1):\n        if is_p[i]:                   # agar i prime hai\n            for j in range(i*i, limit + 1, i):\n                is_p[j] = False       # iske multiples ko mark karo\n    return [i for i in range(2, limit + 1) if is_p[i]]\n\nprint(\"Sieve (1-100):\", sieve(100))  # 1 se 100 tak sab primes"
+  },
+  {
+    "title": "Python Prime Numbers Till N",
+    "language": "python",
+    "tags": [
+      "prime numbers till",
+      "prime till",
+      "primes till",
+      "prime upto",
+      "primes upto",
+      "prime numbers till n",
+      "print prime till",
+      "prime",
+      "python"
+    ],
+    "content": "# Prime Numbers Till N — Python\n# Prime = sirf 1 aur khud se divisible (2, 3, 5, 7 ...)\n\n# ── Step 1: Helper function — check karo number prime hai ya nahi ──\ndef is_prime(n):\n    if n < 2:\n        return False               # 0 aur 1 prime nahi hote\n    for i in range(2, int(n**0.5) + 1):   # sirf sqrt(n) tak check karo\n        if n % i == 0:\n            return False           # koi divisor mila — prime nahi\n    return True                    # koi divisor nahi — prime hai!\n\n# ── Step 2: N set karo — jitne tak print karna hai ──\nn = 50   # <-- yahan apna number dalo\n\n# ── Step 3: 2 se N tak saare primes nikalo ──\nprimes = [num for num in range(2, n + 1) if is_prime(num)]\n\n# ── Step 4: Result print karo ──\nprint(f\"Prime numbers till {n}:\")\nprint(primes)\nprint(f\"Total count: {len(primes)}\")\n\n# ── Output (n=50): ──────────────────────────────────\n# Prime numbers till 50:\n# [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]\n# Total count: 15\n\n# ── Logic samjho: ───────────────────────────────────\n# range(2, sqrt(n)+1) → puri range tak nahi, sqrt tak kaafi hai\n# n % i == 0 → matlab i ek divisor hai, to prime nahi\n# List comprehension → ek line mein saari primes"
+  },
+  {
+    "title": "Python Fibonacci Series",
+    "language": "python",
+    "tags": [
+      "fibonacci",
+      "series",
+      "recursion",
+      "python"
+    ],
+    "content": "# ── Method 1: Iterative (most efficient) ──────────────────────\ndef fibonacci_iter(n):                                 # function define karo\n    a, b = 0, 1          # first two Fibonacci numbers\n    series = []          # list to store the series\n    for _ in range(n):   # repeat n times\n        series.append(a) # add current number to list\n        a, b = b, a + b  # next: a becomes b, b becomes sum of previous two\n    return series                                      # value return karo\n\nprint('Fibonacci (10):', fibonacci_iter(10))           # output print karo\n# Output: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]\n\n# ── Method 2: Recursive (simple but slow for large n) ─────────\ndef fib(n):                                            # function define karo\n    if n <= 1: return n           # base case: fib(0)=0, fib(1)=1\n    return fib(n-1) + fib(n-2)   # recursive: each number = sum of previous two\n\nprint('fib(10):', fib(10))        # 55\n\n# ── Method 3: Generator (memory efficient — yields one at a time) ─\ndef fib_gen():                                         # function define karo\n    a, b = 0, 1\n    while True:           # infinite loop — generates numbers forever\n        yield a           # 'yield' pauses function, returns current value\n        a, b = b, a + b   # calculate next pair\n\ngen = fib_gen()           # create generator object\nfirst_10 = [next(gen) for _ in range(10)]   # get first 10 values\nprint('Generator first 10:', first_10)                 # output print karo\n\n# ── Method 4: Memoization (fast recursion using cache) ────────\nfrom functools import lru_cache   # LRU = Least Recently Used cache\n\n@lru_cache(maxsize=None)  # cache decorator — remembers previous results\ndef fib_memo(n):                                       # function define karo\n    if n <= 1: return n                                # condition check karo\n    return fib_memo(n-1) + fib_memo(n-2)  # reuses cached results\n\nprint('fib(40):', fib_memo(40))    # 102334155 — fast because of caching"
+  },
+  {
+    "title": "Python Factorial",
+    "language": "python",
+    "tags": [
+      "factorial",
+      "recursion",
+      "math",
+      "python"
+    ],
+    "content": "# Factorial: n! = n × (n-1) × (n-2) × ... × 1\n# Example: 5! = 5×4×3×2×1 = 120\n\n# ── Method 1: Recursive ────────────────────────────────────────\ndef factorial_recursive(n):                            # function define karo\n    if n < 0: raise ValueError('n must be >= 0')  # negative factorial undefined\n    if n <= 1: return 1                            # base case: 0! = 1! = 1\n    return n * factorial_recursive(n - 1)          # n! = n × (n-1)!\n\n# ── Method 2: Iterative ────────────────────────────────────────\ndef factorial_iter(n):                                 # function define karo\n    result = 1                    # start with 1 (multiply, not add)\n    for i in range(2, n + 1):    # multiply from 2 up to n\n        result *= i               # result = result × i\n    return result                                      # value return karo\n\n# ── Method 3: Built-in math module ────────────────────────────\nimport math                                            # library import karo\nprint(math.factorial(10))         # 3628800 — fastest method\n\n# ── Print factorial table ──────────────────────────────────────\nfor i in range(0, 11):                                 # loop — har element ke liye\n    print(f'{i:2d}! = {factorial_iter(i):>10}')  # :2d = 2 wide, :>10 = right align\n# Output:\n#  0! =          1\n#  5! =        120\n# 10! =    3628800"
+  },
+  {
+    "title": "Python Palindrome Check",
+    "language": "python",
+    "tags": [
+      "palindrome",
+      "string",
+      "algorithm",
+      "python"
+    ],
+    "content": "# A palindrome reads the same forward and backward\n# Examples: 'madam', 'racecar', 121, 12321\n\ndef is_palindrome_str(s):                              # function define karo\n    s = s.lower().replace(' ', '')  # normalize: lowercase and remove spaces\n    return s == s[::-1]             # s[::-1] reverses the string; compare with original\n\ndef is_palindrome_num(n):                              # function define karo\n    s = str(n)                      # convert number to string\n    return s == s[::-1]             # reverse and compare\n\n# ── Test strings ───────────────────────────────────────────────\ntest_words = ['madam', 'hello', 'racecar', 'level', 'Python', 'noon',\n              'A man a plan a canal Panama']   # last one is palindrome ignoring spaces\n\nfor w in test_words:                                   # loop — har element ke liye\n    result = '✓ Palindrome' if is_palindrome_str(w) else '✗ Not palindrome' # string mein convert karo\n    print(f'{w:30s}: {result}')                        # output print karo\n\n# ── Test numbers ───────────────────────────────────────────────\nfor num in [121, 12321, 123, 1001, 12345]:             # loop — har element ke liye\n    status = 'palindrome' if is_palindrome_num(num) else 'not palindrome'\n    print(f'{num}: {status}')                          # output print karo\n\n# ── Find palindromes in a range ────────────────────────────────\npalindromes = [n for n in range(100, 200) if is_palindrome_num(n)] # number sequence generate karo\nprint('Palindromes 100-200:', palindromes)   # [101, 111, 121, 131, 141, 151, 161, 171, 181, 191]"
+  },
+  {
+    "title": "Python Bubble Sort",
+    "language": "python",
+    "tags": [
+      "bubble sort",
+      "sorting",
+      "algorithm",
+      "python"
+    ],
+    "content": "# ── Bubble Sort ────────────────────────────────────────────────\n# Idea: repeatedly compare adjacent elements and swap if out of order\n# After each pass, the largest element 'bubbles' to the end\ndef bubble_sort(arr):                                  # function define karo\n    n = len(arr)                           # number of elements\n    for i in range(n):                     # outer loop: n passes needed\n        swapped = False                    # optimization flag\n        for j in range(0, n - i - 1):     # inner loop: last i elements already sorted\n            if arr[j] > arr[j + 1]:       # if current > next (wrong order)\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]   # swap them\n                swapped = True             # mark that a swap happened\n        if not swapped:                    # if no swap in entire pass, already sorted\n            break                          # exit early (optimization)\n    return arr                                         # value return karo\n\n# ── Selection Sort ─────────────────────────────────────────────\n# Idea: find minimum element, put it at the beginning, repeat\ndef selection_sort(arr):                               # function define karo\n    n = len(arr)                                       # length/count nikalo\n    for i in range(n):                     # i = position we're filling\n        min_idx = i                        # assume first unsorted element is minimum\n        for j in range(i+1, n):           # search rest of array for actual minimum\n            if arr[j] < arr[min_idx]:     # found a smaller element\n                min_idx = j               # update minimum index\n        arr[i], arr[min_idx] = arr[min_idx], arr[i]  # swap minimum to position i\n    return arr                                         # value return karo\n\n# ── Insertion Sort ─────────────────────────────────────────────\n# Idea: take one element at a time and insert it into correct position\ndef insertion_sort(arr):                               # function define karo\n    for i in range(1, len(arr)):           # start from second element\n        key = arr[i]                       # element to be inserted\n        j = i - 1                         # start comparing from previous element\n        while j >= 0 and arr[j] > key:   # shift larger elements one position right\n            arr[j + 1] = arr[j]\n            j -= 1\n        arr[j + 1] = key                  # insert key at correct position\n    return arr                                         # value return karo\n\ndata = [64, 34, 25, 12, 22, 11, 90]\nprint('Original:  ', data)                             # output print karo\nprint('Bubble:    ', bubble_sort(data.copy()))     # .copy() to not modify original\nprint('Selection: ', selection_sort(data.copy()))      # output print karo\nprint('Insertion: ', insertion_sort(data.copy()))      # output print karo\nprint('Python:    ', sorted(data))                  # built-in sort (TimSort)"
+  },
+  {
+    "title": "Python Binary Search",
+    "language": "python",
+    "tags": [
+      "binary search",
+      "search",
+      "algorithm",
+      "python"
+    ],
+    "content": "# Binary search works ONLY on SORTED arrays\n# Idea: compare target with middle element\n#       if smaller → search left half, if larger → search right half\n# Time: O(log n) — much faster than linear search O(n)\n\ndef binary_search(arr, target):                        # function define karo\n    low  = 0              # start of search range\n    high = len(arr) - 1   # end of search range\n    while low <= high:                   # continue while range is valid\n        mid = (low + high) // 2          # find middle index\n        if arr[mid] == target:           # found the target!\n            return mid                   # return its index\n        elif arr[mid] < target:          # target is larger than middle\n            low = mid + 1               # search right half\n        else:                            # target is smaller than middle\n            high = mid - 1              # search left half\n    return -1                            # not found — return -1\n\n# ── Recursive version ──────────────────────────────────────────\ndef binary_search_rec(arr, target, low=0, high=None):  # function define karo\n    if high is None: high = len(arr) - 1   # default high\n    if low > high:   return -1             # base case: not found\n    mid = (low + high) // 2\n    if   arr[mid] == target: return mid                              # found\n    elif arr[mid] <  target: return binary_search_rec(arr, target, mid+1, high)  # right\n    else:                    return binary_search_rec(arr, target, low, mid-1)   # left\n\narr = sorted([15, 3, 7, 2, 9, 23, 41, 56, 72, 88])   # MUST be sorted first\nprint('Sorted array:', arr)                            # output print karo\nprint('Search 23:', binary_search(arr, 23))    # returns index where 23 is found\nprint('Search 99:', binary_search(arr, 99))    # -1 (not in array)\n\n# ── Built-in bisect module ─────────────────────────────────────\nimport bisect                                          # library import karo\nidx = bisect.bisect_left(arr, 23)   # finds position where 23 would be inserted\nprint('bisect index:', idx)                            # output print karo"
+  },
+  {
+    "title": "Python Pattern Printing",
+    "language": "python",
+    "tags": [
+      "pattern",
+      "star",
+      "triangle",
+      "pyramid",
+      "python"
+    ],
+    "content": "n = 5   # size of the pattern (number of rows)\n\n# ── Pattern 1: Right triangle ──────────────────────────────────\nprint('Right Triangle:')                               # output print karo\nfor i in range(1, n+1):        # i goes 1,2,3,4,5\n    print('* ' * i)            # print i stars on each row\n\n# ── Pattern 2: Inverted triangle ──────────────────────────────\nprint('Inverted Triangle:')                            # output print karo\nfor i in range(n, 0, -1):     # i goes 5,4,3,2,1 (counting down)\n    print('* ' * i)                                    # output print karo\n\n# ── Pattern 3: Pyramid ─────────────────────────────────────────\nprint('Pyramid:')                                      # output print karo\nfor i in range(1, n+1):                                # loop — har element ke liye\n    spaces = ' ' * (n-i)      # leading spaces (decreases each row)\n    stars  = '* ' * (2*i-1)  # increasing stars (1,3,5,7,9)\n    print(spaces + stars)                              # output print karo\n\n# ── Pattern 4: Diamond ─────────────────────────────────────────\nprint('Diamond:')                                      # output print karo\nfor i in range(1, n+1):       # upper half (pyramid)\n    print(' '*(n-i) + '* '*(2*i-1))                    # output print karo\nfor i in range(n-1, 0, -1):  # lower half (inverted pyramid, skip middle row)\n    print(' '*(n-i) + '* '*(2*i-1))                    # output print karo\n\n# ── Pattern 5: Number triangle ─────────────────────────────────\nprint('Number Triangle:')                              # output print karo\nfor i in range(1, n+1):                                # loop — har element ke liye\n    print(' '.join(str(j) for j in range(1, i+1)))  # 1, 1 2, 1 2 3, ...\n\n# ── Pattern 6: Floyd's triangle ────────────────────────────────\nnum = 1                        # sequential number counter\nprint(\"Floyd's Triangle:\")                             # output print karo\nfor i in range(1, n+1):                                # loop — har element ke liye\n    for j in range(i):         # j goes 0 to i-1 (i numbers per row)\n        print(num, end=' ')    # print next number\n        num += 1               # increment for next position\n    print()                    # new line after each row"
+  },
+  {
+    "title": "Python Calculator",
+    "language": "python",
+    "tags": [
+      "calculator",
+      "arithmetic",
+      "function",
+      "python",
+      "project"
+    ],
+    "content": "# ── Individual operation functions ────────────────────────────\ndef add(a, b):       return a + b          # addition\ndef subtract(a, b):  return a - b          # subtraction\ndef multiply(a, b):  return a * b          # multiplication\ndef divide(a, b):                          # division with error check\n    if b == 0: raise ValueError('Cannot divide by zero!') # condition check karo\n    return a / b                                       # value return karo\ndef power(a, b):     return a ** b         # exponentiation (a^b)\ndef modulo(a, b):    return a % b          # remainder of division\n\n# ── Demonstration without interactive input ────────────────────\noperations = {\n    '+': add, '-': subtract, '*': multiply,\n    '/': divide, '**': power, '%': modulo\n}\n\n# Test all operations\ntest_cases = [\n    (10, '+', 5),    # 15\n    (10, '-', 3),    # 7\n    (4,  '*', 7),    # 28\n    (20, '/', 4),    # 5.0\n    (2,  '**', 8),   # 256\n    (17, '%', 5),    # 2 (17 = 3×5 + 2)\n]\n\nfor a, op, b in test_cases:\n    result = operations[op](a, b)    # call the appropriate function\n    print(f'{a} {op} {b} = {result}')                  # output print karo\n\n# ── Parse and evaluate user expression ────────────────────────\ndef evaluate(expr):                                    # function define karo\n    expr = expr.strip()               # remove extra spaces\n    for op in ['**', '*', '/', '%', '+', '-']:  # check each operator\n        if op in expr:                                 # condition check karo\n            parts = expr.split(op, 1)  # split at first occurrence\n            a = float(parts[0].strip())                # spaces hatao\n            b = float(parts[1].strip())                # spaces hatao\n            return operations[op](a, b)                # value return karo\n    return None                                        # value return karo\n\nprint(evaluate('5 + 3'))    # 8.0\nprint(evaluate('2 ** 10'))  # 1024.0"
+  },
+  {
+    "title": "Python Armstrong Number",
+    "language": "python",
+    "tags": [
+      "armstrong",
+      "narcissistic",
+      "number",
+      "python"
+    ],
+    "content": "# Armstrong number: sum of each digit raised to power of number of digits = number itself\n# Example: 153 = 1³ + 5³ + 3³ = 1 + 125 + 27 = 153 ✓\n# Example: 9474 = 9⁴ + 4⁴ + 7⁴ + 4⁴ = 6561+256+2401+256 = 9474 ✓\n\ndef is_armstrong(n):                                   # function define karo\n    digits = str(n)              # convert to string to count digits\n    power  = len(digits)         # number of digits = the power to use\n    total  = sum(int(d) ** power for d in digits)   # sum each digit^power\n    return n == total            # if sum equals original number, it's Armstrong\n\n# ── Check specific numbers ─────────────────────────────────────\nfor n in [153, 370, 371, 407, 9474, 100, 200]:         # loop — har element ke liye\n    mark = '✓ Armstrong' if is_armstrong(n) else '✗ Not Armstrong'\n    print(f'{n:4d}: {mark}')                           # output print karo\n\n# ── Find all Armstrong numbers in a range ─────────────────────\narmstrong_list = [n for n in range(1, 10000) if is_armstrong(n)] # number sequence generate karo\nprint('Armstrong (1-9999):', armstrong_list)           # output print karo\n# Output: [1, 2, 3, 4, 5, 6, 7, 8, 9, 153, 370, 371, 407, 1634, 8208, 9474]"
+  },
+  {
+    "title": "Python Number Pattern - Harshad Neon Armstrong",
+    "language": "python",
+    "tags": [
+      "harshad",
+      "neon",
+      "automorphic",
+      "perfect",
+      "number",
+      "python"
+    ],
+    "content": "# ── Harshad (Niven) Number ────────────────────────────────────\n# A number divisible by the sum of its own digits\n# Example: 18 → digit sum = 1+8 = 9 → 18/9 = 2 ✓\ndef is_harshad(n):                                     # function define karo\n    digit_sum = sum(int(d) for d in str(n))   # sum all digits\n    return n % digit_sum == 0                  # check divisibility\n\nprint('Harshad (1-30):', [n for n in range(1, 31) if is_harshad(n)]) # output print karo\n# [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 18, 20, 21, 24, 27, 30]\n\n# ── Perfect Number ─────────────────────────────────────────────\n# Sum of all proper divisors (excluding itself) equals the number\n# Example: 6 → divisors: 1,2,3 → 1+2+3 = 6 ✓\ndef is_perfect(n):                                     # function define karo\n    if n < 2: return False                             # condition check karo\n    divisor_sum = sum(i for i in range(1, n) if n % i == 0)  # sum all divisors\n    return divisor_sum == n                            # value return karo\n\nprint('Perfect (1-1000):', [n for n in range(1, 1001) if is_perfect(n)]) # output print karo\n# [6, 28, 496]\n\n# ── Neon Number ────────────────────────────────────────────────\n# Sum of digits of its square equals the number itself\n# Example: 9 → 9² = 81 → 8+1 = 9 ✓\ndef is_neon(n):                                        # function define karo\n    square    = n * n                       # compute square\n    digit_sum = sum(int(d) for d in str(square))  # sum digits of square\n    return n == digit_sum                   # check if equal to original\n\nprint('Neon (1-100):', [n for n in range(1, 101) if is_neon(n)]) # output print karo\n# [1, 9]\n\n# ── Automorphic Number ─────────────────────────────────────────\n# Square ends with the number itself\n# Example: 25 → 25² = 625 → ends with 25 ✓\ndef is_automorphic(n):                                 # function define karo\n    return str(n*n).endswith(str(n))   # check if square ends with n\n\nprint('Automorphic (1-100):', [n for n in range(1, 101) if is_automorphic(n)]) # output print karo\n# [1, 5, 6, 25, 76]"
+  },
+  {
+    "title": "Python Recursion Examples",
+    "language": "python",
+    "tags": [
+      "recursion",
+      "recursive",
+      "python"
+    ],
+    "content": "# Recursion: a function that calls itself\n# Every recursive function needs:\n# 1. Base case — when to STOP (prevents infinite loop)\n# 2. Recursive case — call itself with smaller/simpler input\n\n# ── Sum of digits ──────────────────────────────────────────────\ndef sum_digits(n):                                     # function define karo\n    if n < 10: return n                      # base case: single digit = itself\n    return n % 10 + sum_digits(n // 10)     # last digit + sum of remaining digits\nprint('Sum digits(1234):', sum_digits(1234))  # 10 (1+2+3+4)\n\n# ── Power ──────────────────────────────────────────────────────\ndef power(base, exp):                                  # function define karo\n    if exp == 0: return 1                    # base case: anything^0 = 1\n    if exp % 2 == 0:                         # optimization: even power\n        half = power(base, exp // 2)         # compute half power\n        return half * half                   # square it (faster)\n    return base * power(base, exp - 1)       # recursive case\nprint('2^10:', power(2, 10))                 # 1024\n\n# ── GCD (Euclidean algorithm) ─────────────────────────────────\ndef gcd(a, b):                                         # function define karo\n    return a if b == 0 else gcd(b, a % b)   # base: b=0, recursive: swap and reduce\nprint('GCD(48,18):', gcd(48, 18))            # 6\n\n# ── LCM using GCD ─────────────────────────────────────────────\ndef lcm(a, b):                                         # function define karo\n    return a * b // gcd(a, b)               # LCM formula: (a×b) / GCD(a,b)\nprint('LCM(4,6):', lcm(4, 6))               # 12\n\n# ── Tower of Hanoi ────────────────────────────────────────────\n# Move n disks from source peg to target peg using auxiliary peg\ndef hanoi(n, source, target, aux):                     # function define karo\n    if n == 1:                                        # base case: just one disk\n        print(f'Move disk 1: {source} → {target}')   # move it directly\n        return\n    hanoi(n-1, source, aux, target)   # move top n-1 disks to aux\n    print(f'Move disk {n}: {source} → {target}')  # move largest disk\n    hanoi(n-1, aux, target, source)   # move n-1 disks from aux to target\n\nprint('\\nTower of Hanoi (3 disks):')                   # output print karo\nhanoi(3, 'A', 'C', 'B')              # move 3 disks from A to C using B\n# Total moves needed = 2^n - 1 = 7 for n=3"
+  },
+  {
+    "title": "Python Matrix Operations",
+    "language": "python",
+    "tags": [
+      "matrix",
+      "2d array",
+      "multiplication",
+      "transpose",
+      "python"
+    ],
+    "content": "# A matrix is a 2D list (list of lists)\nA = [[1, 2, 3],     # row 0\n     [4, 5, 6],     # row 1\n     [7, 8, 9]]     # row 2\n\nB = [[9, 8, 7],\n     [6, 5, 4],\n     [3, 2, 1]]\n\ndef print_matrix(M, name='Matrix'):                    # function define karo\n    print(f'{name}:')                                  # output print karo\n    for row in M:                                      # loop — har element ke liye\n        print(' ', row)   # print each row\n\n# ── Transpose (swap rows and columns) ─────────────────────────\ndef transpose(M):                                      # function define karo\n    rows, cols = len(M), len(M[0])                     # length/count nikalo\n    return [[M[j][i] for j in range(rows)] for i in range(cols)]   # swap i,j indices\n\n# ── Matrix addition ────────────────────────────────────────────\ndef add_matrix(A, B):                                  # function define karo\n    return [[A[i][j] + B[i][j]             # add corresponding elements\n             for j in range(len(A[0]))]                # loop — har element ke liye\n            for i in range(len(A))]                    # loop — har element ke liye\n\n# ── Matrix multiplication ─────────────────────────────────────\ndef multiply_matrix(A, B):                             # function define karo\n    rows_A = len(A)                                    # length/count nikalo\n    cols_A = len(A[0])    # = rows of B (must match for multiplication)\n    cols_B = len(B[0])                                 # length/count nikalo\n    C = [[0] * cols_B for _ in range(rows_A)]  # result matrix filled with zeros\n    for i in range(rows_A):                            # loop — har element ke liye\n        for j in range(cols_B):                        # loop — har element ke liye\n            for k in range(cols_A):                    # loop — har element ke liye\n                C[i][j] += A[i][k] * B[k][j]   # dot product of row i and column j\n    return C                                           # value return karo\n\nprint_matrix(A, 'A')\nprint_matrix(transpose(A), 'Transpose of A')\nprint_matrix(add_matrix(A, B), 'A + B')\nprint_matrix(multiply_matrix(A, B), 'A × B')"
+  },
+  {
+    "title": "Python List Comprehension and Map Filter",
+    "language": "python",
+    "tags": [
+      "list comprehension",
+      "map",
+      "filter",
+      "reduce",
+      "python"
+    ],
+    "content": "nums  = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\nmarks = [92, 45, 78, 61, 88, 33, 95, 72, 55, 81]\n\n# ── List Comprehension — compact way to create lists ──────────\nsquares  = [x**2 for x in nums]                    # square every number\nevens    = [x for x in nums if x % 2 == 0]         # keep only even numbers\npassing  = [m for m in marks if m >= 60]            # keep passing marks\ndoubled  = [x * 2 for x in nums]                   # double every number\nprint('Squares:', squares)                             # output print karo\nprint('Evens:', evens)                                 # output print karo\nprint('Passing:', passing)                             # output print karo\n\n# ── Nested comprehension (2D list / matrix) ───────────────────\nmatrix    = [[i*j for j in range(1,4)] for i in range(1,4)]  # 3x3 multiplication\nflattened = [x for row in matrix for x in row]  # 2D list → 1D list\nprint('Matrix:', matrix)                               # output print karo\nprint('Flattened:', flattened)                         # output print karo\n\n# ── map() — apply a function to EVERY element ─────────────────\ndoubled_map = list(map(lambda x: x*2, nums))        # double each element\nstr_nums    = list(map(str, nums))                   # convert each to string\nprint('Map doubled:', doubled_map)                     # output print karo\n\n# ── filter() — keep elements that match condition ─────────────\nhigh_marks  = list(filter(lambda m: m >= 80, marks)) # keep marks >= 80\npos_nums    = list(filter(lambda x: x > 0, [-3, 1, -2, 4, -1, 5]))  # positives only\nprint('Filter high marks:', high_marks)                # output print karo\nprint('Filter positives:', pos_nums)                   # output print karo\n\n# ── reduce() — accumulate to single value ─────────────────────\nfrom functools import reduce                           # specific function import karo\nproduct = reduce(lambda a, b: a*b, [1,2,3,4,5])  # 1×2×3×4×5 = 120\ntotal   = reduce(lambda a, b: a+b, nums)          # sum all = 55\nprint('Product:', product, 'Total:', total)            # output print karo"
+  },
+  {
+    "title": "Python Stack and Queue",
+    "language": "python",
+    "tags": [
+      "stack",
+      "queue",
+      "deque",
+      "data structure",
+      "python"
+    ],
+    "content": "# ── STACK (Last In First Out — like a stack of plates) ────────\nstack = []                     # use a regular Python list as stack\nstack.append(10)               # push — add to top\nstack.append(20)               # push\nstack.append(30)               # push\nprint('Stack:', stack)         # [10, 20, 30]\nprint('Top:', stack[-1])       # 30 — peek at top without removing\ntop = stack.pop()              # pop — remove from top (returns 30)\nprint('After pop:', stack)     # [10, 20]\n\n# ── QUEUE (First In First Out — like a waiting line) ──────────\nfrom collections import deque  # deque is more efficient than list for queue\nqueue = deque()\nqueue.append('Alice')          # enqueue — add to back\nqueue.append('Bob')                                    # list mein add karo\nqueue.append('Charlie')                                # list mein add karo\nprint('Queue:', queue)                                 # output print karo\nprint('Front:', queue[0])      # Alice — peek at front\nserved = queue.popleft()       # dequeue — remove from front (returns 'Alice')\nprint('Served:', served)                               # output print karo\nprint('Remaining:', queue)                             # output print karo\n\n# ── Stack class implementation ────────────────────────────────\nclass Stack:                                           # class define karo\n    def __init__(self):                                # function define karo\n        self._items = []               # private list to store items\n\n    def push(self, x):                                 # function define karo\n        self._items.append(x)          # add to top\n\n    def pop(self):                                     # function define karo\n        return self._items.pop() if self._items else None  # remove from top\n\n    def peek(self):                                    # function define karo\n        return self._items[-1] if self._items else None    # view top without removing\n\n    def is_empty(self):                                # function define karo\n        return len(self._items) == 0   # True if no elements\n\n    def size(self):                                    # function define karo\n        return len(self._items)        # number of elements\n\n    def __str__(self):                                 # function define karo\n        return str(self._items)        # string representation\n\ns = Stack()\nfor v in [5, 10, 15, 20]:                              # loop — har element ke liye\n    s.push(v)                          # push all values\nprint('Stack:', s)                     # [5, 10, 15, 20]\nprint('Pop:', s.pop())                 # 20 — top element removed\nprint('Peek:', s.peek())               # 15 — view top"
+  },
+  {
+    "title": "Python Linked List",
+    "language": "python",
+    "tags": [
+      "linked list",
+      "node",
+      "data structure",
+      "python"
+    ],
+    "content": "# Linked List: chain of nodes where each node points to the next\n# Unlike arrays, nodes don't need contiguous memory\n\nclass Node:                                            # class define karo\n    def __init__(self, data):                          # function define karo\n        self.data = data    # the actual value stored\n        self.next = None    # pointer to next node (None = end of list)\n\nclass LinkedList:                                      # class define karo\n    def __init__(self):                                # function define karo\n        self.head = None    # first node of the list (None = empty list)\n\n    def append(self, data):   # add node at the END\n        new_node = Node(data)\n        if not self.head:     # if list is empty, new node becomes head\n            self.head = new_node; return               # instance variable ya method\n        curr = self.head                               # instance variable ya method\n        while curr.next:      # traverse to the last node\n            curr = curr.next\n        curr.next = new_node  # attach new node after last node\n\n    def prepend(self, data):  # add node at the BEGINNING\n        new_node      = Node(data)\n        new_node.next = self.head   # new node points to old first node\n        self.head     = new_node   # new node becomes the head\n\n    def delete(self, data):   # remove node with given value\n        if not self.head: return                       # condition check karo\n        if self.head.data == data:      # if head itself matches\n            self.head = self.head.next  # make second node the new head\n            return\n        curr = self.head                               # instance variable ya method\n        while curr.next:               # traverse searching for the node\n            if curr.next.data == data: # found the node to delete\n                curr.next = curr.next.next   # skip over it\n                return\n            curr = curr.next\n\n    def display(self):         # print entire linked list\n        items = []                                     # empty list banao\n        curr = self.head                               # instance variable ya method\n        while curr:            # traverse from head to end\n            items.append(str(curr.data))               # list mein add karo\n            curr = curr.next   # move to next node\n        print(' -> '.join(items) + ' -> NULL')         # output print karo\n\n    def length(self):          # count number of nodes\n        count, curr = 0, self.head                     # instance variable ya method\n        while curr:                                    # jab tak condition True ho\n            count += 1\n            curr = curr.next\n        return count                                   # value return karo\n\nll = LinkedList()\nfor v in [10, 20, 30, 40]:                             # loop — har element ke liye\n    ll.append(v)          # build list: 10->20->30->40\nll.prepend(5)             # add 5 at front: 5->10->20->30->40\nll.display()\nll.delete(20)             # remove 20: 5->10->30->40\nll.display()\nprint('Length:', ll.length())   # 4"
+  },
+  {
+    "title": "Python Two Sum Problem",
+    "language": "python",
+    "tags": [
+      "two sum",
+      "hash map",
+      "list",
+      "python"
+    ],
+    "content": "def two_sum(nums, target):                             # function define karo\n    seen = {}                                          # empty dict/set banao\n    for i, n in enumerate(nums):\n        diff = target - n\n        if diff in seen:                               # condition check karo\n            return [seen[diff], i]                     # value return karo\n        seen[n] = i\n    return []                                          # value return karo\n\n# Test\nprint(two_sum([2, 7, 11, 15], 9))  # [0, 1]\nprint(two_sum([3, 2, 4], 6))       # [1, 2]"
+  },
+  {
+    "title": "Python Decorator Function",
+    "language": "python",
+    "tags": [
+      "decorator",
+      "wrapper",
+      "function",
+      "python"
+    ],
+    "content": "import time                                            # library import karo\n\ndef timer(func):                                       # function define karo\n    def wrapper(*args, **kwargs):                      # function define karo\n        start = time.time()\n        result = func(*args, **kwargs)\n        end = time.time()\n        print(f\"{func.__name__} took {end-start:.4f}s\") # output print karo\n        return result                                  # value return karo\n    return wrapper                                     # value return karo\n\ndef logger(func):                                      # function define karo\n    def wrapper(*args, **kwargs):                      # function define karo\n        print(f\"Calling {func.__name__} with {args}\")  # output print karo\n        result = func(*args, **kwargs)\n        print(f\"Returned: {result}\")                   # output print karo\n        return result                                  # value return karo\n    return wrapper                                     # value return karo\n\n@timer                                                 # decorator apply karo\n@logger                                                # decorator apply karo\ndef factorial(n):                                      # function define karo\n    return 1 if n <= 1 else n * factorial(n-1)         # value return karo\n\nfactorial(10)"
+  },
+  {
+    "title": "Python Generator Function",
+    "language": "python",
+    "tags": [
+      "generator",
+      "yield",
+      "lazy",
+      "python"
+    ],
+    "content": "# Generator for Fibonacci — memory efficient\ndef fib_gen(n):                                        # function define karo\n    a, b = 0, 1\n    for _ in range(n):                                 # loop — har element ke liye\n        yield a                                        # value dedo aur pause karo\n        a, b = b, a + b\n\nprint(list(fib_gen(10)))  # [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]\n\n# Infinite even numbers generator\ndef evens(start=0):                                    # function define karo\n    n = start if start % 2 == 0 else start + 1\n    while True:                                        # jab tak condition True ho\n        yield n                                        # value dedo aur pause karo\n        n += 2\n\ngen = evens(0)\nprint([next(gen) for _ in range(5)])  # [0, 2, 4, 6, 8]"
+  },
+  {
+    "title": "Python Context Manager",
+    "language": "python",
+    "tags": [
+      "context manager",
+      "with",
+      "file",
+      "python"
+    ],
+    "content": "# Custom context manager using class\nclass FileManager:                                     # class define karo\n    def __init__(self, filename, mode):                # function define karo\n        self.filename = filename                       # instance variable ya method\n        self.mode = mode                               # instance variable ya method\n    def __enter__(self):                               # function define karo\n        self.file = open(self.filename, self.mode)     # instance variable ya method\n        return self.file                               # value return karo\n    def __exit__(self, exc_type, exc_val, exc_tb):     # function define karo\n        self.file.close()                              # instance variable ya method\n        return False                                   # value return karo\n\n# Using contextlib\nfrom contextlib import contextmanager                  # specific function import karo\n\n@contextmanager                                        # decorator apply karo\ndef timer():                                           # function define karo\n    import time                                        # library import karo\n    start = time.time()\n    yield\n    print(f\"Elapsed: {time.time()-start:.4f}s\")        # output print karo\n\nwith timer():\n    total = sum(range(1_000_000))                      # number sequence generate karo\n    print(f\"Sum = {total}\")                            # output print karo"
+  },
+  {
+    "title": "Python Merge Sort",
+    "language": "python",
+    "tags": [
+      "merge sort",
+      "sorting",
+      "divide conquer",
+      "python"
+    ],
+    "content": "def merge_sort(arr):                                   # function define karo\n    if len(arr) <= 1:                                  # condition check karo\n        return arr                                     # value return karo\n    mid = len(arr) // 2                                # length/count nikalo\n    left  = merge_sort(arr[:mid])\n    right = merge_sort(arr[mid:])\n    return merge(left, right)                          # value return karo\n\ndef merge(left, right):                                # function define karo\n    result, i, j = [], 0, 0                            # empty list banao\n    while i < len(left) and j < len(right):            # jab tak condition True ho\n        if left[i] <= right[j]:                        # condition check karo\n            result.append(left[i]); i += 1             # list mein add karo\n        else:                                          # jab koi condition na mile\n            result.append(right[j]); j += 1            # list mein add karo\n    result.extend(left[i:])\n    result.extend(right[j:])\n    return result                                      # value return karo\n\narr = [38, 27, 43, 3, 9, 82, 10]\nprint(merge_sort(arr))  # [3, 9, 10, 27, 38, 43, 82]"
+  },
+  {
+    "title": "Python Regex Basics",
+    "language": "python",
+    "tags": [
+      "regex",
+      "pattern",
+      "re",
+      "python"
+    ],
+    "content": "import re                                              # library import karo\n\ntext = \"Contact us at support@querynest.com or admin@example.org\" # decorator apply karo\n\n# Find all emails\nemails = re.findall(r'[\\w.+-]+@[\\w-]+\\.[\\w.]+', text)\nprint(\"Emails:\", emails)                               # output print karo\n\n# Validate phone number\ndef is_valid_phone(phone):                             # function define karo\n    return bool(re.match(r'^[6-9]\\d{9}$', phone))      # value return karo\n\nprint(is_valid_phone(\"9876543210\"))  # True\nprint(is_valid_phone(\"12345\"))       # False\n\n# Extract numbers from string\nnumbers = re.findall(r'\\d+', \"I have 3 cats and 2 dogs, 15 fish\")\nprint(\"Numbers:\", numbers)  # ['3', '2', '15']"
+  },
+  {
+    "title": "Python Comprehensions Advanced",
+    "language": "python",
+    "tags": [
+      "comprehension",
+      "list",
+      "dict",
+      "set",
+      "python"
+    ],
+    "content": "# List comprehension with condition\nsquares = [x**2 for x in range(10) if x % 2 == 0]      # number sequence generate karo\nprint(squares)  # [0, 4, 16, 36, 64]\n\n# Nested list comprehension (matrix flatten)\nmatrix = [[1,2,3],[4,5,6],[7,8,9]]\nflat = [x for row in matrix for x in row]\nprint(flat)  # [1, 2, 3, 4, 5, 6, 7, 8, 9]\n\n# Dict comprehension\nwords = ['apple', 'banana', 'cherry']\nword_len = {w: len(w) for w in words}                  # length/count nikalo\nprint(word_len)  # {'apple': 5, 'banana': 6, 'cherry': 6}\n\n# Set comprehension\nunique_vowels = {c for word in words for c in word if c in 'aeiou'}\nprint(unique_vowels)  # {'a', 'e', 'i', 'u'}"
+  },
+  {
+    "title": "Python Dataclass",
+    "language": "python",
+    "tags": [
+      "dataclass",
+      "class",
+      "decorator",
+      "python"
+    ],
+    "content": "from dataclasses import dataclass, field               # specific function import karo\nfrom typing import List                                # specific function import karo\n\n@dataclass                                             # decorator apply karo\nclass Student:                                         # class define karo\n    name: str\n    age: int\n    marks: float = 0.0\n    subjects: List[str] = field(default_factory=list)\n\n    def grade(self):                                   # function define karo\n        if self.marks >= 90: return 'A+'               # condition check karo\n        if self.marks >= 80: return 'A'                # condition check karo\n        if self.marks >= 70: return 'B'                # condition check karo\n        return 'C'                                     # value return karo\n\ns1 = Student(\"Alice\", 21, 92.5, [\"Math\", \"Physics\"])\ns2 = Student(\"Bob\", 22, 78.0)\nprint(s1)           # Student(name='Alice', age=21, ...)\nprint(s1.grade())   # A+\nprint(s2.grade())   # B"
+  },
+  {
+    "title": "Python Find Missing Number",
+    "language": "python",
+    "tags": [
+      "missing number",
+      "array",
+      "sum formula",
+      "python"
+    ],
+    "content": "def find_missing(arr, n):                              # function define karo\n    expected = n * (n + 1) // 2\n    return expected - sum(arr)                         # value return karo\n\n# XOR method (no overflow)\ndef find_missing_xor(arr, n):                          # function define karo\n    xor_all = 0\n    for i in range(1, n+1): xor_all ^= i               # loop — har element ke liye\n    for x in arr: xor_all ^= x                         # loop — har element ke liye\n    return xor_all                                     # value return karo\n\narr = [1, 2, 4, 5, 6]  # missing 3\nn = 6\nprint(find_missing(arr, n))      # 3\nprint(find_missing_xor(arr, n))  # 3"
+  },
+  {
+    "title": "Python Anagram Check",
+    "language": "python",
+    "tags": [
+      "anagram",
+      "string",
+      "counter",
+      "python"
+    ],
+    "content": "from collections import Counter                        # specific function import karo\n\ndef is_anagram(s1, s2):                                # function define karo\n    return Counter(s1.lower().replace(' ','')) == Counter(s2.lower().replace(' ','')) # value return karo\n\ndef all_anagrams(words):                               # function define karo\n    groups = {}                                        # empty dict/set banao\n    for w in words:                                    # loop — har element ke liye\n        key = ''.join(sorted(w.lower()))               # lowercase mein badlo\n        groups.setdefault(key, []).append(w)           # list mein add karo\n    return list(groups.values())                       # value return karo\n\npairs = [(\"listen\",\"silent\"),(\"hello\",\"world\"),(\"Astronomer\",\"Moon starer\")]\nfor a, b in pairs:\n    print(f\"{a} & {b}: {is_anagram(a, b)}\")            # output print karo\n\nwords = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]\nprint(\"Anagram groups:\", all_anagrams(words))          # output print karo"
+  },
+  {
+    "title": "Python Caesar Cipher",
+    "language": "python",
+    "tags": [
+      "caesar cipher",
+      "encryption",
+      "string",
+      "python"
+    ],
+    "content": "def caesar_encrypt(text, shift):                       # function define karo\n    result = []                                        # empty list banao\n    for ch in text:                                    # loop — har element ke liye\n        if ch.isalpha():                               # condition check karo\n            base = ord('A') if ch.isupper() else ord('a')\n            result.append(chr((ord(ch) - base + shift) % 26 + base)) # list mein add karo\n        else:                                          # jab koi condition na mile\n            result.append(ch)                          # list mein add karo\n    return ''.join(result)                             # value return karo\n\ndef caesar_decrypt(text, shift):                       # function define karo\n    return caesar_encrypt(text, 26 - shift)            # value return karo\n\nmessage = \"Hello, QueryNest!\"\nshift = 3\nencrypted = caesar_encrypt(message, shift)\ndecrypted = caesar_decrypt(encrypted, shift)\nprint(f\"Original:  {message}\")                         # output print karo\nprint(f\"Encrypted: {encrypted}\")                       # output print karo\nprint(f\"Decrypted: {decrypted}\")                       # output print karo"
+  },
+  {
+    "title": "Python Flatten Nested List",
+    "language": "python",
+    "tags": [
+      "flatten",
+      "nested list",
+      "recursion",
+      "python"
+    ],
+    "content": "def flatten(lst):                                      # function define karo\n    result = []                                        # empty list banao\n    for item in lst:                                   # loop — har element ke liye\n        if isinstance(item, list):                     # condition check karo\n            result.extend(flatten(item))\n        else:                                          # jab koi condition na mile\n            result.append(item)                        # list mein add karo\n    return result                                      # value return karo\n\n# Using generator\ndef flatten_gen(lst):                                  # function define karo\n    for item in lst:                                   # loop — har element ke liye\n        if isinstance(item, list):                     # condition check karo\n            yield from flatten_gen(item)               # value dedo aur pause karo\n        else:                                          # jab koi condition na mile\n            yield item                                 # value dedo aur pause karo\n\nnested = [1, [2, 3], [4, [5, 6]], [7, [8, [9, 10]]]]\nprint(flatten(nested))           # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\nprint(list(flatten_gen(nested))) # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+  },
+  {
+    "title": "Python Frequency Counter",
+    "language": "python",
+    "tags": [
+      "frequency",
+      "counter",
+      "dictionary",
+      "python"
+    ],
+    "content": "from collections import Counter                        # specific function import karo\n\n# Character frequency\ntext = \"programming\"\nfreq = Counter(text)\nprint(\"Most common 3:\", freq.most_common(3))           # output print karo\n\n# Word frequency in sentence\nsentence = \"the quick brown fox jumps over the lazy dog the fox\"\nword_freq = Counter(sentence.split())                  # string ko split karo\nprint(\"Word count:\", dict(word_freq))                  # output print karo\nprint(\"Top 3 words:\", word_freq.most_common(3))        # output print karo\n\n# Find majority element (> n/2)\ndef majority_element(nums):                            # function define karo\n    count = Counter(nums)\n    n = len(nums)                                      # length/count nikalo\n    return [k for k, v in count.items() if v > n // 2] # value return karo\n\nprint(majority_element([3,3,4,2,3,3,5,3]))  # [3]"
+  },
+  {
+    "title": "Python Number is Palindrome",
+    "language": "python",
+    "tags": [
+      "palindrome",
+      "number",
+      "reverse",
+      "python"
+    ],
+    "content": "def is_palindrome_num(n):                              # function define karo\n    if n < 0: return False                             # condition check karo\n    return str(n) == str(n)[::-1]                      # value return karo\n\ndef is_palindrome_str(s):                              # function define karo\n    s = ''.join(c.lower() for c in s if c.isalnum())   # lowercase mein badlo\n    return s == s[::-1]                                # value return karo\n\n# Test numbers\nfor num in [121, 12321, -121, 10, 0, 1001]:            # loop — har element ke liye\n    print(f\"{num} -> {is_palindrome_num(num)}\")        # output print karo\n\n# Test phrases\nfor phrase in [\"racecar\", \"A man a plan a canal Panama\", \"hello\"]: # loop — har element ke liye\n    print(f'\"{phrase}\" -> {is_palindrome_str(phrase)}') # output print karo"
+  },
+  {
+    "title": "Python Zip and Enumerate",
+    "language": "python",
+    "tags": [
+      "zip",
+      "enumerate",
+      "iteration",
+      "python"
+    ],
+    "content": "names  = [\"Alice\", \"Bob\", \"Charlie\"]\nmarks  = [92, 85, 78]\ngrades = ['A', 'B', 'C']\n\n# zip — iterate multiple lists together\nfor name, mark, grade in zip(names, marks, grades):\n    print(f\"{name}: {mark} ({grade})\")                 # output print karo\n\n# enumerate — index + value\nprint(\"\\nRanking:\")                                    # output print karo\nfor rank, (name, mark) in enumerate(sorted(zip(names, marks), key=lambda x: -x[1]), 1): # ek-line anonymous function\n    print(f\"{rank}. {name} - {mark}\")                  # output print karo\n\n# zip to create dictionary\nstudent_dict = dict(zip(names, marks))\nprint(\"\\nDict:\", student_dict)                         # output print karo"
+  }
+]

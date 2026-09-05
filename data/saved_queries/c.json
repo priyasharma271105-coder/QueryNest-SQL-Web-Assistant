@@ -1,0 +1,399 @@
+[
+  {
+    "title": "C Hello World and Basics",
+    "language": "c",
+    "tags": [
+      "hello world",
+      "printf",
+      "basic",
+      "c"
+    ],
+    "content": "#include <stdio.h>   // include standard input/output library (for printf, scanf)\n\nint main() {         // main function — program starts here\n    // Print to screen\n    printf(\"Hello, World!\\n\");        // \\n = newline character\n    printf(\"Welcome to QueryNest!\\n\");                 // output print karo\n\n    // Variable declarations (must declare type in C)\n    int    age   = 20;       // integer — whole numbers\n    float  marks = 92.5f;    // float — decimal (f suffix = float)\n    double pi    = 3.14159;  // double — higher precision decimal\n    char   grade = 'A';      // char — single character in single quotes\n\n    // Print variables with format specifiers\n    printf(\"Age:   %d\\n\", age);     // %d = integer format\n    printf(\"Marks: %.1f\\n\", marks); // %.1f = float with 1 decimal place\n    printf(\"Pi:    %.5f\\n\", pi);    // %.5f = float with 5 decimal places\n    printf(\"Grade: %c\\n\", grade);   // %c = character format\n\n    // String (array of chars)\n    char name[] = \"Alice\";           // string = array of characters\n    printf(\"Name: %s\\n\", name);     // %s = string format\n\n    return 0;   // 0 means program ended successfully\n}"
+  },
+  {
+    "title": "C If Else and Switch",
+    "language": "c",
+    "tags": [
+      "if",
+      "else",
+      "switch",
+      "conditions",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int marks = 85;   // the value we want to test\n\n    // ── if-else chain ──────────────────────────────────────────\n    if (marks >= 90)       printf(\"Grade: A\\n\");   // highest: 90 and above\n    else if (marks >= 80)  printf(\"Grade: B\\n\");   // second: 80 to 89\n    else if (marks >= 70)  printf(\"Grade: C\\n\");   // third: 70 to 79\n    else if (marks >= 60)  printf(\"Grade: D\\n\");   // passing: 60 to 69\n    else                   printf(\"Grade: F\\n\");   // failing: below 60\n\n    // ── Ternary operator (one-line if-else) ───────────────────\n    char *result = (marks >= 60) ? \"Pass\" : \"Fail\";   // condition ? true : false\n    printf(\"Result: %s\\n\", result);   // Pass\n\n    // ── switch statement (for discrete values) ────────────────\n    int day = 3;                                       // integer variable\n    switch (day) {                    // evaluate expression once\n        case 1: printf(\"Monday\\n\");    break;   // break prevents fall-through\n        case 2: printf(\"Tuesday\\n\");   break;          // output print karo\n        case 3: printf(\"Wednesday\\n\"); break;   // matches day=3\n        case 6:                                  // fall-through (no break)\n        case 7: printf(\"Weekend!\\n\");  break;   // both 6 and 7 reach here\n        default: printf(\"Other day\\n\");         // none of the cases matched\n    }\n\n    // ── Logical operators ─────────────────────────────────────\n    int age = 20;                                      // integer variable\n    if (age >= 18 && age <= 60)    // && = AND (both must be true)\n        printf(\"Working age\\n\");                       // output print karo\n    if (marks > 90 || age < 18)   // || = OR (at least one must be true)\n        printf(\"Special case\\n\");                      // output print karo\n    if (!(marks < 60))             // ! = NOT (reverses condition)\n        printf(\"Not failing\\n\");                       // output print karo\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C For While Do-While Loop",
+    "language": "c",
+    "tags": [
+      "for",
+      "while",
+      "do while",
+      "loop",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nint main() {                                           // main function — yahan se shuru hota hai\n    // ── for loop: init; condition; update ──────────────────────\n    printf(\"For loop: \");                              // output print karo\n    for (int i = 1; i <= 5; i++) {     // i starts at 1, runs while i<=5, i++ each time\n        printf(\"%d \", i);               // prints: 1 2 3 4 5\n    }\n    printf(\"\\n\");                                      // output print karo\n\n    // ── for loop counting down ─────────────────────────────────\n    printf(\"Countdown: \");                             // output print karo\n    for (int i = 10; i > 0; i -= 2) {  // i decreases by 2 each time\n        printf(\"%d \", i);               // prints: 10 8 6 4 2\n    }\n    printf(\"\\n\");                                      // output print karo\n\n    // ── while loop: check condition BEFORE each iteration ──────\n    printf(\"While: \");                                 // output print karo\n    int n = 5;                                         // integer variable\n    while (n > 0) {     // check condition first — if false, never runs\n        printf(\"%d \", n);                              // output print karo\n        n--;             // MUST update n or this is an infinite loop!\n    }\n    printf(\"\\n\");       // prints: 5 4 3 2 1\n\n    // ── do-while loop: runs AT LEAST once (checks after) ───────\n    printf(\"Do-While: \");                              // output print karo\n    int x = 1;                                         // integer variable\n    do {\n        printf(\"%d \", x);   // body runs FIRST, then check condition\n        x++;\n    } while (x <= 5);       // condition checked after each iteration\n    printf(\"\\n\");           // prints: 1 2 3 4 5\n\n    // ── Nested loop (multiplication table) ────────────────────\n    printf(\"Multiplication table (3x3):\\n\");           // output print karo\n    for (int i = 1; i <= 3; i++) {      // outer: row number\n        for (int j = 1; j <= 3; j++) {  // inner: column number\n            printf(\"%2d \", i * j);       // %2d = 2 character wide\n        }\n        printf(\"\\n\");   // new row\n    }\n\n    // ── break and continue ─────────────────────────────────────\n    printf(\"Skip evens, stop at 8: \");                 // output print karo\n    for (int i = 1; i <= 10; i++) {                    // integer variable\n        if (i % 2 == 0) continue;   // skip current iteration (don't print even)\n        if (i == 9)     break;      // exit loop entirely\n        printf(\"%d \", i);           // prints: 1 3 5 7\n    }\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Arrays",
+    "language": "c",
+    "tags": [
+      "array",
+      "1d",
+      "2d",
+      "sort",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\n// Function to print an array\nvoid printArr(int arr[], int n, char *label) {         // function define karo\n    printf(\"%s: \", label);                             // output print karo\n    for (int i = 0; i < n; i++) printf(\"%d \", arr[i]); // output print karo\n    printf(\"\\n\");                                      // output print karo\n}\n\n// Bubble sort function\nvoid bubbleSort(int arr[], int n) {                    // function define karo\n    for (int i = 0; i < n-1; i++)             // n-1 passes needed\n        for (int j = 0; j < n-i-1; j++)       // compare up to unsorted part\n            if (arr[j] > arr[j+1]) {           // if left > right (wrong order)\n                int t = arr[j];                // swap using temp variable\n                arr[j] = arr[j+1];\n                arr[j+1] = t;\n            }\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    // ── 1D array declaration and initialization ────────────────\n    int marks[] = {92, 78, 85, 91, 74};   // array of 5 integers\n    int n = 5;                             // size of array\n\n    printArr(marks, n, \"Original\");        // 92 78 85 91 74\n\n    // ── Array indexing ─────────────────────────────────────────\n    printf(\"First: %d\\n\", marks[0]);      // index 0 = first element\n    printf(\"Last:  %d\\n\", marks[n-1]);    // index n-1 = last element\n\n    // ── Sum and average ────────────────────────────────────────\n    int sum = 0;                                       // integer variable\n    for (int i = 0; i < n; i++) sum += marks[i];   // accumulate sum\n    printf(\"Sum: %d, Avg: %.1f\\n\", sum, (float)sum/n);  // cast to float for division\n\n    // ── Find max and min ───────────────────────────────────────\n    int max = marks[0], min = marks[0];    // assume first element is max and min\n    for (int i = 1; i < n; i++) {                      // integer variable\n        if (marks[i] > max) max = marks[i];   // update max if found larger\n        if (marks[i] < min) min = marks[i];   // update min if found smaller\n    }\n    printf(\"Max: %d, Min: %d\\n\", max, min);            // output print karo\n\n    // ── Sort and print ─────────────────────────────────────────\n    bubbleSort(marks, n);\n    printArr(marks, n, \"Sorted\");          // 74 78 85 91 92\n\n    // ── 2D array (matrix) ─────────────────────────────────────\n    int matrix[3][3] = {{1,2,3},{4,5,6},{7,8,9}};   // 3 rows × 3 columns\n    printf(\"Matrix:\\n\");                               // output print karo\n    for (int i = 0; i < 3; i++) {          // row index\n        for (int j = 0; j < 3; j++)        // column index\n            printf(\"%3d\", matrix[i][j]);   // %3d = 3 chars wide\n        printf(\"\\n\");                     // new row\n    }\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C String Functions",
+    "language": "c",
+    "tags": [
+      "string",
+      "strlen",
+      "strcpy",
+      "strcat",
+      "strcmp",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#include <string.h>   // for strlen, strcpy, strcat, strcmp, strstr\n#include <ctype.h>    // for toupper, tolower, isdigit, isalpha\n\nint main() {                                           // main function — yahan se shuru hota hai\n    char s1[50] = \"Hello\";    // string as character array (size must be large enough)\n    char s2[] = \" World\";     // another string\n    char s3[50];              // empty string to fill later\n\n    // ── String length ──────────────────────────────────────────\n    printf(\"Length: %lu\\n\", strlen(s1));       // 5 (doesn't count \\0 terminator)\n\n    // ── Concatenate (join) strings ─────────────────────────────\n    strcat(s1, s2);                             // s1 = s1 + s2 = \"Hello World\"\n    printf(\"Concat: %s\\n\", s1);                // Hello World\n\n    // ── Copy string ────────────────────────────────────────────\n    strcpy(s3, \"QueryNest\");                    // copies \"QueryNest\" into s3\n    printf(\"Copy:   %s\\n\", s3);                // QueryNest\n\n    // ── Compare strings ────────────────────────────────────────\n    printf(\"Equal:  %d\\n\", strcmp(\"abc\",\"abc\"));   // 0 means equal\n    printf(\"Less:   %d\\n\", strcmp(\"abc\",\"abd\"));   // negative means first is less\n\n    // ── Search in string ───────────────────────────────────────\n    char *pos = strstr(s1, \"World\");            // find \"World\" in s1\n    if (pos) printf(\"Found at position: %ld\\n\", pos - s1);  // 6\n\n    // ── Convert case ───────────────────────────────────────────\n    char str[] = \"Hello World\";                        // character variable\n    for (int i = 0; str[i]; i++) str[i] = toupper(str[i]);   // convert each char\n    printf(\"Upper: %s\\n\", str);                // HELLO WORLD\n\n    // ── Reverse a string ───────────────────────────────────────\n    char rev[] = \"Python\";                             // character variable\n    int len = strlen(rev);                             // integer variable\n    for (int i = 0; i < len/2; i++) {          // swap characters from both ends\n        char t = rev[i];                               // character variable\n        rev[i] = rev[len-1-i];\n        rev[len-1-i] = t;\n    }\n    printf(\"Reverse: %s\\n\", rev);              // nohtyP\n\n    // ── Tokenize (split by delimiter) ─────────────────────────\n    char csv[] = \"Alice,20,Mumbai\";                    // character variable\n    char *token = strtok(csv, \",\");             // get first token before ','\n    while (token) {                                    // jab tak condition True ho\n        printf(\"Token: %s\\n\", token);                  // output print karo\n        token = strtok(NULL, \",\");             // NULL continues from last position\n    }\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Functions",
+    "language": "c",
+    "tags": [
+      "function",
+      "prototype",
+      "return",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\n// ── Function prototypes (declarations before main) ────────────\n// Tells compiler the function exists before we define it\nint    add(int a, int b);             // returns int, takes two ints\ndouble power(double base, int exp);   // returns double\nvoid   printTable(int n, int upto);   // returns nothing (void)\nvoid   swap(int *a, int *b);          // pointers allow modifying caller's variables\n\nint main() {                                           // main function — yahan se shuru hota hai\n    printf(\"add(3,4) = %d\\n\", add(3, 4));        // 7\n    printf(\"2^10 = %.0f\\n\", power(2, 10));        // 1024.0 (%.0f = no decimals)\n    printTable(5, 5);                              // multiplication table of 5\n\n    int x = 10, y = 20;                                // integer variable\n    printf(\"Before swap: x=%d y=%d\\n\", x, y);          // output print karo\n    swap(&x, &y);                                  // pass addresses so function can modify them\n    printf(\"After  swap: x=%d y=%d\\n\", x, y);    // x=20 y=10\n\n    return 0;                                          // value return karo\n}\n\n// ── Function definitions ───────────────────────────────────────\nint add(int a, int b) {                                // integer return karne wala function\n    return a + b;           // return sum back to caller\n}\n\ndouble power(double base, int exp) {   // recursive power function\n    if (exp == 0) return 1;            // base case: anything^0 = 1\n    return base * power(base, exp-1);  // recursive: n^e = n × n^(e-1)\n}\n\nvoid printTable(int n, int upto) {                     // function define karo\n    printf(\"Table of %d:\\n\", n);                       // output print karo\n    for (int i = 1; i <= upto; i++)                    // integer variable\n        printf(\"%d x %d = %d\\n\", n, i, n*i);   // print each row of table\n}\n\nvoid swap(int *a, int *b) {    // *a and *b are pointers (addresses)\n    int temp = *a;             // *a dereferences the pointer (gets value)\n    *a = *b;                   // assign b's value to a's location\n    *b = temp;                 // assign original a's value to b's location\n}"
+  },
+  {
+    "title": "C Pointers",
+    "language": "c",
+    "tags": [
+      "pointer",
+      "address",
+      "dereference",
+      "c",
+      "memory"
+    ],
+    "content": "#include <stdio.h>\n\nint add(int a, int b) { return a + b; }   // function for pointer-to-function demo\n\nint main() {                                           // main function — yahan se shuru hota hai\n    // ── Basic pointer ──────────────────────────────────────────\n    int x = 42;            // regular variable\n    int *ptr = &x;         // ptr is a POINTER — stores the ADDRESS of x (&x)\n\n    printf(\"x        = %d\\n\",  x);          // 42 — value of x\n    printf(\"address  = %p\\n\",  (void*)ptr); // memory address like 0x7fff...\n    printf(\"*ptr     = %d\\n\",  *ptr);       // 42 — dereference: go to address, get value\n\n    *ptr = 100;            // dereference to MODIFY x through the pointer\n    printf(\"x after  = %d\\n\",  x);          // 100 — x was changed!\n\n    // ── Pointer arithmetic ─────────────────────────────────────\n    int arr[] = {10, 20, 30, 40, 50};\n    int *p = arr;          // p points to first element (arr = &arr[0])\n    printf(\"Array via pointer: \");                     // output print karo\n    for (int i = 0; i < 5; i++)                        // integer variable\n        printf(\"%d \", *(p + i));   // (p+i) = address of i-th element, * gets value\n    printf(\"\\n\");                                      // output print karo\n\n    // ── Pointer increment ─────────────────────────────────────\n    printf(\"Stepping through: \");                      // output print karo\n    p = arr;               // reset to start\n    while (p <= &arr[4]) { // while p hasn't gone past last element\n        printf(\"%d \", *p); // print value at current address\n        p++;               // move pointer to NEXT integer (advances by 4 bytes)\n    }\n    printf(\"\\n\");                                      // output print karo\n\n    // ── Double pointer (pointer to pointer) ───────────────────\n    int **dptr = &ptr;         // dptr stores address of ptr\n    printf(\"**dptr = %d\\n\", **dptr);  // 100 — double dereference\n\n    // ── NULL pointer — pointer that points to nothing ─────────\n    int *np = NULL;            // safest initial value for a pointer\n    if (np == NULL) printf(\"Pointer is NULL (safe)\\n\"); // output print karo\n\n    // ── Pointer to function ───────────────────────────────────\n    int (*funcPtr)(int, int) = add;   // funcPtr points to the add function\n    printf(\"Via funcPtr: %d\\n\", funcPtr(3, 4));  // 7 — call through pointer\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Structures",
+    "language": "c",
+    "tags": [
+      "struct",
+      "structure",
+      "typedef",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#include <string.h>   // for strcpy\n\n// ── Define a structure (custom data type) ─────────────────────\n// Struct groups related variables of different types together\ntypedef struct {          // typedef lets us use 'Student' instead of 'struct Student'\n    int   id;\n    char  name[50];       // char array for string (fixed size)\n    int   age;\n    float marks;\n} Student;                // 'Student' is the new type name\n\n// ── Function that takes a struct (passes by VALUE — copy) ─────\nvoid printStudent(Student s) {                         // function define karo\n    printf(\"ID: %d | Name: %-10s | Age: %d | Marks: %.1f\\n\", // output print karo\n           s.id, s.name, s.age, s.marks);   // %-10s = left-aligned, 10 wide\n}\n\n// ── Function that takes struct POINTER (passes by REFERENCE) ──\nvoid updateMarks(Student *s, float newMarks) {         // function define karo\n    s->marks = newMarks;   // arrow (->) operator for pointer to struct\n                           // same as: (*s).marks = newMarks\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    // ── Create and initialize struct ───────────────────────────\n    Student s1 = {1, \"Alice\", 20, 92.5};   // initialize all fields at once\n    Student s2;                             // declare without initialization\n    s2.id = 2;                             // set fields using dot (.) operator\n    strcpy(s2.name, \"Bob\");               // must use strcpy for char arrays\n    s2.age   = 21;\n    s2.marks = 78.0;\n\n    printStudent(s1);\n    printStudent(s2);\n\n    // ── Update via pointer ─────────────────────────────────────\n    updateMarks(&s1, 97.5);               // pass address so function can modify\n    printf(\"Updated: \"); printStudent(s1);             // output print karo\n\n    // ── Array of structs ───────────────────────────────────────\n    Student class[3] = {\n        {1, \"Alice\",   20, 92.5},   // initialize each struct in the array\n        {2, \"Bob\",     21, 78.0},\n        {3, \"Charlie\", 19, 85.5}\n    };\n\n    printf(\"\\nAll students:\\n\");                       // output print karo\n    for (int i = 0; i < 3; i++) printStudent(class[i]); // integer variable\n\n    // ── Find topper ────────────────────────────────────────────\n    Student *topper = &class[0];           // start assuming first is topper\n    for (int i = 1; i < 3; i++)                        // integer variable\n        if (class[i].marks > topper->marks) // found higher marks\n            topper = &class[i];             // update pointer to new topper\n    printf(\"\\nTopper: %s (%.1f)\\n\", topper->name, topper->marks); // output print karo\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Prime Number",
+    "language": "c",
+    "tags": [
+      "prime",
+      "number",
+      "algorithm",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#include <math.h>   // for sqrt()\n\n// Function checks if n is prime, returns 1 (true) or 0 (false)\nint isPrime(int n) {                                   // integer return karne wala function\n    if (n < 2)  return 0;           // numbers less than 2 are not prime\n    if (n == 2) return 1;           // 2 is the only even prime number\n    if (n % 2 == 0) return 0;       // all other even numbers are not prime\n    for (int i = 3; i <= (int)sqrt(n); i += 2)  // check odd divisors up to √n\n        if (n % i == 0) return 0;   // found a divisor — not prime\n    return 1;                       // no divisors found — it IS prime\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    // ── Check specific numbers ─────────────────────────────────\n    int tests[] = {2, 3, 4, 17, 25, 37, 100, 97};\n    int len = sizeof(tests) / sizeof(tests[0]);   // array length formula\n    for (int i = 0; i < len; i++)                      // integer variable\n        printf(\"%3d: %s\\n\", tests[i], isPrime(tests[i]) ? \"Prime\" : \"Not prime\"); // output print karo\n\n    // ── Print all primes in range ──────────────────────────────\n    printf(\"\\nPrimes (1-50): \");                       // output print karo\n    for (int i = 2; i <= 50; i++)                      // integer variable\n        if (isPrime(i)) printf(\"%d \", i);   // print only primes\n    printf(\"\\n\");                                      // output print karo\n\n    // ── Sieve of Eratosthenes (efficient for large ranges) ─────\n    int limit = 100;                                   // integer variable\n    int sieve[101];\n    for (int i = 0; i <= limit; i++) sieve[i] = 1;   // mark all as prime initially\n    sieve[0] = sieve[1] = 0;                           // 0 and 1 are not prime\n\n    for (int i = 2; i * i <= limit; i++) {   // only check up to √limit\n        if (sieve[i]) {                       // if i is still marked prime\n            for (int j = i*i; j <= limit; j += i)  // mark all multiples\n                sieve[j] = 0;                 // i*i's multiples before it already marked\n        }\n    }\n    printf(\"Sieve (1-100): \");                         // output print karo\n    for (int i = 2; i <= limit; i++)                   // integer variable\n        if (sieve[i]) printf(\"%d \", i);                // output print karo\n    printf(\"\\n\");                                      // output print karo\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Fibonacci Series",
+    "language": "c",
+    "tags": [
+      "fibonacci",
+      "series",
+      "recursion",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\n// ── Iterative Fibonacci ────────────────────────────────────────\n// Each number = sum of previous two: 0,1,1,2,3,5,8,13,...\nvoid fibIter(int n) {                                  // function define karo\n    int a = 0, b = 1;   // first two Fibonacci numbers\n    printf(\"Fibonacci (%d terms): \", n);               // output print karo\n    for (int i = 0; i < n; i++) {                      // integer variable\n        printf(\"%d \", a);    // print current number\n        int next = a + b;    // calculate next Fibonacci number\n        a = b;               // shift: a becomes b\n        b = next;            // shift: b becomes the new next\n    }\n    printf(\"\\n\");                                      // output print karo\n}\n\n// ── Recursive Fibonacci ────────────────────────────────────────\nlong fibRec(int n) {\n    if (n <= 1) return n;           // base case: fib(0)=0, fib(1)=1\n    return fibRec(n-1) + fibRec(n-2);  // fib(n) = fib(n-1) + fib(n-2)\n}\n\n// ── Memoized Fibonacci (stores computed values to avoid recomputation) ──\nlong memo[100];   // global array to store computed results\nint  memoInit = 0;  // initialization flag\n\nlong fibMemo(int n) {\n    if (!memoInit) {                // initialize on first call\n        for (int i = 0; i < 100; i++) memo[i] = -1;  // -1 = not computed yet\n        memoInit = 1;\n    }\n    if (n <= 1) return n;           // base case\n    if (memo[n] != -1) return memo[n];  // return cached result if available\n    memo[n] = fibMemo(n-1) + fibMemo(n-2);  // compute and cache\n    return memo[n];                                    // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    fibIter(10);                    // 0 1 1 2 3 5 8 13 21 34\n\n    printf(\"fib(10) = %ld\\n\", fibRec(10));    // 55 (slow for large n)\n    printf(\"fib(30) = %ld\\n\", fibMemo(30));   // 832040 (fast with memoization)\n    printf(\"fib(40) = %ld\\n\", fibMemo(40));   // 102334155\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Factorial",
+    "language": "c",
+    "tags": [
+      "factorial",
+      "recursion",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\n// Factorial: n! = n × (n-1) × (n-2) × ... × 1\n// Special case: 0! = 1 (by mathematical definition)\n\n// ── Recursive factorial ────────────────────────────────────────\nlong factRecursive(int n) {\n    if (n <= 1) return 1;              // base case: 0! = 1! = 1\n    return n * factRecursive(n - 1);   // n! = n × (n-1)!\n}\n\n// ── Iterative factorial ────────────────────────────────────────\nlong factIterative(int n) {\n    long result = 1;                   // start at 1 (identity for multiplication)\n    for (int i = 2; i <= n; i++)      // multiply from 2 to n\n        result *= i;                   // accumulate product\n    return result;                                     // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    // Print factorial table\n    printf(\"Factorials (0-10):\\n\");                    // output print karo\n    for (int i = 0; i <= 10; i++)                      // integer variable\n        printf(\"%2d! = %10ld\\n\", i, factIterative(i)); // output print karo\n    // Output:\n    //  0! =          1\n    //  5! =        120\n    // 10! =    3628800\n\n    // Compare both methods for n=7\n    printf(\"\\n7! recursive = %ld\\n\", factRecursive(7));   // 5040\n    printf(\"7! iterative = %ld\\n\", factIterative(7));       // 5040\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Palindrome Check",
+    "language": "c",
+    "tags": [
+      "palindrome",
+      "string",
+      "number",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#include <string.h>   // for strlen\n\n// Check if string is palindrome: reads same forward and backward\nint isPalindromeStr(char s[]) {                        // character variable\n    int l = 0;                 // left pointer starts at beginning\n    int r = strlen(s) - 1;    // right pointer starts at end\n    while (l < r) {            // continue until pointers meet in middle\n        if (s[l] != s[r]) return 0;   // mismatch found — not palindrome\n        l++;   // move left pointer right\n        r--;   // move right pointer left\n    }\n    return 1;   // all characters matched — is palindrome\n}\n\n// Check if number is palindrome: reverse it and compare\nint isPalindromeNum(int n) {                           // integer return karne wala function\n    if (n < 0) return 0;         // negative numbers are not palindromes\n    int orig = n, rev = 0;                             // integer variable\n    while (n > 0) {                                    // jab tak condition True ho\n        rev = rev * 10 + n % 10;  // build reversed number digit by digit\n        n /= 10;                   // remove last digit\n    }\n    return orig == rev;            // compare original with reversed\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    // ── Test strings ───────────────────────────────────────────\n    char *words[] = {\"madam\", \"hello\", \"racecar\", \"level\", \"python\", \"noon\"};\n    int count = 6;                                     // integer variable\n    for (int i = 0; i < count; i++)                    // integer variable\n        printf(\"%-10s: %s\\n\", words[i],                // output print karo\n               isPalindromeStr(words[i]) ? \"Palindrome ✓\" : \"Not palindrome ✗\");\n\n    // ── Test numbers ───────────────────────────────────────────\n    int nums[] = {121, 12321, 123, 1001, 456};\n    printf(\"\\n\");                                      // output print karo\n    for (int i = 0; i < 5; i++)                        // integer variable\n        printf(\"%5d: %s\\n\", nums[i],                   // output print karo\n               isPalindromeNum(nums[i]) ? \"Palindrome ✓\" : \"Not palindrome ✗\");\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Pattern Printing",
+    "language": "c",
+    "tags": [
+      "pattern",
+      "star",
+      "triangle",
+      "pyramid",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int n = 5;   // number of rows in each pattern\n\n    // ── Pattern 1: Right triangle ──────────────────────────────\n    printf(\"Right Triangle:\\n\");                       // output print karo\n    for (int i = 1; i <= n; i++) {          // i = row number (1 to n)\n        for (int j = 0; j < i; j++)         // print i stars in row i\n            printf(\"* \");                              // output print karo\n        printf(\"\\n\");                       // move to next line\n    }\n\n    // ── Pattern 2: Inverted triangle ──────────────────────────\n    printf(\"\\nInverted Triangle:\\n\");                  // output print karo\n    for (int i = n; i >= 1; i--) {          // i decreases from n to 1\n        for (int j = 0; j < i; j++)                    // integer variable\n            printf(\"* \");                              // output print karo\n        printf(\"\\n\");                                  // output print karo\n    }\n\n    // ── Pattern 3: Pyramid ─────────────────────────────────────\n    printf(\"\\nPyramid:\\n\");                            // output print karo\n    for (int i = 1; i <= n; i++) {                     // integer variable\n        for (int j = i; j < n; j++) printf(\" \");    // leading spaces (decreasing)\n        for (int j = 1; j <= 2*i-1; j++) printf(\"*\"); // stars (increasing: 1,3,5,7,9)\n        printf(\"\\n\");                                  // output print karo\n    }\n\n    // ── Pattern 4: Diamond ─────────────────────────────────────\n    printf(\"\\nDiamond:\\n\");                            // output print karo\n    for (int i = 1; i <= n; i++) {          // upper half\n        for (int j = i; j < n; j++) printf(\" \");       // output print karo\n        for (int j = 1; j <= 2*i-1; j++) printf(\"*\");  // output print karo\n        printf(\"\\n\");                                  // output print karo\n    }\n    for (int i = n-1; i >= 1; i--) {        // lower half (skip middle row)\n        for (int j = n; j > i; j--) printf(\" \");       // output print karo\n        for (int j = 1; j <= 2*i-1; j++) printf(\"*\");  // output print karo\n        printf(\"\\n\");                                  // output print karo\n    }\n\n    // ── Pattern 5: Number triangle ─────────────────────────────\n    printf(\"\\nNumber Triangle:\\n\");                    // output print karo\n    for (int i = 1; i <= n; i++) {                     // integer variable\n        for (int j = 1; j <= i; j++) printf(\"%d \", j);  // 1, 1 2, 1 2 3, ...\n        printf(\"\\n\");                                  // output print karo\n    }\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Sorting Algorithms",
+    "language": "c",
+    "tags": [
+      "bubble sort",
+      "selection sort",
+      "insertion sort",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\n// Print array helper\nvoid printArr(int arr[], int n, char *label) {         // function define karo\n    printf(\"%-10s: \", label);                          // output print karo\n    for (int i = 0; i < n; i++) printf(\"%d \", arr[i]); // output print karo\n    printf(\"\\n\");                                      // output print karo\n}\n\n// ── Bubble Sort: repeatedly swap adjacent out-of-order elements ────\nvoid bubbleSort(int arr[], int n) {                    // function define karo\n    for (int i = 0; i < n-1; i++) {         // n-1 passes\n        for (int j = 0; j < n-i-1; j++) {   // last i elements are already sorted\n            if (arr[j] > arr[j+1]) {         // wrong order\n                int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t;   // swap\n            }\n        }\n    }\n}\n\n// ── Selection Sort: find minimum and place it at correct position ──\nvoid selectionSort(int arr[], int n) {                 // function define karo\n    for (int i = 0; i < n; i++) {                      // integer variable\n        int minIdx = i;                       // assume current position is minimum\n        for (int j = i+1; j < n; j++)        // search remaining array\n            if (arr[j] < arr[minIdx]) minIdx = j;  // found new minimum\n        // swap minimum to position i\n        int t = arr[i]; arr[i] = arr[minIdx]; arr[minIdx] = t; // integer variable\n    }\n}\n\n// ── Insertion Sort: build sorted array one element at a time ───────\nvoid insertionSort(int arr[], int n) {                 // function define karo\n    for (int i = 1; i < n; i++) {                      // integer variable\n        int key = arr[i];    // element to be inserted into sorted portion\n        int j = i - 1;                                 // integer variable\n        while (j >= 0 && arr[j] > key) {  // shift larger elements right\n            arr[j+1] = arr[j];\n            j--;\n        }\n        arr[j+1] = key;      // insert key at correct position\n    }\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int data[] = {64, 34, 25, 12, 22, 11, 90};\n    int n = 7;   // number of elements\n    int b[7], s[7], ins[7];\n\n    // Copy data into separate arrays\n    for (int i = 0; i < n; i++) b[i] = s[i] = ins[i] = data[i]; // integer variable\n\n    printArr(data, n, \"Original\");\n    bubbleSort(b, n);    printArr(b,   n, \"Bubble\");\n    selectionSort(s, n); printArr(s,   n, \"Selection\");\n    insertionSort(ins,n);printArr(ins, n, \"Insertion\");\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Matrix Multiplication",
+    "language": "c",
+    "tags": [
+      "matrix",
+      "multiplication",
+      "2d array",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\n#define N 3   // matrix size (N×N) — #define creates a constant\n\n// Multiply two N×N matrices: C = A × B\nvoid multiply(int A[N][N], int B[N][N], int C[N][N]) { // function define karo\n    for (int i = 0; i < N; i++) {           // row of result matrix\n        for (int j = 0; j < N; j++) {       // column of result matrix\n            C[i][j] = 0;                    // initialize cell to 0\n            for (int k = 0; k < N; k++) {   // dot product: multiply row of A × column of B\n                C[i][j] += A[i][k] * B[k][j];\n            }\n        }\n    }\n}\n\n// Transpose: swap rows and columns\nvoid transpose(int M[N][N], int T[N][N]) {             // function define karo\n    for (int i = 0; i < N; i++)                        // integer variable\n        for (int j = 0; j < N; j++)                    // integer variable\n            T[j][i] = M[i][j];   // T[j][i] = M[i][j] swaps row/column\n}\n\n// Print matrix with label\nvoid printMatrix(int M[N][N], char *label) {           // function define karo\n    printf(\"%s:\\n\", label);                            // output print karo\n    for (int i = 0; i < N; i++) {                      // integer variable\n        for (int j = 0; j < N; j++) printf(\"%4d\", M[i][j]);  // %4d = 4 chars wide\n        printf(\"\\n\");                                  // output print karo\n    }\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int A[N][N] = {{1,2,3},{4,5,6},{7,8,9}};   // matrix A\n    int B[N][N] = {{9,8,7},{6,5,4},{3,2,1}};   // matrix B\n    int C[N][N];   // result matrix (uninitialized)\n    int T[N][N];   // transpose matrix\n\n    printMatrix(A, \"Matrix A\");\n    printMatrix(B, \"Matrix B\");\n\n    multiply(A, B, C);       // C = A × B\n    printMatrix(C, \"A × B\");\n\n    transpose(A, T);         // T = Aᵀ\n    printMatrix(T, \"Transpose of A\");\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Linked List",
+    "language": "c",
+    "tags": [
+      "linked list",
+      "node",
+      "struct",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#include <stdlib.h>   // for malloc() and free()\n\n// Node structure: each node has data and pointer to next node\nstruct Node {                                          // structure define karo\n    int data;              // value stored in node\n    struct Node *next;     // pointer to next node (NULL if last)\n};\n\n// Insert new node at beginning (prepend)\nstruct Node* insertFront(struct Node *head, int val) { // structure define karo\n    struct Node *node = (struct Node*)malloc(sizeof(struct Node));   // allocate memory\n    node->data = val;     // set value\n    node->next = head;    // new node points to old head\n    return node;          // new node becomes new head\n}\n\n// Insert new node at end (append)\nstruct Node* insertEnd(struct Node *head, int val) {   // structure define karo\n    struct Node *node = (struct Node*)malloc(sizeof(struct Node)); // memory allocate karo\n    node->data = val;                                  // pointer se member access karo\n    node->next = NULL;    // new node is last, so next = NULL\n    if (!head) return node;   // if list was empty, new node is the head\n    struct Node *curr = head;                          // structure define karo\n    while (curr->next) curr = curr->next;   // traverse to last node\n    curr->next = node;   // attach new node after last\n    return head;                                       // value return karo\n}\n\n// Delete node with given value\nstruct Node* deleteNode(struct Node *head, int val) {  // structure define karo\n    if (!head) return NULL;   // empty list\n    if (head->data == val) {  // if head itself is the node to delete\n        struct Node *temp = head->next;                // structure define karo\n        free(head);           // release memory\n        return temp;          // new head is second node\n    }\n    struct Node *curr = head;                          // structure define karo\n    while (curr->next && curr->next->data != val)  // find node before target\n        curr = curr->next;                             // pointer se member access karo\n    if (curr->next) {                    // found the target node\n        struct Node *temp = curr->next;                // structure define karo\n        curr->next = temp->next;         // skip over the target node\n        free(temp);                      // release target's memory\n    }\n    return head;                                       // value return karo\n}\n\n// Print all nodes\nvoid printList(struct Node *head) {                    // structure define karo\n    while (head) {                                     // jab tak condition True ho\n        printf(\"%d -> \", head->data);                  // output print karo\n        head = head->next;    // move to next node\n    }\n    printf(\"NULL\\n\");        // NULL marks end of list\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    struct Node *head = NULL;              // empty list\n    head = insertEnd(head, 10);            // 10\n    head = insertEnd(head, 20);            // 10 -> 20\n    head = insertEnd(head, 30);            // 10 -> 20 -> 30\n    head = insertFront(head, 5);           // 5 -> 10 -> 20 -> 30\n    printList(head);                       // 5 -> 10 -> 20 -> 30 -> NULL\n\n    head = deleteNode(head, 20);           // remove 20\n    printList(head);                       // 5 -> 10 -> 30 -> NULL\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C File Operations",
+    "language": "c",
+    "tags": [
+      "file",
+      "fopen",
+      "fprintf",
+      "fgets",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#include <stdlib.h>   // for exit()\n\nint main() {                                           // main function — yahan se shuru hota hai\n    // ── Write to file (\"w\" mode — creates or overwrites) ──────\n    FILE *fw = fopen(\"students.txt\", \"w\");   // fopen returns FILE pointer\n    if (!fw) {                               // check if file opened successfully\n        perror(\"Error opening file\");        // print system error message\n        return 1;                            // exit with error code\n    }\n    fprintf(fw, \"Alice,20,92.5\\n\");         // fprintf writes formatted text to file\n    fprintf(fw, \"Bob,21,78.0\\n\");                      // output print karo\n    fprintf(fw, \"Charlie,19,85.5\\n\");                  // output print karo\n    fclose(fw);                              // MUST close file when done\n    printf(\"File written!\\n\");                         // output print karo\n\n    // ── Read from file (\"r\" mode) ──────────────────────────────\n    FILE *fr = fopen(\"students.txt\", \"r\");\n    if (!fr) { perror(\"Error\"); return 1; }            // condition check karo\n    char line[100];                          // buffer to store each line\n    printf(\"Contents:\\n\");                             // output print karo\n    while (fgets(line, sizeof(line), fr))   // read line by line (returns NULL at EOF)\n        printf(\"  %s\", line);               // each line already has \\n\n    fclose(fr);\n\n    // ── Append to file (\"a\" mode — adds to end) ───────────────\n    FILE *fa = fopen(\"students.txt\", \"a\");\n    fprintf(fa, \"Diana,20,91.0\\n\");         // adds without deleting existing content\n    fclose(fa);\n\n    // ── Count lines ────────────────────────────────────────────\n    FILE *fc = fopen(\"students.txt\", \"r\");\n    int count = 0;                                     // integer variable\n    while (fgets(line, sizeof(line), fc)) count++;   // count each line read\n    fclose(fc);\n    printf(\"Total students: %d\\n\", count);   // 4\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Armstrong Number",
+    "language": "c",
+    "tags": [
+      "armstrong",
+      "narcissistic",
+      "number",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#include <math.h>   // for pow()\n\n// Armstrong number: sum of digits^(number of digits) equals the number\n// Example: 153 = 1³ + 5³ + 3³ = 1 + 125 + 27 = 153 ✓\nint isArmstrong(int n) {                               // integer return karne wala function\n    int temp   = n;        // save original value for final comparison\n    int digits = 0;        // count number of digits\n    while (temp) {                                     // jab tak condition True ho\n        digits++;          // count each digit\n        temp /= 10;        // remove last digit\n    }\n    temp = n;              // reset temp to original\n    int sum = 0;                                       // integer variable\n    while (temp) {                                     // jab tak condition True ho\n        int d = temp % 10;                     // extract last digit\n        sum += (int)pow(d, digits);            // add digit^power to sum\n        temp /= 10;                            // remove last digit\n    }\n    return sum == n;   // true if sum equals original number\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    // ── Check specific numbers ─────────────────────────────────\n    int nums[] = {153, 370, 371, 407, 9474, 100, 200};\n    int len = sizeof(nums) / sizeof(nums[0]);   // array length\n    for (int i = 0; i < len; i++)                      // integer variable\n        printf(\"%4d: %s\\n\", nums[i],                   // output print karo\n               isArmstrong(nums[i]) ? \"Armstrong ✓\" : \"Not Armstrong ✗\");\n\n    // ── Find all Armstrong numbers in range ────────────────────\n    printf(\"\\nArmstrong numbers (1 to 9999):\\n\");      // output print karo\n    for (int i = 1; i <= 9999; i++)                    // integer variable\n        if (isArmstrong(i)) printf(\"%d \", i);          // output print karo\n    printf(\"\\n\");                                      // output print karo\n    // Output: 1 2 3 4 5 6 7 8 9 153 370 371 407 1634 8208 9474\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C GCD LCM and Number Theory",
+    "language": "c",
+    "tags": [
+      "gcd",
+      "lcm",
+      "euclid",
+      "number theory",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\n// GCD using Euclidean algorithm (most efficient)\n// Principle: GCD(a, b) = GCD(b, a % b) until b = 0\nint gcd(int a, int b) {                                // integer return karne wala function\n    return b == 0 ? a : gcd(b, a % b);   // when b=0, GCD is a; else recurse\n}\n\n// LCM formula: LCM(a,b) = (a × b) / GCD(a,b)\nint lcm(int a, int b) {                                // integer return karne wala function\n    return a / gcd(a, b) * b;   // divide first to avoid overflow\n}\n\n// Sum of digits of a number\nint sumDigits(int n) {                                 // integer return karne wala function\n    int sum = 0;                                       // integer variable\n    while (n > 0) {                                    // jab tak condition True ho\n        sum += n % 10;   // add last digit to sum\n        n /= 10;         // remove last digit\n    }\n    return sum;                                        // value return karo\n}\n\n// Reverse a number\nint reverseNum(int n) {                                // integer return karne wala function\n    int rev = 0;                                       // integer variable\n    while (n > 0) {                                    // jab tak condition True ho\n        rev = rev * 10 + n % 10;   // shift rev left and add last digit of n\n        n /= 10;                    // remove last digit from n\n    }\n    return rev;                                        // value return karo\n}\n\n// Check if number is perfect (sum of divisors = number)\nint isPerfect(int n) {                                 // integer return karne wala function\n    if (n <= 1) return 0;                              // condition check karo\n    int sum = 1;           // 1 is always a divisor\n    for (int i = 2; i * i <= n; i++) {                 // integer variable\n        if (n % i == 0) {                              // condition check karo\n            sum += i;      // add divisor i\n            if (i != n/i) sum += n/i;  // add paired divisor (avoid duplicates)\n        }\n    }\n    return sum == n;                                   // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    printf(\"GCD(48, 18)    = %d\\n\", gcd(48, 18));    // 6\n    printf(\"GCD(100, 75)   = %d\\n\", gcd(100, 75));   // 25\n    printf(\"LCM(4, 6)      = %d\\n\", lcm(4, 6));      // 12\n    printf(\"LCM(12, 18)    = %d\\n\", lcm(12, 18));    // 36\n    printf(\"Sum digits(1234)= %d\\n\", sumDigits(1234)); // 10\n    printf(\"Reverse(12345) = %d\\n\", reverseNum(12345)); // 54321\n\n    printf(\"\\nPerfect numbers (1-1000): \");            // output print karo\n    for (int i = 2; i <= 1000; i++)                    // integer variable\n        if (isPerfect(i)) printf(\"%d \", i);   // 6 28 496\n    printf(\"\\n\");                                      // output print karo\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Recursion Tower of Hanoi",
+    "language": "c",
+    "tags": [
+      "recursion",
+      "tower of hanoi",
+      "recursive",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\n// Tower of Hanoi: move n disks from 'from' peg to 'to' peg using 'aux' peg\n// Rule: only one disk at a time, never place larger disk on smaller\nvoid hanoi(int n, char from, char to, char aux) {      // character variable\n    if (n == 1) {                                      // condition check karo\n        printf(\"Move disk 1: %c → %c\\n\", from, to);   // base: just move the one disk\n        return;\n    }\n    hanoi(n-1, from, aux, to);   // Step 1: move top n-1 disks to aux peg\n    printf(\"Move disk %d: %c → %c\\n\", n, from, to);  // Step 2: move largest disk\n    hanoi(n-1, aux, to, from);   // Step 3: move n-1 disks from aux to target\n}\n\n// Fast power using recursion (O(log n) — much faster than O(n))\nlong power(int base, int exp) {\n    if (exp == 0) return 1;        // base case: anything^0 = 1\n    if (exp % 2 == 0) {            // even exponent optimization\n        long half = power(base, exp/2);  // compute half\n        return half * half;              // square it instead of multiplying n times\n    }\n    return base * power(base, exp-1);  // odd exponent\n}\n\n// Count digits using recursion\nint countDigits(int n) {                               // integer return karne wala function\n    if (n < 10) return 1;               // base case: single digit\n    return 1 + countDigits(n / 10);     // remove last digit, count rest\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    // Tower of Hanoi with 3 disks\n    printf(\"Tower of Hanoi (3 disks):\\n\");             // output print karo\n    hanoi(3, 'A', 'C', 'B');    // move 3 disks from A to C using B as helper\n    printf(\"Total moves = 2^n - 1 = %d\\n\\n\", (int)power(2,3) - 1);  // 7\n\n    printf(\"2^10 = %ld\\n\", power(2, 10));      // 1024\n    printf(\"3^5  = %ld\\n\", power(3, 5));        // 243\n    printf(\"Digits in 12345: %d\\n\", countDigits(12345));  // 5\n\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Number Conversion Binary Octal Hex",
+    "language": "c",
+    "tags": [
+      "binary",
+      "octal",
+      "hex",
+      "conversion",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nvoid decToBin(int n) {                                 // function define karo\n    if (n > 1) decToBin(n / 2);                        // condition check karo\n    printf(\"%d\", n % 2);                               // output print karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int n;\n    printf(\"Enter decimal number: \");                  // output print karo\n    scanf(\"%d\", &n);                                   // input lo\n    printf(\"Binary: \"); decToBin(n); printf(\"\\n\");     // output print karo\n    printf(\"Octal:  %o\\n\", n);                         // output print karo\n    printf(\"Hex:    %X\\n\", n);                         // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Bubble Sort Detailed",
+    "language": "c",
+    "tags": [
+      "bubble sort",
+      "sorting",
+      "array",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nvoid bubbleSort(int arr[], int n) {                    // function define karo\n    for (int i = 0; i < n-1; i++) {                    // integer variable\n        int swapped = 0;                               // integer variable\n        for (int j = 0; j < n-i-1; j++) {              // integer variable\n            if (arr[j] > arr[j+1]) {                   // condition check karo\n                int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; // integer variable\n                swapped = 1;\n            }\n        }\n        if (!swapped) break;  // Already sorted\n    }\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int arr[] = {64, 34, 25, 12, 22, 11, 90};\n    int n = sizeof(arr)/sizeof(arr[0]);                // integer variable\n    bubbleSort(arr, n);\n    for (int i = 0; i < n; i++) printf(\"%d \", arr[i]); // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C String Palindrome",
+    "language": "c",
+    "tags": [
+      "palindrome",
+      "string",
+      "reverse",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#include <string.h>\n\nint isPalindrome(char s[]) {                           // character variable\n    int n = strlen(s);                                 // integer variable\n    for (int i = 0; i < n/2; i++)                      // integer variable\n        if (s[i] != s[n-1-i]) return 0;                // condition check karo\n    return 1;                                          // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    char words[][20] = {\"racecar\", \"hello\", \"madam\", \"level\", \"world\"}; // character variable\n    for (int i = 0; i < 5; i++)                        // integer variable\n        printf(\"%s -> %s\\n\", words[i], isPalindrome(words[i]) ? \"Palindrome\" : \"Not Palindrome\"); // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Count Words in String",
+    "language": "c",
+    "tags": [
+      "words",
+      "count",
+      "string",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#include <string.h>\n\nint countWords(char s[]) {                             // character variable\n    int count = 0, inWord = 0;                         // integer variable\n    for (int i = 0; s[i]; i++) {                       // integer variable\n        if (s[i] != ' ' && s[i] != '\\t' && s[i] != '\\n') { // condition check karo\n            if (!inWord) { count++; inWord = 1; }      // condition check karo\n        } else inWord = 0;                             // jab condition False ho\n    }\n    return count;                                      // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    char s[] = \"Hello World this is C programming\";    // character variable\n    printf(\"Words: %d\\n\", countWords(s)); // 6\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Fibonacci Using Array",
+    "language": "c",
+    "tags": [
+      "fibonacci",
+      "array",
+      "series",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int n = 15;                                        // integer variable\n    long long fib[100];\n    fib[0] = 0; fib[1] = 1;\n    for (int i = 2; i < n; i++)                        // integer variable\n        fib[i] = fib[i-1] + fib[i-2];\n    printf(\"Fibonacci series (first %d):\\n\", n);       // output print karo\n    for (int i = 0; i < n; i++)                        // integer variable\n        printf(\"%lld \", fib[i]);                       // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Stack Using Array",
+    "language": "c",
+    "tags": [
+      "stack",
+      "push",
+      "pop",
+      "array",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#define MAX 100\n\nint stack[MAX], top = -1;\n\nvoid push(int x) {                                     // function define karo\n    if (top == MAX-1) { printf(\"Stack overflow!\\n\"); return; } // output print karo\n    stack[++top] = x;\n}\nint pop() {                                            // integer return karne wala function\n    if (top == -1) { printf(\"Stack underflow!\\n\"); return -1; } // output print karo\n    return stack[top--];                               // value return karo\n}\nint peek() { return top == -1 ? -1 : stack[top]; }     // value return karo\n\nint main() {                                           // main function — yahan se shuru hota hai\n    push(10); push(20); push(30);\n    printf(\"Peek: %d\\n\", peek());   // 30\n    printf(\"Pop: %d\\n\", pop());     // 30\n    printf(\"Pop: %d\\n\", pop());     // 20\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Queue Using Array",
+    "language": "c",
+    "tags": [
+      "queue",
+      "enqueue",
+      "dequeue",
+      "array",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#define MAX 100\n\nint queue[MAX], front = 0, rear = -1, size = 0;\n\nvoid enqueue(int x) {                                  // function define karo\n    if (size == MAX) { printf(\"Queue full!\\n\"); return; } // output print karo\n    rear = (rear + 1) % MAX;\n    queue[rear] = x; size++;\n}\nint dequeue() {                                        // integer return karne wala function\n    if (size == 0) { printf(\"Queue empty!\\n\"); return -1; } // output print karo\n    int val = queue[front];                            // integer variable\n    front = (front + 1) % MAX; size--;\n    return val;                                        // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    enqueue(10); enqueue(20); enqueue(30);\n    printf(\"Dequeue: %d\\n\", dequeue()); // 10\n    printf(\"Dequeue: %d\\n\", dequeue()); // 20\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Power Function",
+    "language": "c",
+    "tags": [
+      "power",
+      "exponent",
+      "math",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nlong long power(int base, int exp) {\n    if (exp == 0) return 1;                            // condition check karo\n    if (exp % 2 == 0) {                                // condition check karo\n        long long half = power(base, exp/2);\n        return half * half;                            // value return karo\n    }\n    return base * power(base, exp - 1);                // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    printf(\"2^10 = %lld\\n\", power(2, 10));  // 1024\n    printf(\"3^5 = %lld\\n\",  power(3, 5));   // 243\n    printf(\"5^0 = %lld\\n\",  power(5, 0));   // 1\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Find Duplicate Elements in Array",
+    "language": "c",
+    "tags": [
+      "duplicate",
+      "array",
+      "find",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int arr[] = {1, 2, 3, 2, 4, 5, 1, 6, 3};\n    int n = sizeof(arr)/sizeof(arr[0]);                // integer variable\n    printf(\"Duplicate elements: \");                    // output print karo\n    for (int i = 0; i < n; i++) {                      // integer variable\n        for (int j = i+1; j < n; j++) {                // integer variable\n            if (arr[i] == arr[j]) {                    // condition check karo\n                printf(\"%d \", arr[i]);                 // output print karo\n                break;                                 // loop band karo\n            }\n        }\n    }\n    printf(\"\\n\");                                      // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Number is Perfect Square",
+    "language": "c",
+    "tags": [
+      "perfect square",
+      "sqrt",
+      "math",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n#include <math.h>\n\nint isPerfectSquare(int n) {                           // integer return karne wala function\n    if (n < 0) return 0;                               // condition check karo\n    int root = (int)sqrt(n);                           // integer variable\n    return root * root == n;                           // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int nums[] = {0, 1, 4, 9, 16, 25, 26, 49, 50};\n    for (int i = 0; i < 9; i++)                        // integer variable\n        printf(\"%d -> %s\\n\", nums[i], isPerfectSquare(nums[i]) ? \"Perfect Square\" : \"Not Perfect Square\"); // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Menu Driven Calculator",
+    "language": "c",
+    "tags": [
+      "calculator",
+      "menu",
+      "switch",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nint main() {                                           // main function — yahan se shuru hota hai\n    double a, b;\n    int choice;\n    printf(\"Enter two numbers: \"); scanf(\"%lf %lf\", &a, &b); // output print karo\n    printf(\"1.Add  2.Sub  3.Mul  4.Div\\nChoice: \"); scanf(\"%d\", &choice); // output print karo\n    switch (choice) {\n        case 1: printf(\"Result: %.2lf\\n\", a + b); break; // output print karo\n        case 2: printf(\"Result: %.2lf\\n\", a - b); break; // output print karo\n        case 3: printf(\"Result: %.2lf\\n\", a * b); break; // output print karo\n        case 4:\n            if (b != 0) printf(\"Result: %.2lf\\n\", a / b); // output print karo\n            else printf(\"Error: Division by zero!\\n\"); // output print karo\n            break;                                     // loop band karo\n        default: printf(\"Invalid choice!\\n\");          // output print karo\n    }\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Reverse Array",
+    "language": "c",
+    "tags": [
+      "reverse",
+      "array",
+      "swap",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nvoid reverseArray(int arr[], int n) {                  // function define karo\n    int l = 0, r = n - 1;                              // integer variable\n    while (l < r) {                                    // jab tak condition True ho\n        int t = arr[l]; arr[l] = arr[r]; arr[r] = t;   // integer variable\n        l++; r--;\n    }\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int arr[] = {1, 2, 3, 4, 5};\n    int n = sizeof(arr)/sizeof(arr[0]);                // integer variable\n    printf(\"Original: \");                              // output print karo\n    for (int i = 0; i < n; i++) printf(\"%d \", arr[i]); // output print karo\n    reverseArray(arr, n);\n    printf(\"\\nReversed: \");                            // output print karo\n    for (int i = 0; i < n; i++) printf(\"%d \", arr[i]); // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Celsius to Fahrenheit Conversion",
+    "language": "c",
+    "tags": [
+      "temperature",
+      "celsius",
+      "fahrenheit",
+      "conversion",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nint main() {                                           // main function — yahan se shuru hota hai\n    float celsius, fahrenheit;\n    printf(\"Celsius to Fahrenheit table:\\n\");          // output print karo\n    printf(\"%-10s %s\\n\", \"Celsius\", \"Fahrenheit\");     // output print karo\n    printf(\"-------------------\\n\");                   // output print karo\n    for (celsius = 0; celsius <= 100; celsius += 10) { // loop — repeat karo\n        fahrenheit = (celsius * 9.0 / 5.0) + 32;\n        printf(\"%-10.0f %.2f\\n\", celsius, fahrenheit); // output print karo\n    }\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Sum of Digits",
+    "language": "c",
+    "tags": [
+      "sum of digits",
+      "digit",
+      "number",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nint sumDigits(int n) {                                 // integer return karne wala function\n    n = (n < 0) ? -n : n;\n    int sum = 0;                                       // integer variable\n    while (n > 0) { sum += n % 10; n /= 10; }          // jab tak condition True ho\n    return sum;                                        // value return karo\n}\n\nint digitalRoot(int n) {                               // integer return karne wala function\n    while (n >= 10) n = sumDigits(n);                  // jab tak condition True ho\n    return n;                                          // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    printf(\"Sum of digits of 12345 = %d\\n\", sumDigits(12345)); // 15\n    printf(\"Sum of digits of 9999  = %d\\n\", sumDigits(9999));  // 36\n    printf(\"Digital root of 9875  = %d\\n\", digitalRoot(9875)); // 2\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C Check Strong Number",
+    "language": "c",
+    "tags": [
+      "strong number",
+      "factorial",
+      "digit",
+      "c"
+    ],
+    "content": "#include <stdio.h>\n\nint factorial(int n) {                                 // integer return karne wala function\n    int f = 1;                                         // integer variable\n    for (int i = 2; i <= n; i++) f *= i;               // integer variable\n    return f;                                          // value return karo\n}\n\nint isStrong(int n) {                                  // integer return karne wala function\n    int temp = n, sum = 0;                             // integer variable\n    while (temp > 0) {                                 // jab tak condition True ho\n        sum += factorial(temp % 10);\n        temp /= 10;\n    }\n    return sum == n;                                   // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    printf(\"Strong numbers up to 1000: \");             // output print karo\n    for (int i = 1; i <= 1000; i++)                    // integer variable\n        if (isStrong(i)) printf(\"%d \", i); // 1 2 145\n    return 0;                                          // value return karo\n}"
+  }
+]

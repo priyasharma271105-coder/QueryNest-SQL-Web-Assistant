@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Create Student Table",
+    "language": "sql",
+    "tags": ["create", "table", "students", "sql"],
+    "content": "CREATE TABLE students (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100) NOT NULL,\n  age INT,\n  class VARCHAR(20),\n  marks DECIMAL(5,2),\n  email VARCHAR(150) UNIQUE\n);\n\n-- Insert sample data\nINSERT INTO students (name, age, class, marks) VALUES\n('Alice', 20, '10th', 92.5),\n('Bob', 21, '11th', 78.0),\n('Charlie', 19, '10th', 85.5);\n\nSELECT * FROM students;"
+  },
+  {
+    "title": "MongoDB Find Students with High Marks",
+    "language": "mongodb",
+    "tags": ["find", "query", "mongodb", "students", "marks"],
+    "content": "// Find students with marks > 80\ndb.students.find({ marks: { $gt: 80 } })\n\n// Sort by marks descending\ndb.students.find({ marks: { $gt: 80 } }).sort({ marks: -1 })\n\n// Only show name and marks\ndb.students.find(\n  { marks: { $gt: 80 } },\n  { name: 1, marks: 1, _id: 0 }\n)"
+  },
+  {
+    "title": "Python Fibonacci Series",
+    "language": "python",
+    "tags": ["fibonacci", "python", "series", "loop"],
+    "content": "def fibonacci(n):\n    a, b = 0, 1\n    series = []\n    for _ in range(n):\n        series.append(a)\n        a, b = b, a + b\n    return series\n\nprint('Fibonacci (10 terms):', fibonacci(10))"
+  },
+  {
+    "title": "SQL SELECT with JOIN",
+    "language": "sql",
+    "tags": ["select", "join", "inner join", "sql"],
+    "content": "-- INNER JOIN example\nSELECT s.name, s.marks, c.course_name\nFROM students s\nINNER JOIN enrollments e ON s.id = e.student_id\nINNER JOIN courses c ON e.course_id = c.id\nWHERE s.marks > 75\nORDER BY s.marks DESC;"
+  }
+]

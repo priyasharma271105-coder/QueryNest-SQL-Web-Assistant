@@ -1,0 +1,169 @@
+[
+  {
+    "title": "C++ Hello World and Basics",
+    "language": "cpp",
+    "tags": [
+      "hello world",
+      "basic",
+      "cout",
+      "cpp"
+    ],
+    "content": "#include <iostream>\nusing namespace std;                                   // std namespace use karo\n\nint main() {                                           // main function — yahan se shuru hota hai\n    cout << \"Hello, World!\" << endl;                   // output print karo\n    cout << \"Welcome to QueryNest!\" << endl;           // output print karo\n\n    // Variables\n    int age = 20;                                      // integer variable\n    double marks = 92.5;                               // double precision decimal\n    string name = \"Alice\";                             // string variable\n    bool active = true;                                // boolean variable\n\n    cout << \"Name: \" << name << \", Age: \" << age << \", Marks: \" << marks << endl; // output print karo\n    cout << \"Active: \" << boolalpha << active << endl; // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ OOP Class and Object",
+    "language": "cpp",
+    "tags": [
+      "class",
+      "object",
+      "oop",
+      "cpp"
+    ],
+    "content": "#include <iostream>\nusing namespace std;                                   // std namespace use karo\n\nclass Student {                                        // class define karo\n    string name;                                       // string variable\n    int age;\n    double marks;\npublic:                                                // public members — bahar se accessible\n    Student(string n, int a, double m) : name(n), age(a), marks(m) {} // string variable\n    void display() {                                   // function define karo\n        cout << \"Name: \" << name << \", Age: \" << age << \", Marks: \" << marks << endl; // output print karo\n    }\n    double getMarks() { return marks; }                // value return karo\n};\n\nint main() {                                           // main function — yahan se shuru hota hai\n    Student s1(\"Alice\", 21, 92.5);\n    Student s2(\"Bob\",   22, 85.0);\n    s1.display();\n    s2.display();\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ Inheritance",
+    "language": "cpp",
+    "tags": [
+      "inheritance",
+      "derived",
+      "base class",
+      "cpp"
+    ],
+    "content": "#include <iostream>\nusing namespace std;                                   // std namespace use karo\n\nclass Animal {                                         // class define karo\npublic:                                                // public members — bahar se accessible\n    string name;                                       // string variable\n    Animal(string n) : name(n) {}                      // string variable\n    virtual void speak() { cout << name << \" makes a sound.\" << endl; } // output print karo\n};\n\nclass Dog : public Animal {                            // class define karo\npublic:                                                // public members — bahar se accessible\n    Dog(string n) : Animal(n) {}                       // string variable\n    void speak() override { cout << name << \" says: Woof!\" << endl; } // output print karo\n};\n\nclass Cat : public Animal {                            // class define karo\npublic:                                                // public members — bahar se accessible\n    Cat(string n) : Animal(n) {}                       // string variable\n    void speak() override { cout << name << \" says: Meow!\" << endl; } // output print karo\n};\n\nint main() {                                           // main function — yahan se shuru hota hai\n    Animal* a1 = new Dog(\"Rex\");                       // memory allocate karo (C++)\n    Animal* a2 = new Cat(\"Whiskers\");                  // memory allocate karo (C++)\n    a1->speak(); // Rex says: Woof!\n    a2->speak(); // Whiskers says: Meow!\n    delete a1; delete a2;                              // memory free karo (C++)\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ STL Vector",
+    "language": "cpp",
+    "tags": [
+      "vector",
+      "stl",
+      "push_back",
+      "sort",
+      "cpp"
+    ],
+    "content": "#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;                                   // std namespace use karo\n\nint main() {                                           // main function — yahan se shuru hota hai\n    vector<int> v = {5, 2, 8, 1, 9, 3};                // dynamic array (STL)\n    v.push_back(7);                                    // vector mein add karo\n    v.push_back(4);                                    // vector mein add karo\n\n    sort(v.begin(), v.end());\n    cout << \"Sorted: \";                                // output print karo\n    for (int x : v) cout << x << \" \";                  // output print karo\n\n    cout << \"\\nSize: \" << v.size();                    // output print karo\n    cout << \"\\nMax: \" << *max_element(v.begin(), v.end()); // output print karo\n    cout << \"\\nMin: \" << *min_element(v.begin(), v.end()) << endl; // output print karo\n\n    v.erase(v.begin());\n    v.pop_back();\n    cout << \"After erase+pop: \";                       // output print karo\n    for (int x : v) cout << x << \" \";                  // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ STL Map",
+    "language": "cpp",
+    "tags": [
+      "map",
+      "stl",
+      "key value",
+      "cpp"
+    ],
+    "content": "#include <iostream>\n#include <map>\n#include <string>\nusing namespace std;                                   // std namespace use karo\n\nint main() {                                           // main function — yahan se shuru hota hai\n    map<string, int> marks;\n    marks[\"Alice\"] = 92;\n    marks[\"Bob\"]   = 85;\n    marks[\"Charlie\"] = 78;\n    marks.insert({\"Diana\", 95});\n\n    for (auto& [name, m] : marks)                      // loop — repeat karo\n        cout << name << \": \" << m << endl;             // output print karo\n\n    // Search\n    if (marks.count(\"Alice\"))                          // condition check karo\n        cout << \"Alice's marks: \" << marks[\"Alice\"] << endl; // output print karo\n\n    marks.erase(\"Bob\");\n    cout << \"After erasing Bob, size: \" << marks.size() << endl; // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ Pointers and References",
+    "language": "cpp",
+    "tags": [
+      "pointer",
+      "reference",
+      "address",
+      "cpp"
+    ],
+    "content": "#include <iostream>\nusing namespace std;                                   // std namespace use karo\n\nvoid swapPtr(int* a, int* b) { int t = *a; *a = *b; *b = t; } // integer variable\nvoid swapRef(int& a, int& b) { int t = a; a = b; b = t; } // integer variable\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int x = 10, y = 20;                                // integer variable\n    cout << \"Before swap: x=\" << x << \" y=\" << y << endl; // output print karo\n    swapPtr(&x, &y);\n    cout << \"After ptr swap: x=\" << x << \" y=\" << y << endl; // output print karo\n    swapRef(x, y);\n    cout << \"After ref swap: x=\" << x << \" y=\" << y << endl; // output print karo\n\n    int* p = &x;\n    cout << \"Address of x: \" << p << \", Value: \" << *p << endl; // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ Template Function",
+    "language": "cpp",
+    "tags": [
+      "template",
+      "generic",
+      "function",
+      "cpp"
+    ],
+    "content": "#include <iostream>\nusing namespace std;                                   // std namespace use karo\n\ntemplate<typename T>\nT maxOf(T a, T b) { return (a > b) ? a : b; }          // value return karo\n\ntemplate<typename T>\nvoid printArray(T arr[], int n) {                      // function define karo\n    for (int i = 0; i < n; i++) cout << arr[i] << \" \"; // output print karo\n    cout << endl;                                      // output print karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    cout << maxOf(10, 20) << endl;         // 20\n    cout << maxOf(3.14, 2.71) << endl;    // 3.14\n    cout << maxOf('z', 'a') << endl;      // z\n\n    int ints[] = {1, 2, 3, 4, 5};\n    double dbls[] = {1.1, 2.2, 3.3};\n    printArray(ints, 5);\n    printArray(dbls, 3);\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ Fibonacci Recursive",
+    "language": "cpp",
+    "tags": [
+      "fibonacci",
+      "recursive",
+      "cpp"
+    ],
+    "content": "#include <iostream>\nusing namespace std;                                   // std namespace use karo\n\nlong long fib(int n) {\n    if (n <= 1) return n;                              // condition check karo\n    return fib(n-1) + fib(n-2);                        // value return karo\n}\n\n// Memoized version\nlong long memo[100] = {};\nlong long fibMemo(int n) {\n    if (n <= 1) return n;                              // condition check karo\n    if (memo[n]) return memo[n];                       // condition check karo\n    return memo[n] = fibMemo(n-1) + fibMemo(n-2);      // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    cout << \"Fibonacci series (first 10):\" << endl;    // output print karo\n    for (int i = 0; i < 10; i++) cout << fib(i) << \" \"; // output print karo\n    cout << \"\\n\\nFib(40) memoized: \" << fibMemo(40) << endl; // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ Exception Handling",
+    "language": "cpp",
+    "tags": [
+      "exception",
+      "try catch",
+      "throw",
+      "cpp"
+    ],
+    "content": "#include <iostream>\n#include <stdexcept>\nusing namespace std;                                   // std namespace use karo\n\ndouble divide(double a, double b) {\n    if (b == 0) throw runtime_error(\"Division by zero!\"); // condition check karo\n    return a / b;                                      // value return karo\n}\n\nint safeIndex(int arr[], int size, int idx) {          // integer return karne wala function\n    if (idx < 0 || idx >= size) throw out_of_range(\"Index out of bounds!\"); // condition check karo\n    return arr[idx];                                   // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    try {\n        cout << divide(10, 2) << endl;   // 5\n        cout << divide(10, 0) << endl;   // throws\n    } catch (const runtime_error& e) {\n        cout << \"Error: \" << e.what() << endl;         // output print karo\n    }\n\n    int arr[] = {1, 2, 3};\n    try {\n        cout << safeIndex(arr, 3, 10) << endl; // throws\n    } catch (const out_of_range& e) {\n        cout << \"Error: \" << e.what() << endl;         // output print karo\n    }\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ Prime Number Sieve",
+    "language": "cpp",
+    "tags": [
+      "prime",
+      "sieve",
+      "eratosthenes",
+      "cpp"
+    ],
+    "content": "#include <iostream>\n#include <vector>\nusing namespace std;                                   // std namespace use karo\n\nvector<int> sieveOfEratosthenes(int n) {               // dynamic array (STL)\n    vector<bool> isPrime(n+1, true);                   // dynamic array (STL)\n    isPrime[0] = isPrime[1] = false;\n    for (int i = 2; i * i <= n; i++) {                 // integer variable\n        if (isPrime[i]) {                              // condition check karo\n            for (int j = i*i; j <= n; j += i)          // integer variable\n                isPrime[j] = false;\n        }\n    }\n    vector<int> primes;                                // dynamic array (STL)\n    for (int i = 2; i <= n; i++)                       // integer variable\n        if (isPrime[i]) primes.push_back(i);           // condition check karo\n    return primes;                                     // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    auto primes = sieveOfEratosthenes(50);\n    cout << \"Primes up to 50: \";                       // output print karo\n    for (int p : primes) cout << p << \" \";             // output print karo\n    cout << \"\\nCount: \" << primes.size() << endl;      // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ String Operations",
+    "language": "cpp",
+    "tags": [
+      "string",
+      "substr",
+      "find",
+      "replace",
+      "cpp"
+    ],
+    "content": "#include <iostream>\n#include <string>\n#include <algorithm>\nusing namespace std;                                   // std namespace use karo\n\nint main() {                                           // main function — yahan se shuru hota hai\n    string s = \"Hello, QueryNest!\";                    // string variable\n    cout << \"Length: \" << s.length() << endl;          // output print karo\n    cout << \"Upper: \"; for (char& c : s) cout << (char)toupper(c); cout << endl; // output print karo\n    cout << \"Substr: \" << s.substr(7, 9) << endl;  // QueryNest\n    cout << \"Find 'Query': \" << s.find(\"Query\") << endl; // 7\n\n    // Replace\n    string t = s;                                      // string variable\n    size_t pos = t.find(\"QueryNest\");\n    if (pos != string::npos) t.replace(pos, 9, \"World\"); // condition check karo\n    cout << \"After replace: \" << t << endl;            // output print karo\n\n    // Reverse\n    string rev = s;                                    // string variable\n    reverse(rev.begin(), rev.end());\n    cout << \"Reversed: \" << rev << endl;               // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ Bubble Sort",
+    "language": "cpp",
+    "tags": [
+      "bubble sort",
+      "sorting",
+      "array",
+      "cpp"
+    ],
+    "content": "#include <iostream>\n#include <vector>\nusing namespace std;                                   // std namespace use karo\n\nvoid bubbleSort(vector<int>& arr) {                    // function define karo\n    int n = arr.size();                                // integer variable\n    for (int i = 0; i < n-1; i++) {                    // integer variable\n        bool swapped = false;                          // boolean variable\n        for (int j = 0; j < n-i-1; j++) {              // integer variable\n            if (arr[j] > arr[j+1]) {                   // condition check karo\n                swap(arr[j], arr[j+1]);\n                swapped = true;\n            }\n        }\n        if (!swapped) break;                           // condition check karo\n    }\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    vector<int> arr = {64, 34, 25, 12, 22, 11, 90};    // dynamic array (STL)\n    bubbleSort(arr);\n    cout << \"Sorted: \";                                // output print karo\n    for (int x : arr) cout << x << \" \";                // output print karo\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ Binary Search",
+    "language": "cpp",
+    "tags": [
+      "binary search",
+      "search",
+      "sorted",
+      "cpp"
+    ],
+    "content": "#include <iostream>\n#include <vector>\nusing namespace std;                                   // std namespace use karo\n\nint binarySearch(vector<int>& arr, int target) {       // integer return karne wala function\n    int lo = 0, hi = arr.size() - 1;                   // integer variable\n    while (lo <= hi) {                                 // jab tak condition True ho\n        int mid = lo + (hi - lo) / 2;                  // integer variable\n        if (arr[mid] == target) return mid;            // condition check karo\n        if (arr[mid] < target) lo = mid + 1;           // condition check karo\n        else hi = mid - 1;                             // jab condition False ho\n    }\n    return -1;                                         // value return karo\n}\n\nint main() {                                           // main function — yahan se shuru hota hai\n    vector<int> arr = {2, 5, 8, 12, 16, 23, 38, 56, 72, 91}; // dynamic array (STL)\n    int targets[] = {23, 100, 2, 91};\n    for (int t : targets) {                            // loop — repeat karo\n        int idx = binarySearch(arr, t);                // integer variable\n        if (idx != -1) cout << t << \" found at index \" << idx << endl; // output print karo\n        else cout << t << \" not found\" << endl;        // output print karo\n    }\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ Pattern Floyd Triangle",
+    "language": "cpp",
+    "tags": [
+      "pattern",
+      "floyd triangle",
+      "number",
+      "cpp"
+    ],
+    "content": "#include <iostream>\nusing namespace std;                                   // std namespace use karo\n\nint main() {                                           // main function — yahan se shuru hota hai\n    int n = 5, num = 1;                                // integer variable\n    cout << \"Floyd's Triangle:\" << endl;               // output print karo\n    for (int i = 1; i <= n; i++) {                     // integer variable\n        for (int j = 1; j <= i; j++)                   // integer variable\n            cout << num++ << \"\\t\";                     // output print karo\n        cout << endl;                                  // output print karo\n    }\n    // Pascal's Triangle\n    cout << \"\\nPascal's Triangle:\" << endl;            // output print karo\n    for (int i = 0; i < n; i++) {                      // integer variable\n        int val = 1;                                   // integer variable\n        for (int j = 0; j <= i; j++) {                 // integer variable\n            cout << val << \" \";                        // output print karo\n            val = val * (i - j) / (j + 1);\n        }\n        cout << endl;                                  // output print karo\n    }\n    return 0;                                          // value return karo\n}"
+  },
+  {
+    "title": "C++ File Handling",
+    "language": "cpp",
+    "tags": [
+      "file",
+      "fstream",
+      "read",
+      "write",
+      "cpp"
+    ],
+    "content": "#include <iostream>\n#include <fstream>\n#include <string>\nusing namespace std;                                   // std namespace use karo\n\nint main() {                                           // main function — yahan se shuru hota hai\n    // Write to file\n    ofstream outFile(\"students.txt\");\n    outFile << \"Alice 92\" << endl;\n    outFile << \"Bob 85\" << endl;\n    outFile << \"Charlie 78\" << endl;\n    outFile.close();\n    cout << \"File written successfully.\" << endl;      // output print karo\n\n    // Read from file\n    ifstream inFile(\"students.txt\");\n    string line;                                       // string variable\n    cout << \"Reading file:\" << endl;                   // output print karo\n    while (getline(inFile, line))                      // jab tak condition True ho\n        cout << line << endl;                          // output print karo\n    inFile.close();\n    return 0;                                          // value return karo\n}"
+  }
+]

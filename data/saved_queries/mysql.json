@@ -1,0 +1,372 @@
+[
+  {
+    "title": "MySQL Create Database",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "create",
+      "database",
+      "mysql",
+      "use"
+    ],
+    "content": "-- Create a new database\nCREATE DATABASE IF NOT EXISTS school_db;               -- naya database banao\n\n-- Select/use the database\nUSE school_db;                                         -- database select karo\n\n-- Show all databases\nSHOW DATABASES;                                        -- information dekho\n\n-- Drop database (be careful!)\nDROP DATABASE IF EXISTS school_db;                     -- database delete karo"
+  },
+  {
+    "title": "MySQL Create Table",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "create",
+      "table",
+      "mysql",
+      "schema",
+      "ddl",
+      "auto_increment",
+      "primary key"
+    ],
+    "content": "-- Create table with common data types\nCREATE TABLE students (                                -- naya table banao\n    id         INT AUTO_INCREMENT PRIMARY KEY,  -- unique auto id\n    name       VARCHAR(100) NOT NULL,           -- student name required\n    age        INT CHECK (age > 0),             -- age must be positive\n    class      VARCHAR(20),                     -- class e.g. 10th\n    marks      DECIMAL(5,2) DEFAULT 0.00,       -- marks out of 100\n    email      VARCHAR(150) UNIQUE,             -- unique email\n    status     ENUM('active','inactive') DEFAULT 'active', -- agar value na di to yeh use hogi\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP     -- agar value na di to yeh use hogi\n);\n\n-- View table structure\nDESCRIBE students;                                     -- table structure dekho\n\n-- View create statement\nSHOW CREATE TABLE students;                            -- naya table banao"
+  },
+  {
+    "title": "MySQL Insert Data",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "insert",
+      "add",
+      "mysql",
+      "dml",
+      "row",
+      "data"
+    ],
+    "content": "-- Insert single row\nINSERT INTO students (name, age, class, marks, email)  -- data add karo\nVALUES ('Alice', 20, '10th', 92.5, 'alice@example.com'); -- jo values insert karni hain\n\n-- Insert multiple rows at once\nINSERT INTO students (name, age, class, marks, email) VALUES -- data add karo\n  ('Bob',     21, '11th', 78.0, 'bob@example.com'),\n  ('Charlie', 19, '10th', 85.5, 'charlie@test.com'),\n  ('Diana',   20, '12th', 95.0, 'diana@example.com'),\n  ('Evan',    22, '11th', 74.5, 'evan@test.com');\n\n-- Upsert: insert or update on duplicate\nINSERT INTO students (email, name, marks)              -- data add karo\nVALUES ('alice@example.com', 'Alice', 97)              -- jo values insert karni hain\nON DUPLICATE KEY UPDATE marks = 97;                    -- data update karo\n\n-- Check last inserted id\nSELECT LAST_INSERT_ID();                               -- data fetch karo"
+  },
+  {
+    "title": "MySQL Select Query",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "select",
+      "read",
+      "fetch",
+      "query",
+      "mysql"
+    ],
+    "content": "-- Select all rows\nSELECT * FROM students;                                -- data fetch karo\n\n-- Select specific columns\nSELECT name, marks FROM students;                      -- data fetch karo\n\n-- Select with alias\nSELECT name AS student_name, marks AS score FROM students; -- data fetch karo\n\n-- Distinct values\nSELECT DISTINCT class FROM students;                   -- data fetch karo\n\n-- Count rows\nSELECT COUNT(*) AS total FROM students;                -- data fetch karo"
+  },
+  {
+    "title": "MySQL Where Clause",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "where",
+      "condition",
+      "filter",
+      "mysql",
+      "and",
+      "or",
+      "like",
+      "between",
+      "in"
+    ],
+    "content": "-- Basic WHERE condition\nSELECT * FROM students WHERE marks > 80;               -- data fetch karo\n\n-- WHERE with AND\nSELECT * FROM students WHERE marks > 75 AND age >= 20; -- data fetch karo\n\n-- WHERE with OR\nSELECT * FROM students WHERE marks > 90 OR class = '10th'; -- data fetch karo\n\n-- BETWEEN range\nSELECT * FROM students WHERE marks BETWEEN 70 AND 90;  -- data fetch karo\n\n-- LIKE pattern matching\nSELECT * FROM students WHERE name LIKE 'A%';    -- starts with A\nSELECT * FROM students WHERE name LIKE '%li%';  -- contains 'li'\nSELECT * FROM students WHERE name LIKE '_ob';   -- 3 chars, ends ob\n\n-- IN list\nSELECT * FROM students WHERE class IN ('10th', '11th'); -- data fetch karo\n\n-- NOT IN\nSELECT * FROM students WHERE class NOT IN ('12th');    -- data fetch karo\n\n-- IS NULL check\nSELECT * FROM students WHERE email IS NULL;            -- data fetch karo\nSELECT * FROM students WHERE email IS NOT NULL;        -- data fetch karo"
+  },
+  {
+    "title": "MySQL Order By and Limit",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "order by",
+      "sort",
+      "limit",
+      "offset",
+      "asc",
+      "desc",
+      "mysql",
+      "pagination"
+    ],
+    "content": "-- Sort ascending (default)\nSELECT * FROM students ORDER BY marks ASC;             -- data fetch karo\n\n-- Sort descending (highest first)\nSELECT * FROM students ORDER BY marks DESC;            -- data fetch karo\n\n-- Sort by multiple columns\nSELECT * FROM students ORDER BY class ASC, marks DESC; -- data fetch karo\n\n-- Limit: top 5 students\nSELECT * FROM students ORDER BY marks DESC LIMIT 5;    -- data fetch karo\n\n-- Pagination: page 2 (5 per page)\nSELECT * FROM students LIMIT 5 OFFSET 5;               -- data fetch karo\n\n-- Shorthand pagination\nSELECT * FROM students LIMIT 10, 5;  -- skip 10, take 5"
+  },
+  {
+    "title": "MySQL Group By Having",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "group by",
+      "having",
+      "count",
+      "avg",
+      "sum",
+      "min",
+      "max",
+      "aggregate",
+      "mysql"
+    ],
+    "content": "-- Count students per class\nSELECT class, COUNT(*) AS total_students               -- data fetch karo\nFROM students                                          -- kis table se\nGROUP BY class;                                        -- group banao\n\n-- Multiple aggregate functions\nSELECT class,                                          -- data fetch karo\n    COUNT(*)          AS total,                        -- rows count karo\n    ROUND(AVG(marks), 2) AS avg_marks,                 -- average nikalo\n    MAX(marks)        AS highest,                      -- maximum value\n    MIN(marks)        AS lowest,                       -- minimum value\n    SUM(marks)        AS total_marks                   -- total nikalo\nFROM students                                          -- kis table se\nGROUP BY class;                                        -- group banao\n\n-- HAVING: filter after grouping (avg marks > 75)\nSELECT class, AVG(marks) AS avg                        -- data fetch karo\nFROM students                                          -- kis table se\nGROUP BY class                                         -- group banao\nHAVING AVG(marks) > 75                                 -- group filter karo\nORDER BY avg DESC;                                     -- sort karo\n\n-- NOTE: WHERE filters BEFORE grouping, HAVING filters AFTER"
+  },
+  {
+    "title": "MySQL Update",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "update",
+      "modify",
+      "set",
+      "mysql",
+      "dml"
+    ],
+    "content": "-- Update single field\nUPDATE students SET marks = 95 WHERE name = 'Alice';   -- condition lagao\n\n-- Update multiple fields at once\nUPDATE students SET marks = 98, class = '12th' WHERE id = 1; -- condition lagao\n\n-- Increment value\nUPDATE students SET marks = marks + 5 WHERE marks < 50; -- condition lagao\n\n-- Update all rows in a class\nUPDATE students SET status = 'inactive' WHERE class = '12th'; -- condition lagao\n\n-- Conditional update using CASE\nUPDATE students                                        -- data update karo\nSET grade = CASE                                       -- naya value set karo\n    WHEN marks >= 90 THEN 'A'\n    WHEN marks >= 75 THEN 'B'\n    WHEN marks >= 60 THEN 'C'\n    ELSE 'F'\nEND;\n\n-- SAFE: always use WHERE in UPDATE to avoid updating all rows!"
+  },
+  {
+    "title": "MySQL Delete",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "delete",
+      "remove",
+      "truncate",
+      "drop",
+      "mysql",
+      "dml"
+    ],
+    "content": "-- Delete a specific row\nDELETE FROM students WHERE id = 1;                     -- kis table se\n\n-- Delete rows matching condition\nDELETE FROM students WHERE marks < 33;                 -- kis table se\n\n-- Delete multiple with IN\nDELETE FROM students WHERE class IN ('11th', '12th');  -- kis table se\n\n-- Delete all rows (table structure stays)\nDELETE FROM students;                                  -- kis table se\n\n-- TRUNCATE: faster delete, resets AUTO_INCREMENT\nTRUNCATE TABLE students;\n\n-- Drop entire table\nDROP TABLE IF EXISTS students;                         -- table delete karo\n\n-- WARNING: Always run SELECT first to preview what will be deleted!"
+  },
+  {
+    "title": "MySQL Joins",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "join",
+      "inner join",
+      "left join",
+      "right join",
+      "self join",
+      "mysql"
+    ],
+    "content": "-- INNER JOIN: only matching rows from both tables\nSELECT s.name, s.marks, c.course_name                  -- data fetch karo\nFROM students s                                        -- kis table se\nINNER JOIN enrollments e ON s.id = e.student_id        -- tables jodo\nINNER JOIN courses c    ON e.course_id = c.id;         -- tables jodo\n\n-- LEFT JOIN: all students, even those not enrolled\nSELECT s.name, c.course_name                           -- data fetch karo\nFROM students s                                        -- kis table se\nLEFT JOIN enrollments e ON s.id = e.student_id         -- tables jodo\nLEFT JOIN courses c    ON e.course_id = c.id;          -- tables jodo\n-- unenrolled students will show NULL for course_name\n\n-- RIGHT JOIN: all courses, even with no students\nSELECT s.name, c.course_name                           -- data fetch karo\nFROM students s                                        -- kis table se\nRIGHT JOIN courses c ON s.class = c.class;             -- tables jodo\n\n-- Self JOIN: employees with their manager\nSELECT e.name AS employee, m.name AS manager           -- data fetch karo\nFROM employees e                                       -- kis table se\nLEFT JOIN employees m ON e.manager_id = m.id;          -- tables jodo\n\n-- TIP: INNER = intersection, LEFT = all left + matching right (NULL if no match)"
+  },
+  {
+    "title": "MySQL Indexes",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "index",
+      "create index",
+      "unique index",
+      "performance",
+      "explain",
+      "mysql"
+    ],
+    "content": "-- Create simple index (speeds up WHERE on marks)\nCREATE INDEX idx_marks ON students(marks);             -- search fast karne ke liye\n\n-- Unique index (no duplicate emails)\nCREATE UNIQUE INDEX idx_email ON students(email);      -- duplicate values allowed nahi\n\n-- Composite index (for queries filtering class AND marks)\nCREATE INDEX idx_class_marks ON students(class, marks); -- search fast karne ke liye\n\n-- Full-text index for text search\nCREATE FULLTEXT INDEX ft_name ON students(name);       -- search fast karne ke liye\n\n-- Full-text search query\nSELECT * FROM students                                 -- data fetch karo\nWHERE MATCH(name) AGAINST('Alice' IN BOOLEAN MODE);    -- condition lagao\n\n-- View all indexes on a table\nSHOW INDEX FROM students;                              -- kis table se\n\n-- Check if query uses index (look for 'ref' or 'index' in type column)\nEXPLAIN SELECT * FROM students WHERE email = 'alice@example.com'; -- data fetch karo\n\n-- Drop index\nDROP INDEX idx_marks ON students;                      -- search fast karne ke liye"
+  },
+  {
+    "title": "MySQL Alter Table",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "alter",
+      "add column",
+      "drop column",
+      "modify",
+      "rename",
+      "mysql",
+      "ddl"
+    ],
+    "content": "-- Add new column\nALTER TABLE students ADD COLUMN phone VARCHAR(15);     -- table modify karo\n\n-- Add column at specific position\nALTER TABLE students ADD COLUMN dob DATE AFTER age;    -- table modify karo\n\n-- Modify column type or size\nALTER TABLE students MODIFY COLUMN marks FLOAT NOT NULL DEFAULT 0; -- table modify karo\n\n-- Rename column\nALTER TABLE students RENAME COLUMN phone TO mobile;    -- table modify karo\n\n-- Drop column\nALTER TABLE students DROP COLUMN mobile;               -- table modify karo\n\n-- Add index via ALTER\nALTER TABLE students ADD INDEX idx_class (class);      -- table modify karo\n\n-- Add foreign key\nALTER TABLE students                                   -- table modify karo\nADD CONSTRAINT fk_dept\nFOREIGN KEY (dept_id) REFERENCES departments(id)       -- doosre table se link karo\nON DELETE SET NULL ON UPDATE CASCADE;                  -- data update karo"
+  },
+  {
+    "title": "MySQL Foreign Key",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "foreign key",
+      "reference",
+      "constraint",
+      "mysql",
+      "relationship"
+    ],
+    "content": "-- Step 1: Create parent table\nCREATE TABLE departments (                             -- naya table banao\n    id   INT AUTO_INCREMENT PRIMARY KEY,               -- unique identifier — duplicate nahi ho sakta\n    name VARCHAR(100) NOT NULL                         -- empty nahi ho sakta\n);\n\n-- Step 2: Create child table with foreign key\nCREATE TABLE employees (                               -- naya table banao\n    id      INT AUTO_INCREMENT PRIMARY KEY,            -- unique identifier — duplicate nahi ho sakta\n    name    VARCHAR(100) NOT NULL,                     -- empty nahi ho sakta\n    dept_id INT,\n    FOREIGN KEY (dept_id) REFERENCES departments(id)   -- doosre table se link karo\n        ON DELETE SET NULL   -- set NULL if dept deleted\n        ON UPDATE CASCADE    -- update if dept id changes\n);\n\n-- Insert parent first, then child\nINSERT INTO departments VALUES (1, 'Engineering'), (2, 'Marketing'); -- data add karo\nINSERT INTO employees (name, dept_id) VALUES ('Alice', 1), ('Bob', 2); -- data add karo\n\n-- Join to see relationship\nSELECT e.name, d.name AS dept                          -- data fetch karo\nFROM employees e                                       -- kis table se\nJOIN departments d ON e.dept_id = d.id;                -- tables jodo"
+  },
+  {
+    "title": "MySQL Stored Procedure",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "stored procedure",
+      "procedure",
+      "delimiter",
+      "mysql",
+      "call"
+    ],
+    "content": "-- Stored Procedure: saved SQL code that can be called by name\n-- Useful for reusable queries, business logic, and batch operations\n\nDELIMITER //    -- change delimiter so semicolons inside don't end the statement\n\n-- Create procedure with input parameter\nCREATE PROCEDURE GetTopStudents(IN min_marks DECIMAL(5,2))   -- IN = input parameter\nBEGIN                                                  -- transaction shuru karo\n    -- Select students with marks above the given threshold\n    SELECT name, class, marks                          -- data fetch karo\n    FROM students                                      -- kis table se\n    WHERE marks >= min_marks      -- use the input parameter in query\n    ORDER BY marks DESC;          -- show highest marks first\nEND //\n\nDELIMITER ;     -- restore normal delimiter\n\n-- Call the procedure\nCALL GetTopStudents(85);          -- get students with marks >= 85\nCALL GetTopStudents(60);          -- get all passing students\n\n-- Procedure with OUT parameter (returns a value)\nDELIMITER //                                           -- statement end character badlo\nCREATE PROCEDURE CountStudents(OUT total INT)   -- OUT = output parameter\nBEGIN                                                  -- transaction shuru karo\n    SELECT COUNT(*) INTO total    -- INTO stores result into the parameter\n    FROM students;                                     -- kis table se\nEND //\nDELIMITER ;                                            -- statement end character badlo\n\nCALL CountStudents(@total);       -- @total is a user-defined variable\nSELECT @total AS total_students;  -- view the returned value"
+  },
+  {
+    "title": "MySQL Transaction",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "transaction",
+      "commit",
+      "rollback",
+      "begin",
+      "start transaction",
+      "mysql",
+      "acid"
+    ],
+    "content": "-- Start a transaction\nSTART TRANSACTION;\n\n  -- Transfer money: debit account 1\n  UPDATE accounts SET balance = balance - 500 WHERE id = 1; -- condition lagao\n  \n  -- Credit account 2\n  UPDATE accounts SET balance = balance + 500 WHERE id = 2; -- condition lagao\n\nCOMMIT;  -- Save both changes permanently\n\n-- Transaction with ROLLBACK on error\nSTART TRANSACTION;\n  UPDATE accounts SET balance = balance - 500 WHERE id = 1; -- condition lagao\nROLLBACK;  -- Undo changes (error occurred)\n\n-- SAVEPOINT: partial rollback\nSTART TRANSACTION;\n  INSERT INTO orders VALUES (1, 'Order A');            -- data add karo\n  SAVEPOINT sp1;\n  INSERT INTO order_items VALUES (1, 'Item X');  -- might fail\n  ROLLBACK TO sp1;  -- undo only after savepoint\nCOMMIT;                                                -- changes save karo"
+  },
+  {
+    "title": "MySQL Date Functions",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "date",
+      "now",
+      "curdate",
+      "year",
+      "month",
+      "day",
+      "datediff",
+      "mysql"
+    ],
+    "content": "-- Current date and time\nSELECT NOW();          -- 2024-01-15 10:30:00\nSELECT CURDATE();      -- 2024-01-15\nSELECT CURTIME();      -- 10:30:00\n\n-- Extract parts\nSELECT YEAR(created_at), MONTH(created_at), DAY(created_at) -- data fetch karo\nFROM students;                                         -- kis table se\n\n-- Format date\nSELECT DATE_FORMAT(created_at, '%d/%m/%Y') AS formatted -- data fetch karo\nFROM students;                                         -- kis table se\n\n-- Date difference\nSELECT DATEDIFF(NOW(), created_at) AS days_since       -- data fetch karo\nFROM students;                                         -- kis table se\n\n-- Add/subtract days\nSELECT DATE_ADD(NOW(), INTERVAL 30 DAY) AS next_month; -- data fetch karo\nSELECT DATE_SUB(NOW(), INTERVAL 1 YEAR) AS last_year;  -- data fetch karo\n\n-- Filter by year\nSELECT * FROM students WHERE YEAR(created_at) = 2024;  -- data fetch karo"
+  },
+  {
+    "title": "MySQL String Functions",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "string",
+      "upper",
+      "lower",
+      "concat",
+      "length",
+      "substring",
+      "trim",
+      "replace",
+      "mysql"
+    ],
+    "content": "-- Case conversion\nSELECT UPPER(name) AS upper_name FROM students;        -- data fetch karo\nSELECT LOWER(name) AS lower_name FROM students;        -- data fetch karo\n\n-- Concatenate strings\nSELECT CONCAT(name, ' - Class: ', class) AS label FROM students; -- data fetch karo\nSELECT CONCAT_WS(', ', name, class, email) AS csv FROM students; -- data fetch karo\n\n-- Length\nSELECT name, LENGTH(name) AS name_length FROM students; -- data fetch karo\n\n-- Substring: extract part of string\nSELECT SUBSTRING(name, 1, 3) AS short_name FROM students; -- data fetch karo\n\n-- Trim whitespace\nSELECT TRIM('  Alice  ');  -- 'Alice'\n\n-- Replace\nSELECT REPLACE(email, '@example.com', '@school.edu') FROM students; -- data fetch karo\n\n-- Find position\nSELECT INSTR(name, 'li') AS pos FROM students;         -- data fetch karo\n\n-- NULL handling\nSELECT IFNULL(email, 'no-email') FROM students;        -- data fetch karo\nSELECT COALESCE(email, phone, 'no-contact') FROM students; -- data fetch karo"
+  },
+  {
+    "title": "MySQL Subquery",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "subquery",
+      "nested query",
+      "exists",
+      "in",
+      "mysql"
+    ],
+    "content": "-- Students with marks above average\nSELECT name, marks FROM students                       -- data fetch karo\nWHERE marks > (SELECT AVG(marks) FROM students);       -- data fetch karo\n\n-- Subquery with IN\nSELECT name FROM students                              -- data fetch karo\nWHERE id IN (                                          -- condition lagao\n    SELECT student_id FROM enrollments WHERE course_id = 3 -- data fetch karo\n);\n\n-- EXISTS: check if related data exists\nSELECT name FROM students s                            -- data fetch karo\nWHERE EXISTS (                                         -- condition lagao\n    SELECT 1 FROM enrollments e WHERE e.student_id = s.id -- data fetch karo\n);\n\n-- Subquery in FROM (derived table)\nSELECT class, avg_marks FROM (                         -- data fetch karo\n    SELECT class, ROUND(AVG(marks), 2) AS avg_marks    -- data fetch karo\n    FROM students GROUP BY class                       -- kis table se\n) AS class_avg                                         -- alias naam do\nWHERE avg_marks > 80;                                  -- condition lagao"
+  },
+  {
+    "title": "MySQL Views",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "view",
+      "create view",
+      "virtual table",
+      "mysql"
+    ],
+    "content": "-- Create a view (saved query as virtual table)\nCREATE VIEW top_students AS                            -- virtual table banao\nSELECT name, class, marks                              -- data fetch karo\nFROM students                                          -- kis table se\nWHERE marks >= 85                                      -- condition lagao\nORDER BY marks DESC;                                   -- sort karo\n\n-- Use view like a regular table\nSELECT * FROM top_students;                            -- data fetch karo\nSELECT * FROM top_students WHERE class = '10th';       -- data fetch karo\n\n-- Create view with JOIN\nCREATE VIEW student_courses AS                         -- virtual table banao\nSELECT s.name, s.class, c.course_name                  -- data fetch karo\nFROM students s                                        -- kis table se\nJOIN enrollments e ON s.id = e.student_id              -- tables jodo\nJOIN courses c ON e.course_id = c.id;                  -- tables jodo\n\n-- Drop view\nDROP VIEW IF EXISTS top_students;\n\n-- NOTE: Views don't store data, they store the query"
+  },
+  {
+    "title": "MySQL Information Schema",
+    "language": "mysql",
+    "db_type": "mysql",
+    "tags": [
+      "information schema",
+      "metadata",
+      "show tables",
+      "describe",
+      "mysql"
+    ],
+    "content": "-- Show all tables in current database\nSHOW TABLES;                                           -- information dekho\n\n-- Show table structure\nDESCRIBE students;                                     -- table structure dekho\n\n-- Detailed column info from information_schema\nSELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT -- data fetch karo\nFROM information_schema.COLUMNS                        -- kis table se\nWHERE TABLE_NAME = 'students'                          -- condition lagao\n  AND TABLE_SCHEMA = DATABASE();\n\n-- Table sizes\nSELECT TABLE_NAME,                                     -- data fetch karo\n    TABLE_ROWS AS estimated_rows,                      -- alias naam do\n    ROUND((DATA_LENGTH + INDEX_LENGTH) / 1024, 2) AS size_kb -- decimal round karo\nFROM information_schema.TABLES                         -- kis table se\nWHERE TABLE_SCHEMA = DATABASE()                        -- condition lagao\nORDER BY size_kb DESC;                                 -- sort karo\n\n-- Current user and database\nSELECT USER(), DATABASE();                             -- data fetch karo"
+  },
+  {
+    "title": "MySQL Create Table Teachers",
+    "language": "mysql",
+    "tags": [
+      "create",
+      "table",
+      "teachers",
+      "mysql"
+    ],
+    "content": "-- Create teachers table in MySQL\nCREATE TABLE teachers (                                -- naya table banao\n    id         INT AUTO_INCREMENT PRIMARY KEY,           -- auto-incrementing unique ID\n    name       VARCHAR(100) NOT NULL,                    -- teacher name (mandatory)\n    subject    VARCHAR(50),                              -- subject taught\n    age        INT CHECK (age > 0),                      -- age must be positive\n    salary     DECIMAL(10,2) DEFAULT 0.00,              -- monthly salary (default 0)\n    email      VARCHAR(150) UNIQUE,                      -- no duplicate emails\n    phone      VARCHAR(15),                              -- phone number\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP       -- auto-set creation time\n);\n\n-- Insert sample teachers\nINSERT INTO teachers (name, subject, age, salary, email, phone) VALUES -- data add karo\n    ('Mr. Sharma',  'Mathematics', 45, 55000.00, 'sharma@school.com', '9876543210'),\n    ('Ms. Priya',   'Science',     38, 48000.00, 'priya@school.com',  '9876543211'),\n    ('Mr. Verma',   'English',     52, 60000.00, 'verma@school.com',  '9876543212');\n\n-- View all teachers\nSELECT * FROM teachers;                                -- data fetch karo\n-- View table structure\nDESCRIBE teachers;                                     -- table structure dekho\n-- Find teachers by salary range\nSELECT name, subject, salary FROM teachers WHERE salary BETWEEN 45000 AND 60000; -- data fetch karo"
+  },
+  {
+    "title": "MySQL Create Table Employees",
+    "language": "mysql",
+    "tags": [
+      "create",
+      "table",
+      "employees",
+      "mysql"
+    ],
+    "content": "-- Create employees table in MySQL\nCREATE TABLE employees (                               -- naya table banao\n    id          INT AUTO_INCREMENT PRIMARY KEY,           -- unique auto ID\n    name        VARCHAR(100) NOT NULL,                   -- full name (required)\n    department  VARCHAR(50),                             -- dept: Engineering, HR, etc.\n    designation VARCHAR(50),                             -- job title\n    salary      DECIMAL(10,2) DEFAULT 0.00,             -- monthly salary\n    email       VARCHAR(150) UNIQUE,                     -- unique email per employee\n    hire_date   DATE,                                    -- when employee joined\n    status      ENUM('active','inactive') DEFAULT 'active', -- current status\n    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP      -- record created timestamp\n);\n\n-- Insert sample employees\nINSERT INTO employees (name, department, designation, salary, email, hire_date) VALUES -- data add karo\n    ('Rahul Sharma', 'Engineering', 'Senior Developer',  75000, 'rahul@co.com', '2023-01-15'),\n    ('Priya Singh',  'Marketing',   'Marketing Manager', 65000, 'priya@co.com', '2022-06-01'),\n    ('Amit Kumar',   'HR',          'HR Executive',      50000, 'amit@co.com',  '2021-03-10');\n\n-- View all employees\nSELECT * FROM employees;                               -- data fetch karo\n-- Count and average salary by department\nSELECT department, COUNT(*) AS headcount, AVG(salary) AS avg_salary -- data fetch karo\nFROM employees GROUP BY department;                    -- kis table se"
+  },
+  {
+    "title": "MySQL Create Table Products",
+    "language": "mysql",
+    "tags": [
+      "create",
+      "table",
+      "products",
+      "mysql"
+    ],
+    "content": "-- Create products table in MySQL\nCREATE TABLE products (                                -- naya table banao\n    id          INT AUTO_INCREMENT PRIMARY KEY,          -- unique auto ID\n    name        VARCHAR(100) NOT NULL,                  -- product name (required)\n    description TEXT,                                   -- longer description\n    price       DECIMAL(10,2) NOT NULL,                -- selling price (required)\n    quantity    INT DEFAULT 0,                          -- units in stock\n    category    VARCHAR(50),                            -- Electronics, Stationery, etc.\n    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP     -- when added\n);\n\n-- Insert sample products\nINSERT INTO products (name, description, price, quantity, category) VALUES -- data add karo\n    ('Laptop',    'High-performance laptop', 55000.00, 10,  'Electronics'),\n    ('Mobile',    'Latest smartphone',        25000.00, 50,  'Electronics'),\n    ('Notebook',  'A4 ruled notebook',           150.00, 200, 'Stationery');\n\n-- View all products\nSELECT * FROM products;                                -- data fetch karo\n-- Total value by category\nSELECT category, COUNT(*) AS items, SUM(price * quantity) AS total_value -- data fetch karo\nFROM products GROUP BY category;                       -- kis table se"
+  },
+  {
+    "title": "MySQL Select with Multiple Conditions",
+    "language": "mysql",
+    "tags": [
+      "select",
+      "and",
+      "or",
+      "between",
+      "in",
+      "like",
+      "mysql"
+    ],
+    "content": "-- AND condition\nSELECT * FROM students WHERE age >= 18 AND marks > 75; -- data fetch karo\n\n-- OR condition\nSELECT * FROM students WHERE class = '10th' OR class = '11th'; -- data fetch karo\n\n-- BETWEEN range\nSELECT * FROM students WHERE marks BETWEEN 70 AND 90;  -- data fetch karo\n\n-- IN list\nSELECT * FROM students WHERE class IN ('10th', '11th', '12th'); -- data fetch karo\n\n-- NOT IN\nSELECT * FROM students WHERE class NOT IN ('12th');    -- data fetch karo\n\n-- LIKE patterns\nSELECT * FROM students WHERE name LIKE 'A%';    -- starts with A\nSELECT * FROM students WHERE name LIKE '%li%';  -- contains li\nSELECT * FROM students WHERE name LIKE '_ob';   -- 3 chars ending ob\n\n-- NULL checks\nSELECT * FROM students WHERE email IS NULL;            -- data fetch karo\nSELECT * FROM students WHERE email IS NOT NULL;        -- data fetch karo\n\n-- Combined\nSELECT * FROM students                                 -- data fetch karo\nWHERE (class = '10th' OR class = '11th')               -- condition lagao\n  AND marks > 80\n  AND email IS NOT NULL                                -- empty nahi ho sakta\nORDER BY marks DESC LIMIT 10;                          -- sort karo"
+  },
+  {
+    "title": "MySQL Aggregate Functions",
+    "language": "mysql",
+    "tags": [
+      "count",
+      "sum",
+      "avg",
+      "min",
+      "max",
+      "aggregate",
+      "mysql"
+    ],
+    "content": "-- All aggregate functions\nSELECT\n    COUNT(*)            AS total_students,             -- rows count karo\n    COUNT(email)        AS with_email,                 -- rows count karo\n    SUM(marks)          AS total_marks,                -- total nikalo\n    ROUND(AVG(marks),2) AS avg_marks,                  -- average nikalo\n    MAX(marks)          AS highest,                    -- maximum value\n    MIN(marks)          AS lowest,                     -- minimum value\n    STDDEV(marks)       AS std_deviation               -- alias naam do\nFROM students;                                         -- kis table se\n\n-- GROUP BY with aggregates\nSELECT\n    class,\n    COUNT(*)            AS students,                   -- rows count karo\n    ROUND(AVG(marks),2) AS avg,                        -- average nikalo\n    MAX(marks)          AS highest,                    -- maximum value\n    MIN(marks)          AS lowest                      -- minimum value\nFROM students                                          -- kis table se\nGROUP BY class                                         -- group banao\nORDER BY avg DESC;                                     -- sort karo\n\n-- HAVING: only classes with avg > 80\nSELECT class, AVG(marks) avg                           -- data fetch karo\nFROM students                                          -- kis table se\nGROUP BY class                                         -- group banao\nHAVING avg > 80;                                       -- group filter karo"
+  },
+  {
+    "title": "MySQL Self Join",
+    "language": "mysql",
+    "tags": [
+      "self join",
+      "employee manager",
+      "hierarchy",
+      "mysql"
+    ],
+    "content": "-- SELF JOIN: joining a table with itself\n-- Use case: employee-manager relationships, category hierarchies\n\n-- Create table where employees have manager_id (also an employee)\nCREATE TABLE employees_mgr (                           -- naya table banao\n    id         INT AUTO_INCREMENT PRIMARY KEY,         -- unique identifier — duplicate nahi ho sakta\n    name       VARCHAR(100) NOT NULL,                  -- empty nahi ho sakta\n    role       VARCHAR(50),\n    manager_id INT,                                  -- references same table's id\n    FOREIGN KEY (manager_id) REFERENCES employees_mgr(id)  -- self-reference\n);\n\n-- Insert organizational hierarchy\nINSERT INTO employees_mgr (name, role, manager_id) VALUES -- data add karo\n    ('Director', 'CEO',       NULL),   -- top level: no manager\n    ('Alice',    'Manager',   1),      -- reports to Director (id=1)\n    ('Bob',      'Manager',   1),      -- reports to Director\n    ('Charlie',  'Developer', 2),      -- reports to Alice (id=2)\n    ('Diana',    'Designer',  2),      -- reports to Alice\n    ('Eve',      'Tester',    3);      -- reports to Bob (id=3)\n\n-- Self join: show each employee with their manager\nSELECT\n    e.name  AS employee,           -- alias 'e' for the employee side\n    e.role  AS emp_role,                               -- alias naam do\n    m.name  AS manager,            -- alias 'm' for the manager side (same table!)\n    m.role  AS mgr_role                                -- alias naam do\nFROM employees_mgr e               -- 'e' = employee instance\nLEFT JOIN employees_mgr m          -- 'm' = manager instance (same table)\n    ON e.manager_id = m.id         -- connect employee's manager_id to manager's id\nORDER BY e.manager_id;             -- group by manager"
+  },
+  {
+    "title": "MySQL Duplicate Records",
+    "language": "mysql",
+    "tags": [
+      "duplicate",
+      "distinct",
+      "group by",
+      "delete duplicate",
+      "mysql"
+    ],
+    "content": "-- Finding and removing duplicate records\n\n-- Find duplicate email addresses\nSELECT email, COUNT(*) AS occurrences   -- count how many times each email appears\nFROM students                                          -- kis table se\nGROUP BY email                           -- group by the potentially duplicated field\nHAVING COUNT(*) > 1                      -- keep only groups with more than 1 row\nORDER BY occurrences DESC;              -- show most duplicated first\n\n-- Find duplicate names\nSELECT name, COUNT(*) AS count                         -- data fetch karo\nFROM students                                          -- kis table se\nGROUP BY name                                          -- group banao\nHAVING COUNT(*) > 1;                                   -- group filter karo\n\n-- View all duplicate rows (including all columns)\nSELECT * FROM students                                 -- data fetch karo\nWHERE email IN (                                       -- condition lagao\n    SELECT email FROM students    -- subquery finds duplicate emails\n    GROUP BY email                                     -- group banao\n    HAVING COUNT(*) > 1           -- only emails appearing more than once\n);\n\n-- Delete duplicates keeping the row with the LOWEST id\nDELETE s1\nFROM students s1                                       -- kis table se\nINNER JOIN students s2                                 -- tables jodo\n    ON s1.email = s2.email        -- find rows with same email\n    AND s1.id > s2.id;            -- keep the one with smaller id, delete the rest\n\n-- Count unique vs total after cleanup\nSELECT\n    COUNT(*)              AS total_rows,      -- all rows\n    COUNT(DISTINCT email) AS unique_emails,   -- unique email values\n    COUNT(*) - COUNT(DISTINCT email) AS duplicates  -- how many were duplicates\nFROM students;                                         -- kis table se"
+  }
+]

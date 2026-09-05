@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>QueryNest — Query IDE</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #160428;
+  --bg2: #0d0918;
+  --surface: #110d1e;
+  --surface2: #160e26;
+  --border: rgba(139,92,246,0.18);
+  --border2: rgba(139,92,246,0.35);
+  --text: #e2d9ff;
+  --muted: rgba(180,160,240,0.5);
+  --accent: #7c3aed;
+  --cyan: #a78bfa;
+  --green: #34d399;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --purple: #c084fc;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--bg); color: var(--text);
+  display: flex; flex-direction: column;
+}
+
+/* ══ NAV ══ */
+nav {
+  height: 50px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px; padding: 0 16px;
+  background: rgba(6,9,16,0.98); border-bottom: 1px solid var(--border);
+  position: relative; z-index: 20;
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.95rem;
+  color: var(--text); text-decoration: none; margin-right: 6px;
+}
+.nav-logo-icon {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: linear-gradient(135deg, #6378ff, #a855f7);
+  display: flex; align-items: center; justify-content: center; font-size: 0.78rem;
+}
+.ide-badge {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 2px 7px; border-radius: 99px;
+  background: rgba(99,120,255,0.18); color: #818cf8; border: 1px solid rgba(99,120,255,0.3);
+}
+
+/* Language Tabs */
+.lang-tabs { display: flex; gap: 2px; }
+.ltab {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 13px; border-radius: 7px; font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; transition: all 0.15s; color: var(--muted);
+  border: 1.5px solid transparent; white-space: nowrap;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.ltab:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.ltab.active { color: #fff; }
+.ltab.l-sql.active     { background: rgba(99,120,255,0.2); border-color: rgba(99,120,255,0.4); }
+.ltab.l-mysql.active   { background: rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.4); color: #fbbf24; }
+.ltab.l-mongodb.active { background: rgba(16,185,129,0.18); border-color: rgba(16,185,129,0.4); color: #34d399; }
+.ltab.l-python.active  { background: rgba(59,130,246,0.2);  border-color: rgba(59,130,246,0.5); color: #60a5fa; }
+.ltab.l-java.active    { background: rgba(239,68,68,0.18);  border-color: rgba(239,68,68,0.4);  color: #f87171; }
+.ltab.l-c.active       { background: rgba(168,85,247,0.18); border-color: rgba(168,85,247,0.4); color: #c084fc; }
+.ltab.l-cpp.active     { background: rgba(236,72,153,0.18); border-color: rgba(236,72,153,0.4); color: #f472b6; }
+
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot-sql     { background: #6378ff; }
+.dot-mysql   { background: #f59e0b; }
+.dot-mongodb { background: #10b981; }
+.dot-python  { background: #3b82f6; }
+.dot-java    { background: #ef4444; }
+.dot-c       { background: #a855f7; }
+.dot-cpp     { background: #ec4899; }
+
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 7px; }
+.nbtn {
+  padding: 5px 12px; border-radius: 7px; font-size: 0.75rem; font-weight: 700;
+  cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.05);
+  color: var(--muted); font-family: 'Space Grotesk', sans-serif; transition: all 0.15s;
+  text-decoration: none;
+}
+.nbtn:hover { color: var(--text); border-color: var(--border2); }
+.n-run {
+  background: var(--accent); border-color: transparent; color: #fff;
+  box-shadow: 0 2px 12px rgba(99,120,255,0.4); padding: 5px 16px;
+}
+.n-run:hover { box-shadow: 0 4px 18px rgba(99,120,255,0.55); transform: translateY(-1px); }
+.n-run:disabled { background: rgba(255,255,255,0.08); color: var(--muted); box-shadow: none; transform: none; cursor: not-allowed; border-color: transparent; }
+
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #22c55e;
+  animation: pulse 2s infinite;
+}
+.status-dot.running { background: var(--amber); }
+.status-dot.error   { background: var(--red); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.85)} }
+
+.nav-user { font-size: 0.75rem; color: var(--muted); }
+
+/* ══ IDE BODY ══ */
+.ide-body {
+  flex: 1; display: flex; overflow: hidden;
+}
+
+/* EDITOR PANEL */
+.editor-panel {
+  width: 55%; display: flex; flex-direction: column;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+
+.panel-bar {
+  height: 34px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px; padding: 0 14px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  font-size: 0.72rem; color: var(--muted);
+}
+.panel-bar-title { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.panel-bar-file  { font-family: 'DM Mono', monospace; font-size: 0.68rem; margin-left: auto; }
+.pb-btn {
+  padding: 3px 10px; border-radius: 5px; font-size: 0.68rem; font-weight: 700;
+  border: 1px solid var(--border); background: rgba(255,255,255,0.04);
+  color: var(--muted); cursor: pointer; font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.15s;
+}
+.pb-btn:hover { color: var(--text); border-color: var(--border2); }
+
+/* Editor area with line numbers */
+.editor-area {
+  flex: 1; display: flex; overflow: hidden; position: relative;
+}
+.line-nums {
+  width: 44px; padding: 14px 0; overflow: hidden;
+  background: rgba(0,0,0,0.2);
+  border-right: 1px solid rgba(255,255,255,0.04);
+  font-family: 'DM Mono', monospace; font-size: 12.5px; line-height: 1.65;
+  text-align: right; padding-right: 10px; color: rgba(100,115,180,0.4);
+  user-select: none; flex-shrink: 0;
+}
+#codeInput {
+  flex: 1; background: transparent; border: none; outline: none; resize: none;
+  color: #c9d1ff; font-family: 'DM Mono', monospace; font-size: 12.5px; line-height: 1.65;
+  padding: 14px 16px; tab-size: 2; caret-color: var(--cyan);
+  overflow-y: auto;
+}
+#codeInput::selection { background: rgba(99,120,255,0.25); }
+#codeInput::-webkit-scrollbar { width: 6px; }
+#codeInput::-webkit-scrollbar-thumb { background: rgba(99,120,255,0.25); border-radius: 3px; }
+
+/* RESULTS PANEL */
+.results-panel {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+}
+
+/* Tab bar */
+.tab-bar {
+  height: 34px; flex-shrink: 0;
+  display: flex; align-items: center;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.rtab {
+  height: 100%; display: flex; align-items: center; padding: 0 14px;
+  font-size: 0.72rem; font-weight: 700; cursor: pointer; color: var(--muted);
+  border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.rtab:hover { color: var(--text); }
+.rtab.active { color: var(--text); border-bottom-color: var(--cyan); }
+
+.tab-actions { margin-left: auto; display: flex; align-items: center; gap: 4px; padding: 0 10px; }
+.ta-btn {
+  padding: 3px 8px; border-radius: 5px; font-size: 0.68rem; font-weight: 700;
+  border: 1px solid var(--border); background: rgba(255,255,255,0.04);
+  color: var(--muted); cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.15s;
+}
+.ta-btn:hover { color: var(--text); }
+
+/* Tab contents */
+.tab-content { display: none; flex: 1; overflow: auto; }
+.tab-content.active { display: flex; flex-direction: column; }
+
+/* ── TABLE RESULT ── */
+.result-area {
+  flex: 1; padding: 16px; overflow: auto;
+}
+.result-area::-webkit-scrollbar { width: 6px; height: 6px; }
+.result-area::-webkit-scrollbar-thumb { background: rgba(99,120,255,0.2); border-radius: 3px; }
+
+.result-meta {
+  font-size: 0.72rem; color: var(--muted); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.rm-chip {
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  border-radius: 6px; padding: 3px 10px; display: flex; align-items: center; gap: 5px;
+}
+.rm-chip.success { color: #4ade80; border-color: rgba(34,197,94,0.25); background: rgba(34,197,94,0.08); }
+.rm-chip.error   { color: #f87171; border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.08); }
+.rm-chip.info    { color: #67e8f9; border-color: rgba(34,211,238,0.25); background: rgba(34,211,238,0.08); }
+
+/* Interactive table */
+.iq-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+.iq-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.iq-table thead { position: sticky; top: 0; z-index: 2; }
+.iq-table th {
+  padding: 9px 14px; text-align: left;
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; user-select: none; white-space: nowrap;
+}
+.iq-table th:hover { color: var(--text); }
+.iq-table th.sorted-asc::after  { content: ' ▲'; font-size: 0.55rem; color: var(--cyan); }
+.iq-table th.sorted-desc::after { content: ' ▼'; font-size: 0.55rem; color: var(--cyan); }
+.iq-table td {
+  padding: 8px 14px; border-bottom: 1px solid rgba(99,120,255,0.06);
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  color: #c9d1ff; white-space: nowrap; max-width: 220px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.iq-table tr:last-child td { border-bottom: none; }
+.iq-table tbody tr { transition: background 0.1s; }
+.iq-table tbody tr:hover td { background: rgba(99,120,255,0.06); }
+.td-null { color: rgba(140,155,220,0.3) !important; font-style: italic; }
+.td-num  { color: #86efac !important; }
+.td-str  { color: #fcd34d !important; }
+
+/* Multiple result sets */
+.result-section { margin-bottom: 24px; }
+.result-label {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--muted); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 7px;
+}
+.result-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Exec messages */
+.exec-msg {
+  padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'DM Mono', monospace;
+}
+.exec-msg.ok    { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: #4ade80; }
+.exec-msg.err   { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #f87171; }
+.exec-msg.info  { background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.2); color: #67e8f9; }
+.exec-msg.warn  { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); color: #fcd34d; }
+
+/* Empty / Placeholder */
+.result-placeholder {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 40px;
+  color: var(--muted); text-align: center;
+}
+.rp-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
+.rp-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.95rem; margin-bottom: 6px; color: rgba(140,155,220,0.6); }
+.rp-sub { font-size: 0.78rem; line-height: 1.6; max-width: 260px; }
+
+/* ── TERMINAL TAB ── */
+#terminal-out {
+  flex: 1; padding: 14px; overflow-y: auto;
+  font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.7;
+}
+#terminal-out::-webkit-scrollbar { width: 6px; }
+#terminal-out::-webkit-scrollbar-thumb { background: rgba(99,120,255,0.2); border-radius: 3px; }
+.tl-success { color: #86efac; }
+.tl-error   { color: #f87171; }
+.tl-info    { color: #67e8f9; }
+.tl-warn    { color: #fcd34d; }
+.tl-dim     { color: rgba(100,115,180,0.4); }
+.tl-prompt  { color: #c4b5fd; }
+.tl-white   { color: #c9d1ff; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 22px; right: 18px; z-index: 999;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 9px 16px; font-size: 0.8rem; font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  transform: translateY(60px); opacity: 0; transition: all 0.25s; pointer-events: none;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── SEARCH FILTER (in results) ── */
+.result-filter {
+  padding: 10px 16px 0;
+  display: flex; align-items: center; gap: 8px;
+}
+.rf-input {
+  flex: 1; padding: 7px 12px; background: var(--surface2);
+  border: 1.5px solid var(--border); border-radius: 7px;
+  color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem;
+  outline: none; transition: border-color 0.2s;
+}
+.rf-input:focus { border-color: var(--accent); }
+.rf-input::placeholder { color: var(--muted); }
+.rf-count { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+
+/* ── KEYBOARD SHORTCUTS BAR ── */
+.shortcuts-bar {
+  height: 28px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 14px; padding: 0 14px;
+  background: rgba(0,0,0,0.25); border-top: 1px solid var(--border);
+  font-size: 0.66rem; color: var(--muted);
+}
+kbd {
+  background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+  border-radius: 3px; padding: 1px 5px; font-family: 'DM Mono', monospace;
+  font-size: 0.62rem; color: var(--text);
+}
+
+@media(max-width:768px) {
+  .ide-body { flex-direction: column; }
+  .editor-panel { width: 100%; height: 50%; border-right: none; border-bottom: 1px solid var(--border); }
+  .lang-tabs { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <a class="nav-logo" href="/home">
+    <div class="nav-logo-icon">🦅</div>
+    QueryNest
+  </a>
+  <span class="ide-badge">Query IDE</span>
+
+  <div class="lang-tabs" style="margin-left:14px">
+    <div class="ltab l-sql active" onclick="setLang('sql',this)">
+      <span class="dot dot-sql"></span> SQL
+    </div>
+    <div class="ltab l-mysql" onclick="setLang('mysql',this)">
+      <span class="dot dot-mysql"></span> MySQL
+    </div>
+    <div class="ltab l-mongodb" onclick="setLang('mongodb',this)">
+      <span class="dot dot-mongodb"></span> MongoDB
+    </div>
+    <div style="width:1px;background:rgba(255,255,255,0.1);margin:4px 6px;"></div>
+    <div class="ltab l-python" onclick="setLang('python',this)">
+      <span class="dot dot-python"></span> Python
+    </div>
+
+  </div>
+
+  <div class="nav-right">
+    <div class="status-dot" id="statusDot"></div>
+    <span class="nav-user" id="nav-user">User</span>
+    <button class="nbtn n-run" id="runBtn" onclick="runQuery()" title="Ctrl+Enter">▶ Run</button>
+    <a class="nbtn" href="/home">🏠 Home</a>
+    <button class="nbtn" onclick="if(confirm('Logout?'))window.location.href='/logout'">Logout</button>
+  </div>
+</nav>
+
+<!-- ══ IDE BODY ══ -->
+<div class="ide-body">
+
+  <!-- ── EDITOR PANEL ── -->
+  <div class="editor-panel">
+    <div class="panel-bar">
+      <span class="panel-bar-title">Editor</span>
+      <span id="status-label" style="color:#4ade80;font-weight:600">● Ready</span>
+      <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+        <button class="pb-btn" onclick="clearEditor()">✕ Clear</button>
+        <button class="pb-btn" onclick="formatCode()">⟳ Format</button>
+        <button class="pb-btn" onclick="saveCode()">💾 Save</button>
+        <span class="panel-bar-file" id="file-label">query.sql</span>
+      </div>
+    </div>
+
+    <div class="editor-area">
+      <div class="line-nums" id="lineNums">1</div>
+      <textarea id="codeInput" spellcheck="false"
+        oninput="updateLineNums()"
+        onkeydown="handleEditorKey(event)"
+        onscroll="document.getElementById('lineNums').scrollTop=this.scrollTop"
+        placeholder="-- Write your SQL query here and click ▶ Run Query or press Ctrl+Enter"></textarea>
+    </div>
+
+    <div class="shortcuts-bar">
+      <span><kbd>Ctrl+Enter</kbd> Run</span>
+      <span><kbd>Ctrl+S</kbd> Save</span>
+      <span><kbd>Ctrl+L</kbd> Clear</span>
+      <span><kbd>Tab</kbd> Indent</span>
+      <span><kbd>1–7</kbd> Switch Lang</span>
+    </div>
+  </div>
+
+  <!-- ── RESULTS PANEL ── -->
+  <div class="results-panel">
+    <div class="tab-bar">
+      <div class="rtab active" id="rtab-table" onclick="switchTab('table')">📊 Results</div>
+      <div class="rtab" id="rtab-output" onclick="switchTab('output')">▶ Output</div>
+      <div class="rtab" id="rtab-terminal" onclick="switchTab('terminal')">⬛ Terminal</div>
+      <div class="tab-actions">
+        <button class="ta-btn" onclick="clearResults()">🗑 Clear</button>
+        <button class="ta-btn" onclick="exportCSV()">⬇ Export CSV</button>
+      </div>
+    </div>
+
+    <!-- Results Table Tab -->
+    <div class="tab-content active" id="tab-table">
+      <div class="result-filter" id="result-filter" style="display:none">
+        <input class="rf-input" id="table-filter" placeholder="🔍 Filter rows..." oninput="filterRows()"/>
+        <span class="rf-count" id="filter-count"></span>
+      </div>
+      <div class="result-area" id="result-area">
+        <div class="result-placeholder" id="result-placeholder">
+          <div class="rp-icon">🗄️</div>
+          <div class="rp-title">No query run yet</div>
+          <div class="rp-sub">Write a SQL, MySQL or MongoDB query and click ▶ Run</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Programming Output Tab -->
+    <div class="tab-content" id="tab-output">
+      <div id="prog-output" style="padding:16px;font-family:'Courier New',monospace;font-size:13px;line-height:1.7;white-space:pre-wrap;color:#e2e8f0;height:100%;box-sizing:border-box;overflow-y:auto;">
+        <span style="color:#64748b;">// Run your code to see output here</span>
+      </div>
+    </div>
+
+    <!-- Terminal Tab -->
+    <div class="tab-content" id="tab-terminal">
+      <div id="terminal-out">
+        <div class="tl-dim">// QueryNest Query IDE — Ready</div>
+        <div class="tl-dim">// Write a query above and press Ctrl+Enter</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+let curLang = 'sql';
+let lastResults = []; // for CSV export
+let sortCol = -1, sortDir = 1;
+
+const PROG_LANGS = new Set(['python','c','cpp']);
+
+const FILE_LABEL = {
+  sql: 'query.sql', mysql: 'query.sql', mongodb: 'query.js',
+  python: 'main.py', java: 'Main.java', c: 'main.c', cpp: 'main.cpp'
+};
+
+const STARTER = {
+sql: `-- SQL Demo — Students Database
+-- Press ▶ Run or Ctrl+Enter to execute
+
+CREATE TABLE students (
+  id    INTEGER PRIMARY KEY,
+  name  TEXT NOT NULL,
+  age   INTEGER,
+  class TEXT,
+  marks REAL DEFAULT 0
+);
+
+INSERT INTO students (name, age, class, marks) VALUES
+  ('Alice',   20, '10th', 92.5),
+  ('Bob',     21, '11th', 78.0),
+  ('Charlie', 19, '10th', 85.5),
+  ('Diana',   20, '12th', 95.0);
+
+-- View all students
+SELECT * FROM students;
+
+-- Students with marks > 80, sorted
+SELECT name, marks FROM students
+WHERE marks > 80
+ORDER BY marks DESC;
+
+-- Class-wise average
+SELECT class, COUNT(*) AS total, ROUND(AVG(marks),2) AS avg_marks
+FROM students
+GROUP BY class;`,
+
+mysql: `-- MySQL Demo — Students Table
+-- Press ▶ Run or Ctrl+Enter to execute
+
+CREATE TABLE students (
+  id    INT AUTO_INCREMENT PRIMARY KEY,
+  name  VARCHAR(100) NOT NULL,
+  age   INT,
+  marks DECIMAL(5,2) DEFAULT 0.00
+);
+
+INSERT INTO students (name, age, marks) VALUES
+  ('Alice',   20, 92.5),
+  ('Bob',     21, 78.0),
+  ('Charlie', 19, 85.5),
+  ('Diana',   20, 95.0);
+
+SELECT * FROM students;
+
+SELECT name, marks FROM students
+WHERE marks > 80
+ORDER BY marks DESC;
+
+SELECT COUNT(*) AS total, ROUND(AVG(marks),2) AS avg_marks
+FROM students;`,
+
+mongodb: `// MongoDB Demo — Students Collection
+// Press ▶ Run or Ctrl+Enter to execute
+
+// Insert multiple students
+db.students.insertMany([
+  { name: "Alice",   age: 20, class: "10th", marks: 92.5 },
+  { name: "Bob",     age: 21, class: "11th", marks: 78.0 },
+  { name: "Charlie", age: 19, class: "10th", marks: 85.5 },
+  { name: "Diana",   age: 20, class: "12th", marks: 95.0 }
+]);
+
+// Find all students
+db.students.find();
+
+// Students with marks > 80
+db.students.find({ marks: { $gt: 80 } }).sort({ marks: -1 });
+
+// Count total
+db.students.countDocuments();`,
+
+python: `# Python — Hello World + Fibonacci
+# Press ▶ Run or Ctrl+Enter to execute
+
+def fibonacci(n):
+    a, b = 0, 1
+    for _ in range(n):
+        print(a, end=' ')
+        a, b = b, a + b
+    print()
+
+print("Hello from QueryNest! 🦅")
+print("Fibonacci series (10 terms):")
+fibonacci(10)
+
+# List comprehension demo
+squares = [x**2 for x in range(1, 6)]
+print("Squares:", squares)`,
+
+java: `// Java — Hello World + Fibonacci
+// Press ▶ Run or Ctrl+Enter to execute
+
+public class Main {
+    static void fibonacci(int n) {
+        int a = 0, b = 1;
+        for (int i = 0; i < n; i++) {
+            System.out.print(a + " ");
+            int temp = a + b;
+            a = b;
+            b = temp;
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Hello from QueryNest! 🦅");
+        System.out.println("Fibonacci (10 terms):");
+        fibonacci(10);
+
+        // Array demo
+        int[] arr = {5, 3, 8, 1, 9, 2};
+        int max = arr[0];
+        for (int x : arr) if (x > max) max = x;
+        System.out.println("Max in array: " + max);
+    }
+}`,
+
+c: `// C — Hello World + Fibonacci
+// Press ▶ Run or Ctrl+Enter to execute
+
+#include <stdio.h>
+
+void fibonacci(int n) {
+    int a = 0, b = 1;
+    for (int i = 0; i < n; i++) {
+        printf("%d ", a);
+        int temp = a + b;
+        a = b;
+        b = temp;
+    }
+    printf("\\n");
+}
+
+int main() {
+    printf("Hello from QueryNest! \\n");
+    printf("Fibonacci (10 terms):\\n");
+    fibonacci(10);
+
+    // Sum of array
+    int arr[] = {1, 2, 3, 4, 5};
+    int sum = 0;
+    for (int i = 0; i < 5; i++) sum += arr[i];
+    printf("Sum of array: %d\\n", sum);
+    return 0;
+}`,
+
+cpp: `// C++ — Hello World + Fibonacci
+// Press ▶ Run or Ctrl+Enter to execute
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void fibonacci(int n) {
+    int a = 0, b = 1;
+    for (int i = 0; i < n; i++) {
+        cout << a << " ";
+        int temp = a + b;
+        a = b;
+        b = temp;
+    }
+    cout << endl;
+}
+
+int main() {
+    cout << "Hello from QueryNest! " << endl;
+    cout << "Fibonacci (10 terms):" << endl;
+    fibonacci(10);
+
+    // Vector demo
+    vector<int> v = {5, 3, 8, 1, 9, 2};
+    int maxVal = v[0];
+    for (int x : v) if (x > maxVal) maxVal = x;
+    cout << "Max in vector: " << maxVal << endl;
+    return 0;
+}`
+};
+
+// ── Init ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  fetch('/api/me', {credentials:'include'}).then(r=>r.json()).then(d=>{
+    if(d.success) document.getElementById('nav-user').textContent = '👤 ' + (d.user.name||'User').split(' ')[0];
+  }).catch(()=>{});
+
+  // Load from sessionStorage (code sent from search page)
+  const pendingCode = sessionStorage.getItem('ide_code');
+  const pendingLang = sessionStorage.getItem('ide_lang') || 'sql';
+  const dbLangs = ['sql','mysql','mongodb'];
+  const lang = dbLangs.includes(pendingLang) ? pendingLang : 'sql';
+
+  if (pendingCode) {
+    sessionStorage.removeItem('ide_code');
+    sessionStorage.removeItem('ide_lang');
+    document.getElementById('codeInput').value = pendingCode;
+    setLang(lang);
+    updateLineNums();
+    tlog('✅ Code loaded — auto-running...', 'info');
+    setTimeout(() => runQuery(), 400);
+  } else {
+    setLang('sql');
+  }
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey||e.metaKey) && e.key === 'Enter') { e.preventDefault(); runQuery(); }
+    if ((e.ctrlKey||e.metaKey) && e.key === 's')     { e.preventDefault(); saveCode(); }
+    if ((e.ctrlKey||e.metaKey) && e.key === 'l')     { e.preventDefault(); clearEditor(); }
+    const _active = document.activeElement;
+    const _isTyping = _active === document.getElementById('codeInput')
+                   || _active === document.getElementById('ideStdinInput')
+                   || _active?.tagName === 'INPUT'
+                   || _active?.tagName === 'TEXTAREA';
+    if (e.key === '1' && !e.ctrlKey && !_isTyping) setLang('sql');
+    if (e.key === '2' && !e.ctrlKey && !_isTyping) setLang('mysql');
+    if (e.key === '3' && !e.ctrlKey && !_isTyping) setLang('mongodb');
+    if (e.key === '4' && !e.ctrlKey && !_isTyping) setLang('python');
+    if (e.key === '5' && !e.ctrlKey && !_isTyping) setLang('java');
+    if (e.key === '6' && !e.ctrlKey && !_isTyping) setLang('c');
+    if (e.key === '7' && !e.ctrlKey && !_isTyping) setLang('cpp');
+  });
+});
+
+// ── Language Switch ───────────────────────────────────────────
+function setLang(lang, el) {
+  curLang = lang;
+  document.querySelectorAll('.ltab').forEach(t => t.classList.remove('active'));
+  if (el) { el.classList.add('active'); }
+  else {
+    document.querySelectorAll('.ltab').forEach(t => {
+      if (t.classList.contains('l-' + lang)) t.classList.add('active');
+    });
+  }
+  document.getElementById('file-label').textContent = FILE_LABEL[lang] || 'query.sql';
+  const ta = document.getElementById('codeInput');
+  if (!ta.value.trim()) { ta.value = STARTER[lang] || ''; updateLineNums(); }
+
+  // Show/hide Output tab based on lang type
+  const outTab = document.getElementById('rtab-output');
+  if (PROG_LANGS.has(lang)) {
+    if (outTab) outTab.style.display = '';
+    // Switch to output tab when switching to prog lang
+    switchTab('output');
+  } else {
+    if (outTab) outTab.style.display = 'none';
+    switchTab('table');
+  }
+
+  setStatus('ready');
+}
+
+// ── Run Query / Code ──────────────────────────────────────────
+async function runQuery() {
+  const code = document.getElementById('codeInput').value.trim();
+  if (!code) { toast('⚠ Write some code first'); return; }
+
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true; btn.textContent = '⏳ Running...';
+  setStatus('running');
+  tlog('─────────────────────────────────', 'dim');
+  tlog('▶ Running ' + curLang.toUpperCase() + '...', 'prompt');
+
+  const t0 = Date.now();
+
+  // ── Programming languages → Judge0 external API ──────────
+  if (PROG_LANGS.has(curLang)) {
+    switchTab('output');
+    setProgOutput('<span style="color:#94a3b8;">⏳ Compiling & running...</span>');
+    try {
+      const result = await runViaJudge0(code, curLang);
+      const ms = Date.now() - t0;
+
+      // Program needs stdin input — show input box
+      if (result.needs_input) {
+        btn.disabled = false; btn.textContent = '▶ Run';
+        setStatus('ready');
+        showIdeStdinBox(result.message || '📥 Yeh program user se input leta hai. Neeche apna input likho aur Run karo.');
+        return;
+      }
+
+      if (result.error) {
+        setProgOutput('<span style="color:#f87171;">❌ ' + escHtml(result.output) + '</span>');
+        tlog('❌ Error — ' + ms + 'ms', 'error');
+        setStatus('error');
+      } else {
+        const out = result.output || '(No output)';
+        setProgOutput('<span style="color:#4ade80;">✅ Output:</span>\n\n' + escHtml(out));
+        tlog('✅ Done — ' + ms + 'ms', 'success');
+        setStatus('done');
+      }
+    } catch(e) {
+      setProgOutput('<span style="color:#f87171;">❌ Network error: ' + escHtml(e.message) + '</span>');
+      tlog('❌ ' + e.message, 'error');
+      setStatus('error');
+    }
+    btn.disabled = false; btn.textContent = '▶ Run';
+    setTimeout(() => setStatus('ready'), 5000);
+    return;
+  }
+
+  // ── Database languages (existing logic) ──────────────────
+  if (curLang === 'sql' || curLang === 'mysql') {
+    try {
+      const results = runSQLEngine(code);
+      const ms = Date.now() - t0;
+      renderResults(results);
+      tlog('✅ Done — ' + ms + 'ms | ' + results.filter(r=>r.type==='table').length + ' result set(s)', 'success');
+      setStatus('done');
+    } catch(e) {
+      showError(e.message);
+      tlog('❌ Error: ' + e.message, 'error');
+      setStatus('error');
+    }
+  } else if (curLang === 'mongodb') {
+    try {
+      const results = runMongoEngine(code);
+      const ms = Date.now() - t0;
+      renderResults(results);
+      tlog('✅ Done — ' + ms + 'ms', 'success');
+      setStatus('done');
+    } catch(e) {
+      showError(e.message);
+      tlog('❌ Error: ' + e.message, 'error');
+      setStatus('error');
+    }
+  }
+
+  btn.disabled = false; btn.textContent = '▶ Run';
+  setTimeout(() => setStatus('ready'), 5000);
+}
+
+// ── Stdin Input UI (for programs using input()) ──────────────────────────
+function countInputCalls(code) {
+  const matches = code.match(/\binput\s*\(/g);
+  return matches ? matches.length : 1;
+}
+
+function showIdeStdinBox(message) {
+  const old = document.getElementById('ideStdinBox');
+  if (old) old.remove();
+
+  const code = document.getElementById('codeInput').value || '';
+  const inputCount = countInputCalls(code);
+
+  // Extract input() prompts from code to show as hints
+  const promptMatches = [...code.matchAll(/input\s*\(\s*["'`]([^"'`]*?)["'`]\s*\)/g)];
+  const hints = promptMatches.map(m => m[1].trim()).filter(Boolean);
+
+  let hintHtml = '';
+  if (hints.length > 0) {
+    hintHtml = `<div style="margin-bottom:10px;padding:8px;background:#0f0a1e;border-radius:6px;border-left:3px solid #7c3aed;">
+      <div style="color:#a78bfa;font-size:11px;font-weight:600;margin-bottom:4px;">Program ye inputs maangega (ek line = ek answer):</div>
+      ${hints.map((h,i) => `<div style="color:#94a3b8;font-size:12px;font-family:monospace;">Line ${i+1}: <span style="color:#e2e8f0;">${escHtml(h)}</span></div>`).join('')}
+    </div>`;
+  } else if (inputCount > 1) {
+    hintHtml = `<div style="margin-bottom:8px;padding:6px 10px;background:#0f0a1e;border-radius:6px;border-left:3px solid #7c3aed;">
+      <span style="color:#a78bfa;font-size:12px;">⚠️ Yeh program approx <strong style="color:#c4b5fd;">${inputCount} inputs</strong> maangega — har ek alag line pe likho.</span>
+    </div>`;
+  }
+
+  setProgOutput(`<span style="color:#93c5fd;">📥 ${escHtml(message)}</span>`);
+
+  const box = document.createElement('div');
+  box.id = 'ideStdinBox';
+  box.style.cssText = 'margin-top:10px;padding:14px;background:#1a1535;border:1px solid #7c3aed;border-radius:10px;';
+  box.innerHTML = `
+    <div style="color:#c4b5fd;font-size:13px;margin-bottom:10px;font-weight:700;display:flex;align-items:center;gap:6px;">
+      📥 Program Input — har value <u>alag line</u> pe likho
+    </div>
+    ${hintHtml}
+    <textarea id="ideStdinInput" rows="${Math.max(hints.length || inputCount, 3)}"
+      placeholder="${hints.length ? hints.map((h,i)=>`Line ${i+1}: ${h}`).join('\n') : 'Apna input yahan likho...\n(har value alag line pe)'}"
+      style="width:100%;box-sizing:border-box;background:#0a0818;color:#e2e8f0;border:1px solid #5b21b6;border-radius:6px;padding:10px;font-family:'Courier New',monospace;font-size:13px;resize:vertical;outline:none;line-height:1.6;"></textarea>
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+      <button id="ideStdinRunBtn"
+        style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;border:none;padding:8px 20px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:700;letter-spacing:0.3px;">
+        ▶ Run karo
+      </button>
+      <button onclick="document.getElementById('ideStdinBox').remove();setProgOutput('');"
+        style="background:#374151;color:#e2e8f0;border:none;padding:8px 14px;border-radius:7px;cursor:pointer;font-size:13px;">
+        ✕ Cancel
+      </button>
+      <span style="color:#6b7280;font-size:11px;margin-left:4px;">Ctrl+Enter se bhi run kar sakte ho</span>
+    </div>
+  `;
+
+  const outputEl = document.getElementById('prog-output');
+  if (outputEl) outputEl.after(box);
+
+  const ta = document.getElementById('ideStdinInput');
+  ta.focus();
+
+  // Ctrl+Enter to submit
+  ta.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('ideStdinRunBtn').click();
+    }
+  });
+
+  document.getElementById('ideStdinRunBtn').onclick = async () => {
+    const stdin = document.getElementById('ideStdinInput').value;
+    box.remove();
+    await runQueryWithStdin(stdin);
+  };
+}
+
+async function runQueryWithStdin(stdinData) {
+  const code = document.getElementById('codeInput').value.trim();
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true; btn.textContent = '⏳ Running...';
+  setStatus('running');
+  switchTab('output');
+  setProgOutput('<span style="color:#94a3b8;">⏳ Input ke saath run ho raha hai...</span>');
+  const t0 = Date.now();
+  try {
+    const result = await runViaJudge0(code, curLang, stdinData);
+    const ms = Date.now() - t0;
+    if (result.needs_input) {
+      // Still needs more input
+      btn.disabled = false; btn.textContent = '▶ Run';
+      setStatus('ready');
+      showIdeStdinBox('⚠️ Aur input chahiye! Saare inputs ek saath likho (har value alag line pe).');
+      return;
+    }
+    if (result.error) {
+      setProgOutput('<span style="color:#f87171;">❌ ' + escHtml(result.output) + '</span>');
+      tlog('❌ Error — ' + ms + 'ms', 'error');
+      setStatus('error');
+    } else {
+      const out = result.output || '(No output)';
+      // Show inputs used alongside output
+      const inputLines = stdinData.trim().split('\n').filter(Boolean);
+      const inputSummary = inputLines.length
+        ? `<div style="color:#6b7280;font-size:11px;margin-bottom:8px;padding:4px 8px;background:#0f0a1e;border-radius:4px;">📥 Input diya: ${inputLines.map(l => escHtml(l)).join(' → ')}</div>`
+        : '';
+      setProgOutput(inputSummary + '<span style="color:#4ade80;">✅ Output:</span>\n\n' + escHtml(out));
+      tlog('✅ Done — ' + ms + 'ms', 'success');
+      setStatus('done');
+    }
+  } catch(e) {
+    setProgOutput('<span style="color:#f87171;">❌ Network error: ' + escHtml(e.message) + '</span>');
+    tlog('❌ ' + e.message, 'error');
+    setStatus('error');
+  }
+  btn.disabled = false; btn.textContent = '▶ Run';
+  setTimeout(() => setStatus('ready'), 5000);
+}
+
+// ── Backend Compiler — uses Flask /api/execute (Python, C, C++) ────────
+async function runViaJudge0(code, lang, stdinData) {
+  // Directly use Flask backend — no external Judge0 dependency
+  const body = { code, lang };
+  if (stdinData !== undefined && stdinData !== null) body.stdin = stdinData;
+  const r = await fetch('/api/execute', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error('Server error ' + r.status);
+  return await r.json();
+}
+
+function setProgOutput(html) {
+  document.getElementById('prog-output').innerHTML = html;
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+// ══ SQL ENGINE (in-browser) ══════════════════════════════════
+function runSQLEngine(code) {
+  const tables = {};
+  const results = [];
+
+  const clean = code.replace(/--[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+  const stmts = clean.split(';').map(s=>s.trim()).filter(s=>s.length>2);
+
+  for (const stmt of stmts) {
+    const kw = stmt.trim().split(/\s+/)[0].toUpperCase();
+    if (kw === 'CREATE') {
+      const r = parseCreate(stmt, tables);
+      results.push({ type:'msg', level:'ok', text: r });
+    } else if (kw === 'INSERT') {
+      const r = parseInsert(stmt, tables);
+      results.push({ type:'msg', level:'ok', text: r });
+    } else if (kw === 'SELECT') {
+      const r = parseSelect(stmt, tables);
+      if (r.rows !== undefined) results.push({ type:'table', cols:r.cols, rows:r.rows, stmt: stmt.slice(0,60) });
+      else results.push({ type:'msg', level:'err', text: r.error || 'SELECT error' });
+    } else if (kw === 'UPDATE') {
+      results.push({ type:'msg', level:'ok', text: execUpdate(stmt, tables) });
+    } else if (kw === 'DELETE') {
+      results.push({ type:'msg', level:'ok', text: execDelete(stmt, tables) });
+    } else if (kw === 'DROP') {
+      const m = stmt.match(/DROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?(\w+)/i);
+      if (m && tables[m[1].toLowerCase()]) { delete tables[m[1].toLowerCase()]; results.push({type:'msg',level:'ok',text:'✅ Table dropped: '+m[1]}); }
+      else results.push({type:'msg',level:'warn',text:'⚠ Table not found: '+(m?m[1]:'?')});
+    } else if (kw === 'DESCRIBE' || kw === 'DESC' || kw === 'SHOW') {
+      results.push({ type:'msg', level:'info', text:'ℹ Schema commands shown in browser mode. Use SELECT * to view data.' });
+    } else if (stmt.length > 2) {
+      results.push({ type:'msg', level:'warn', text: '⚠ Statement not supported in browser mode: ' + kw });
+    }
+  }
+
+  return results.length ? results : [{ type:'msg', level:'info', text:'ℹ No statements executed' }];
+}
+
+function parseCreate(stmt, tables) {
+  const m = stmt.match(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)\s*\(/i);
+  if (!m) throw new Error('Invalid CREATE TABLE syntax');
+  const name = m[1].toLowerCase();
+  if (tables[name]) return '⚠ Table already exists: ' + m[1];
+  const inner = stmt.slice(stmt.indexOf('(')+1, stmt.lastIndexOf(')'));
+  const cols = [];
+  let depth=0, cur='', parts=[];
+  for(const ch of inner){if(ch==='(')depth++;else if(ch===')')depth--;if(ch===','&&depth===0){parts.push(cur.trim());cur='';}else cur+=ch;}
+  if(cur.trim())parts.push(cur.trim());
+  for(const part of parts){
+    const w=part.trim().split(/\s+/);
+    if(!w[0]||['PRIMARY','UNIQUE','KEY','INDEX','CONSTRAINT','FOREIGN','CHECK'].includes(w[0].toUpperCase()))continue;
+    const isPK = part.toUpperCase().includes('PRIMARY KEY') || part.toUpperCase().includes('AUTO_INCREMENT');
+    cols.push({name:w[0].toLowerCase(), type:w[1]||'TEXT', pk:isPK});
+  }
+  tables[name]={cols,rows:[],pk:0};
+  return '✅ Table created: ' + m[1] + ' (' + cols.length + ' columns)';
+}
+
+function parseInsert(stmt, tables) {
+  const m = stmt.match(/INSERT\s+INTO\s+(\w+)\s*\(([^)]+)\)\s*VALUES\s*([\s\S]+)/i);
+  if (!m) throw new Error('Invalid INSERT syntax');
+  const tname = m[1].toLowerCase();
+  if (!tables[tname]) throw new Error('Table not found: ' + m[1]);
+  const cols = m[2].split(',').map(c=>c.trim().toLowerCase());
+  const valStr = m[3].trim();
+  const groups = [];
+  let d=0,start=-1;
+  for(let i=0;i<valStr.length;i++){
+    if(valStr[i]==='('&&d===0){d++;start=i;}
+    else if(valStr[i]==='(')d++;
+    else if(valStr[i]===')'){d--;if(d===0&&start!==-1){groups.push(valStr.slice(start+1,i));start=-1;}}
+  }
+  let count=0;
+  for(const g of groups){
+    const vals=splitVals(g).map(parseVal);
+    const row={};
+    // auto-increment id
+    const pkCol = tables[tname].cols.find(c=>c.pk);
+    if(pkCol){tables[tname].pk++;row[pkCol.name]=tables[tname].pk;}
+    cols.forEach((c,i)=>{if(vals[i]!==undefined)row[c]=vals[i];});
+    tables[tname].rows.push(row);count++;
+  }
+  return '✅ Inserted ' + count + ' row(s) into ' + m[1];
+}
+
+function parseSelect(stmt, tables) {
+  // Very simplified SELECT
+  const m = stmt.match(/SELECT\s+([\s\S]+?)\s+FROM\s+(\w+)([\s\S]*)/i);
+  if (!m) return {error: 'Invalid SELECT syntax'};
+  const colExpr = m[1].trim();
+  const tname   = m[2].toLowerCase();
+  const rest    = m[3] || '';
+
+  if (!tables[tname]) return {error: 'Table not found: ' + m[2]};
+  const tbl = tables[tname];
+  let rows = [...tbl.rows];
+
+  // WHERE
+  const wm = rest.match(/WHERE\s+([\s\S]+?)(?:ORDER|GROUP|LIMIT|HAVING|$)/i);
+  if (wm) rows = rows.filter(r => evalWhere(r, wm[1].trim()));
+
+  // GROUP BY + aggregate
+  const gm = rest.match(/GROUP\s+BY\s+([\w,\s]+?)(?:ORDER|LIMIT|HAVING|$)/i);
+  if (gm) {
+    const grpCols = gm[1].split(',').map(c=>c.trim().toLowerCase());
+    const groups = {};
+    rows.forEach(r => {
+      const key = grpCols.map(c=>r[c]).join('|');
+      if (!groups[key]) groups[key] = {_key:key, _rows:[], ...Object.fromEntries(grpCols.map(c=>[c,r[c]]))};
+      groups[key]._rows.push(r);
+    });
+    rows = Object.values(groups).map(g => {
+      const out = {...g};
+      delete out._key; delete out._rows;
+      // resolve aggregates
+      const aggrM = colExpr.matchAll(/(COUNT|SUM|AVG|MAX|MIN|ROUND)\s*\(([^)]*)\)(?:\s+AS\s+(\w+))?/gi);
+      for(const am of aggrM){
+        const fn=am[1].toUpperCase(),arg=am[2].trim().toLowerCase(),alias=am[3]||fn+'_'+arg;
+        const vals=g._rows.map(r=>parseFloat(r[arg])).filter(v=>!isNaN(v));
+        if(fn==='COUNT')out[alias]=g._rows.length;
+        else if(fn==='SUM')out[alias]=vals.reduce((a,b)=>a+b,0);
+        else if(fn==='AVG')out[alias]=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+        else if(fn==='MAX')out[alias]=vals.length?Math.max(...vals):null;
+        else if(fn==='MIN')out[alias]=vals.length?Math.min(...vals):null;
+        else if(fn==='ROUND'){const n=parseFloat(am[2].split(',')[1])||0;out[alias]=vals.length?+vals[0].toFixed(n):null;}
+      }
+      return out;
+    });
+  }
+
+  // ORDER BY
+  const om = rest.match(/ORDER\s+BY\s+([\w\s,]+?)(?:LIMIT|$)/i);
+  if (om) {
+    const parts = om[1].split(',').map(p=>{const w=p.trim().split(/\s+/);return{col:w[0].toLowerCase(),dir:w[1]?.toUpperCase()==='DESC'?-1:1};});
+    rows.sort((a,b)=>{for(const{col,dir}of parts){const v=a[col]<b[col]?-1:a[col]>b[col]?1:0;if(v)return v*dir;}return 0;});
+  }
+
+  // LIMIT
+  const lm = rest.match(/LIMIT\s+(\d+)/i);
+  if (lm) rows = rows.slice(0, parseInt(lm[1]));
+
+  // Columns
+  let cols;
+  if (colExpr === '*') {
+    cols = tbl.cols.map(c=>c.name);
+  } else {
+    cols = colExpr.split(',').map(c=>{
+      const am = c.trim().match(/(?:COUNT|SUM|AVG|MAX|MIN|ROUND)\s*\([^)]*\)\s*(?:AS\s+(\w+))?/i);
+      if(am)return am[1]||c.trim().replace(/[()]/g,'').split(/\s+/).pop();
+      const asm = c.trim().match(/(.+?)\s+AS\s+(\w+)/i);
+      if(asm)return asm[2];
+      return c.trim().split('.').pop();
+    });
+  }
+
+  // Map rows to column order
+  const finalRows = rows.map(r => cols.map(c => r[c.toLowerCase()] ?? r[c] ?? null));
+
+  return { cols, rows: finalRows };
+}
+
+function execUpdate(stmt, tables) {
+  const m = stmt.match(/UPDATE\s+(\w+)\s+SET\s+([\s\S]+?)(?:\s+WHERE\s+([\s\S]+))?$/i);
+  if (!m) throw new Error('Invalid UPDATE syntax');
+  const tname=m[1].toLowerCase();
+  if(!tables[tname])throw new Error('Table not found: '+m[1]);
+  const setParts=m[2].split(',').map(p=>{const pm=p.trim().match(/(\w+)\s*=\s*(.+)/);return pm?{col:pm[1].toLowerCase(),val:parseVal(pm[2].trim())}:null;}).filter(Boolean);
+  let count=0;
+  tables[tname].rows.forEach(r=>{
+    if(!m[3]||evalWhere(r,m[3].trim())){
+      setParts.forEach(({col,val})=>r[col]=val);count++;
+    }
+  });
+  return '✅ Updated ' + count + ' row(s) in ' + m[1];
+}
+
+function execDelete(stmt, tables) {
+  const m = stmt.match(/DELETE\s+FROM\s+(\w+)(?:\s+WHERE\s+([\s\S]+))?$/i);
+  if (!m) throw new Error('Invalid DELETE syntax');
+  const tname=m[1].toLowerCase();
+  if(!tables[tname])throw new Error('Table not found: '+m[1]);
+  const before=tables[tname].rows.length;
+  if(m[2]) tables[tname].rows=tables[tname].rows.filter(r=>!evalWhere(r,m[2].trim()));
+  else tables[tname].rows=[];
+  return '✅ Deleted ' + (before-tables[tname].rows.length) + ' row(s) from ' + m[1];
+}
+
+function evalWhere(row, clause) {
+  // Handle AND/OR
+  const orParts = clause.split(/\bOR\b/i);
+  return orParts.some(part => {
+    const andParts = part.split(/\bAND\b/i);
+    return andParts.every(cond => evalCond(row, cond.trim()));
+  });
+}
+
+function evalCond(row, cond) {
+  const m = cond.match(/(\w+)\s*(>=|<=|!=|<>|LIKE|IN|>|<|=)\s*(.+)/i);
+  if (!m) return true;
+  const col=m[1].toLowerCase(), op=m[2].toUpperCase(), rawVal=m[3].trim();
+  const rv = row[col];
+  const lv = parseVal(rawVal);
+  if (op === '='  ) return rv == lv;
+  if (op === '!=' || op === '<>') return rv != lv;
+  if (op === '>'  ) return parseFloat(rv) > parseFloat(lv);
+  if (op === '<'  ) return parseFloat(rv) < parseFloat(lv);
+  if (op === '>=' ) return parseFloat(rv) >= parseFloat(lv);
+  if (op === '<=' ) return parseFloat(rv) <= parseFloat(lv);
+  if (op === 'LIKE') {
+    const pat = String(lv).replace(/%/g,'.*').replace(/_/g,'.');
+    return new RegExp('^'+pat+'$','i').test(String(rv||''));
+  }
+  if (op === 'IN') {
+    const vals = rawVal.replace(/[()]/g,'').split(',').map(v=>parseVal(v.trim()));
+    return vals.some(v => rv == v);
+  }
+  return true;
+}
+
+function parseVal(v) {
+  v = v.trim();
+  if (v.toUpperCase() === 'NULL') return null;
+  if ((v.startsWith("'")&&v.endsWith("'"))||(v.startsWith('"')&&v.endsWith('"'))) return v.slice(1,-1);
+  const n = Number(v);
+  return isNaN(n) ? v : n;
+}
+
+function splitVals(s) {
+  const vals=[]; let cur='',inQ=false,qc='';
+  for(const ch of s){
+    if(!inQ&&(ch==="'"||ch==='"')){inQ=true;qc=ch;cur+=ch;}
+    else if(inQ&&ch===qc){inQ=false;cur+=ch;}
+    else if(!inQ&&ch===','){vals.push(cur.trim());cur='';}
+    else cur+=ch;
+  }
+  if(cur.trim())vals.push(cur.trim());
+  return vals;
+}
+
+// ══ MONGODB ENGINE ═══════════════════════════════════════════
+function runMongoEngine(code) {
+  const collections = {};
+  const results = [];
+  const clean = code.replace(/\/\/[^\n]*/g,'').replace(/\/\*[\s\S]*?\*\//g,'').trim();
+  const stmts = splitMongoStmts(clean);
+
+  function getCol(name){if(!collections[name])collections[name]=[];return collections[name];}
+
+  for(const stmt of stmts){
+    if(!stmt.trim())continue;
+    try {
+      // insertMany
+      let m = stmt.match(/db\.(\w+)\.insertMany\s*\(\s*(\[[\s\S]*?\])\s*\)/);
+      if(m){
+        const docs = parseJSON(m[2]);
+        const col = getCol(m[1]);
+        docs.forEach((d,i)=>{if(!d._id)d._id='id_'+(col.length+i+1);col.push(d);});
+        results.push({type:'msg',level:'ok',text:'✅ Inserted '+docs.length+' document(s) into '+m[1]});
+        continue;
+      }
+      // insertOne
+      m = stmt.match(/db\.(\w+)\.insertOne\s*\(\s*(\{[\s\S]*?\})\s*\)/);
+      if(m){
+        const doc=parseJSON(m[2]);const col=getCol(m[1]);
+        if(!doc._id)doc._id='id_'+(col.length+1);col.push(doc);
+        results.push({type:'msg',level:'ok',text:'✅ Inserted 1 document into '+m[1]});
+        continue;
+      }
+      // find with optional filter and sort
+      m = stmt.match(/db\.(\w+)\.find\s*\(\s*([\s\S]*?)\s*\)(?:\.sort\s*\(\s*(\{[\s\S]*?\})\s*\))?(?:\.limit\s*\(\s*(\d+)\s*\))?/);
+      if(m){
+        let docs=[...getCol(m[1])];
+        if(m[2]&&m[2].trim()&&m[2].trim()!=='{}'){const filter=parseJSON(m[2].trim());docs=docs.filter(d=>matchFilter(d,filter));}
+        if(m[3]){const s=parseJSON(m[3]);docs=mongoSort(docs,s);}
+        if(m[4])docs=docs.slice(0,parseInt(m[4]));
+        if(!docs.length){results.push({type:'msg',level:'info',text:'ℹ No documents found in '+m[1]});continue;}
+        const cols=Object.keys(docs.reduce((a,d)=>({...a,...d}),{}));
+        const rows=docs.map(d=>cols.map(c=>d[c]??null));
+        results.push({type:'table',cols,rows,stmt:stmt.slice(0,60)});
+        continue;
+      }
+      // findOne
+      m = stmt.match(/db\.(\w+)\.findOne\s*\(\s*([\s\S]*?)\s*\)/);
+      if(m){
+        let docs=[...getCol(m[1])];
+        if(m[2]&&m[2].trim()&&m[2].trim()!=='{}'){const filter=parseJSON(m[2].trim());docs=docs.filter(d=>matchFilter(d,filter));}
+        const doc=docs[0];
+        if(!doc){results.push({type:'msg',level:'info',text:'ℹ No document found'});continue;}
+        const cols=Object.keys(doc);
+        results.push({type:'table',cols,rows:[cols.map(c=>doc[c])],stmt:'findOne'});
+        continue;
+      }
+      // countDocuments
+      m = stmt.match(/db\.(\w+)\.countDocuments\s*\(\s*([\s\S]*?)\s*\)/);
+      if(m){
+        let docs=[...getCol(m[1])];
+        if(m[2]&&m[2].trim()&&m[2].trim()!=='{}'){const filter=parseJSON(m[2].trim());docs=docs.filter(d=>matchFilter(d,filter));}
+        results.push({type:'table',cols:['count'],rows:[[docs.length]],stmt:'countDocuments'});
+        continue;
+      }
+      // updateOne / updateMany
+      m = stmt.match(/db\.(\w+)\.(updateOne|updateMany)\s*\(\s*(\{[\s\S]*?\})\s*,\s*(\{[\s\S]*?\})\s*\)/);
+      if(m){
+        const col=getCol(m[1]);const filter=parseJSON(m[3]);const upd=parseJSON(m[4]);
+        let count=0;
+        for(let i=0;i<col.length;i++){
+          if(!matchFilter(col[i],filter))continue;
+          if(upd.$set)Object.assign(col[i],upd.$set);
+          if(upd.$inc)Object.entries(upd.$inc).forEach(([k,v])=>col[i][k]=(col[i][k]||0)+v);
+          count++;if(m[2]==='updateOne')break;
+        }
+        results.push({type:'msg',level:'ok',text:'✅ Updated '+count+' document(s)'});
+        continue;
+      }
+      // deleteOne / deleteMany
+      m = stmt.match(/db\.(\w+)\.(deleteOne|deleteMany)\s*\(\s*(\{[\s\S]*?\})\s*\)/);
+      if(m){
+        const col=getCol(m[1]);const filter=parseJSON(m[3]);
+        let count=0;
+        const remaining=[];
+        for(const d of col){if(!matchFilter(d,filter)||( m[2]==='deleteOne'&&count>0)){remaining.push(d);}else count++;}
+        collections[m[1]]=remaining;
+        results.push({type:'msg',level:'ok',text:'✅ Deleted '+count+' document(s) from '+m[1]});
+        continue;
+      }
+      if(stmt.trim().length>2){results.push({type:'msg',level:'warn',text:'⚠ Statement not fully supported: '+stmt.slice(0,60)});}
+    } catch(e) {
+      results.push({type:'msg',level:'err',text:'❌ Error: '+e.message+' in: '+stmt.slice(0,50)});
+    }
+  }
+  return results.length?results:[{type:'msg',level:'info',text:'ℹ No statements executed'}];
+}
+
+function splitMongoStmts(code){
+  // Split on ; but only when not inside strings/brackets
+  const stmts=[]; let cur='',depth=0,inStr=false,strCh='';
+  for(let i=0;i<code.length;i++){
+    const ch=code[i];
+    if(!inStr&&(ch==="'"||ch==='"'||ch==='`')){inStr=true;strCh=ch;cur+=ch;}
+    else if(inStr&&ch===strCh&&code[i-1]!=='\\'){inStr=false;cur+=ch;}
+    else if(!inStr&&(ch==='{'||ch==='['||ch==='('))  {depth++;cur+=ch;}
+    else if(!inStr&&(ch==='}'||ch===']'||ch===')'))  {depth--;cur+=ch;}
+    else if(!inStr&&ch===';'&&depth===0){stmts.push(cur.trim());cur='';}
+    else cur+=ch;
+  }
+  if(cur.trim())stmts.push(cur.trim());
+  return stmts;
+}
+
+function parseJSON(s){
+  // Convert JS object literal to JSON
+  try{
+    const json=s
+      .replace(/(['"])?([a-zA-Z_$][a-zA-Z0-9_$]*)(['"])?:/g,'"$2":')
+      .replace(/'/g,'"')
+      .replace(/,\s*([}\]])/g,'$1');
+    return JSON.parse(json);
+  }catch(e){
+    // Fallback: eval-like (safe subset)
+    try{ return (new Function('return '+s))(); }
+    catch(e2){ throw new Error('Cannot parse: '+s.slice(0,40)); }
+  }
+}
+
+function matchFilter(doc, filter){
+  for(const [k,v] of Object.entries(filter)){
+    if(k==='$gt')continue;
+    if(typeof v==='object'&&v!==null){
+      if(v.$gt!==undefined&&!(doc[k]>v.$gt))return false;
+      if(v.$gte!==undefined&&!(doc[k]>=v.$gte))return false;
+      if(v.$lt!==undefined&&!(doc[k]<v.$lt))return false;
+      if(v.$lte!==undefined&&!(doc[k]<=v.$lte))return false;
+      if(v.$ne!==undefined&&doc[k]===v.$ne)return false;
+      if(v.$in!==undefined&&!v.$in.includes(doc[k]))return false;
+    } else {
+      if(doc[k]!==v)return false;
+    }
+  }
+  return true;
+}
+
+function mongoSort(docs, sortSpec){
+  const entries=Object.entries(sortSpec);
+  return [...docs].sort((a,b)=>{
+    for(const [k,dir] of entries){
+      const v=a[k]<b[k]?-1:a[k]>b[k]?1:0;
+      if(v)return v*(dir<0?-1:1);
+    }
+    return 0;
+  });
+}
+
+// ══ RENDER RESULTS ═══════════════════════════════════════════
+let _allTableData = {cols:[], rows:[]};
+
+function renderResults(results) {
+  const area = document.getElementById('result-area');
+  // Save placeholder before clearing (it lives inside result-area and gets destroyed by innerHTML='')
+  const ph = document.getElementById('result-placeholder');
+  const phClone = ph ? ph.cloneNode(true) : null;
+  area.innerHTML = '';
+  // Re-attach placeholder (hidden) so clearResults() can still find it
+  if (phClone) { phClone.id = 'result-placeholder'; phClone.style.display = 'none'; area.appendChild(phClone); }
+
+  let tableCount = 0;
+  _allTableData = {cols:[], rows:[]};
+
+  results.forEach((r, idx) => {
+    if (r.type === 'msg') {
+      const div = document.createElement('div');
+      div.className = 'exec-msg ' + (r.level==='ok'?'ok':r.level==='err'?'err':r.level==='warn'?'warn':'info');
+      div.textContent = r.text;
+      area.appendChild(div);
+      tlog(r.text, r.level==='ok'?'success':r.level==='err'?'error':r.level==='warn'?'warn':'info');
+    } else if (r.type === 'table') {
+      tableCount++;
+      const section = document.createElement('div');
+      section.className = 'result-section';
+      const label = document.createElement('div');
+      label.className = 'result-label';
+      label.textContent = 'Result Set ' + tableCount + (r.stmt ? ' — ' + r.stmt + (r.stmt.length>=60?'…':'') : '');
+      section.appendChild(label);
+
+      // Meta
+      const meta = document.createElement('div');
+      meta.className = 'result-meta';
+      meta.innerHTML = `
+        <span class="rm-chip success">✅ ${r.rows.length} row${r.rows.length!==1?'s':''} returned</span>
+        <span class="rm-chip info">📊 ${r.cols.length} column${r.cols.length!==1?'s':''}</span>
+      `;
+      section.appendChild(meta);
+
+      // Table
+      const wrap = document.createElement('div');
+      wrap.className = 'iq-table-wrap';
+      const table = buildTable(r.cols, r.rows);
+      wrap.appendChild(table);
+      section.appendChild(wrap);
+      area.appendChild(section);
+
+      // Store for export/filter
+      if (tableCount === 1) { _allTableData = {cols: r.cols, rows: r.rows}; }
+
+      tlog('→ ' + r.rows.length + ' row(s) in result set ' + tableCount, 'info');
+    }
+  });
+
+  // Show filter bar if there's a table
+  const hasTable = results.some(r=>r.type==='table');
+  document.getElementById('result-filter').style.display = hasTable ? 'flex' : 'none';
+  document.getElementById('table-filter').value = '';
+
+  switchTab('table');
+  tlog('─────────────────────────────────', 'dim');
+}
+
+function buildTable(cols, rows) {
+  const table = document.createElement('table');
+  table.className = 'iq-table';
+  table.id = 'result-table-' + Date.now();
+
+  // Header
+  const thead = document.createElement('thead');
+  const hrow = document.createElement('tr');
+  cols.forEach((c, ci) => {
+    const th = document.createElement('th');
+    th.textContent = c;
+    th.onclick = () => sortTable(table, ci, cols);
+    hrow.appendChild(th);
+  });
+  thead.appendChild(hrow);
+  table.appendChild(thead);
+
+  // Body
+  const tbody = document.createElement('tbody');
+  tbody.id = 'main-tbody';
+  rows.forEach(row => {
+    const tr = document.createElement('tr');
+    row.forEach(val => {
+      const td = document.createElement('td');
+      if (val === null || val === undefined) {
+        td.textContent = 'NULL'; td.className = 'td-null';
+      } else if (typeof val === 'number') {
+        td.textContent = val; td.className = 'td-num';
+      } else {
+        td.textContent = String(val); td.className = 'td-str';
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  return table;
+}
+
+function sortTable(table, colIdx, cols) {
+  const tbody = table.querySelector('tbody');
+  const ths = table.querySelectorAll('th');
+  if (sortCol === colIdx) sortDir *= -1; else { sortCol = colIdx; sortDir = 1; }
+  ths.forEach((th, i) => { th.className = i===colIdx ? (sortDir===1?'sorted-asc':'sorted-desc') : ''; });
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  rows.sort((a,b) => {
+    const av = a.cells[colIdx]?.textContent || '';
+    const bv = b.cells[colIdx]?.textContent || '';
+    const an = parseFloat(av), bn = parseFloat(bv);
+    if (!isNaN(an) && !isNaN(bn)) return (an-bn)*sortDir;
+    return av.localeCompare(bv)*sortDir;
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+
+function filterRows() {
+  const q = document.getElementById('table-filter').value.toLowerCase();
+  const rows = document.querySelectorAll('#result-area .iq-table tbody tr');
+  let visible = 0;
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    const show = !q || text.includes(q);
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  document.getElementById('filter-count').textContent = q ? visible + ' rows match' : '';
+}
+
+function showError(msg) {
+  const area = document.getElementById('result-area');
+  area.innerHTML = `<div class="exec-msg err">❌ Error: ${msg}</div>`;
+  document.getElementById('result-filter').style.display = 'none';
+  switchTab('table');
+}
+
+function exportCSV() {
+  if (!_allTableData.rows.length) { toast('⚠ No data to export'); return; }
+  const lines = [_allTableData.cols.join(',')];
+  _allTableData.rows.forEach(r => lines.push(r.map(v=>JSON.stringify(v??'')).join(',')));
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'query_result.csv';
+  a.click();
+  toast('✅ CSV downloaded');
+}
+
+// ══ UI HELPERS ════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => {
+    t.classList.remove('active');
+    t.style.display = '';
+  });
+  document.querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
+  const tabEl = document.getElementById('tab-' + name);
+  if (tabEl) { tabEl.classList.add('active'); tabEl.style.display = 'flex'; }
+  const rtabEl = document.getElementById('rtab-' + name);
+  if (rtabEl) { rtabEl.classList.add('active'); rtabEl.style.display = ''; }
+}
+
+function clearResults() {
+  document.getElementById('result-area').innerHTML = '';
+  const ph = document.getElementById('result-placeholder');
+  ph.style.display = 'flex';
+  document.getElementById('result-area').appendChild(ph);
+  document.getElementById('result-filter').style.display = 'none';
+  document.getElementById('terminal-out').innerHTML = '<div class="tl-dim">// Cleared</div>';
+}
+
+function tlog(text, type) {
+  const box = document.getElementById('terminal-out');
+  const div = document.createElement('div');
+  div.className = 'tl-' + (type||'white');
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function setStatus(type) {
+  const dot = document.getElementById('statusDot');
+  const lbl = document.getElementById('status-label');
+  dot.className = 'status-dot ' + (type!=='ready'?type:'');
+  if(type==='ready')  lbl.textContent = '● Ready',    lbl.style.color='#4ade80';
+  if(type==='running')lbl.textContent = '⏳ Running', lbl.style.color='#fbbf24';
+  if(type==='done')   lbl.textContent = '✅ Done',    lbl.style.color='#4ade80';
+  if(type==='error')  lbl.textContent = '❌ Error',   lbl.style.color='#f87171';
+}
+
+function updateLineNums() {
+  const ta = document.getElementById('codeInput');
+  const n  = ta.value.split('\n').length;
+  document.getElementById('lineNums').innerHTML = Array.from({length:n},(_,i)=>i+1).join('<br>');
+}
+
+function handleEditorKey(e) {
+  const ta = e.target;
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s=ta.selectionStart,end=ta.selectionEnd;
+    ta.value=ta.value.substring(0,s)+'  '+ta.value.substring(end);
+    ta.selectionStart=ta.selectionEnd=s+2; updateLineNums(); return;
+  }
+  if (e.key === 'Enter') {
+    const s=ta.selectionStart;
+    const lines=ta.value.substring(0,s).split('\n');
+    const cur=lines[lines.length-1];
+    const indent=cur.match(/^(\s*)/)[1];
+    e.preventDefault();
+    const ins='\n'+indent;
+    ta.value=ta.value.substring(0,s)+ins+ta.value.substring(ta.selectionEnd);
+    ta.selectionStart=ta.selectionEnd=s+ins.length;
+    updateLineNums(); ta.scrollTop=ta.scrollHeight;
+  }
+}
+
+function clearEditor() {
+  const ta = document.getElementById('codeInput');
+  ta.value=''; updateLineNums(); ta.focus();
+  setStatus('ready'); toast('Editor cleared');
+}
+
+function formatCode() {
+  // Basic SQL formatter
+  if (curLang === 'sql' || curLang === 'mysql') {
+    const ta = document.getElementById('codeInput');
+    const keywords = ['SELECT','FROM','WHERE','ORDER BY','GROUP BY','HAVING','LIMIT','INSERT INTO','VALUES','CREATE TABLE','DROP TABLE','UPDATE','SET','DELETE FROM','INNER JOIN','LEFT JOIN','RIGHT JOIN','ON','AND','OR'];
+    let code = ta.value;
+    keywords.forEach(kw => {
+      code = code.replace(new RegExp('\\b'+kw+'\\b','gi'), '\n'+kw);
+    });
+    ta.value = code.split('\n').map(l=>l.trimStart()).filter((l,i)=>i===0||l).join('\n');
+    updateLineNums();
+  }
+  toast('✅ Formatted');
+}
+
+let toastTmr;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTmr);
+  toastTmr = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function saveCode() {
+  const code = document.getElementById('codeInput').value.trim();
+  if (!code) { toast('Nothing to save'); return; }
+  const name = prompt('Save as:', 'query.' + (curLang==='mongodb'?'js':'sql'));
+  if (!name) return;
+  try {
+    const r = await fetch('/api/saved-files/save', {
+      method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
+      body:JSON.stringify({name, db_type:curLang, code, description:''})
+    });
+    const d = await r.json();
+    toast(d.success ? '✅ Saved: '+name : '❌ '+d.message);
+  } catch(e) { toast('❌ Error: '+e.message); }
+}
+</script>
+</body>
+</html>

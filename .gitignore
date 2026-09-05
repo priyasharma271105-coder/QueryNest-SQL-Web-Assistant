@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.pyc
+.env
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+data/saved_queries/*/
+data/saved_programs/*/
+!data/saved_queries/.gitkeep
+!data/saved_programs/.gitkeep

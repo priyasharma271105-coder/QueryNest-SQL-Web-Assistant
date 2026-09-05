@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Saved Files — QueryNest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Syne:wght@700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+<style>
+:root {
+  --bg: #160428;
+  --surface: #0d1120;
+  --surface2: #111828;
+  --border: rgba(99,120,255,0.12);
+  --border-hover: rgba(99,120,255,0.3);
+  --text: #e8eaf6;
+  --text-muted: rgba(160,170,220,0.5);
+  --accent: #6378ff;
+  --accent2: #c084fc;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --glow: 0 0 40px rgba(99,120,255,0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 10% 0%, rgba(99,120,255,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 100%, rgba(192,132,252,0.07) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+.nav {
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 40px;
+  background: rgba(8,11,20,0.85); backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.05rem;
+  color: var(--text); text-decoration: none; letter-spacing: -0.02em;
+}
+.nav-logo-icon {
+  width: 32px; height: 32px; border-radius: 9px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.nav-right { display: flex; align-items: center; gap: 8px; }
+.nav-btn {
+  display: flex; align-items: center; gap: 6px; padding: 8px 16px;
+  border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif; text-decoration: none;
+  cursor: pointer; border: none; transition: all 0.18s;
+}
+.nav-ghost { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); }
+.nav-ghost:hover { background: rgba(255,255,255,0.09); color: var(--text); border-color: var(--border-hover); }
+.nav-primary { background: var(--accent); color: #fff; box-shadow: 0 4px 20px rgba(99,120,255,0.35); }
+.nav-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(99,120,255,0.5); }
+
+.hero { position: relative; z-index: 1; text-align: center; padding: 56px 24px 36px; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(99,120,255,0.1); border: 1px solid rgba(99,120,255,0.25);
+  border-radius: 99px; padding: 5px 14px;
+  font-size: 0.72rem; font-weight: 600; color: #818cf8;
+  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 18px;
+}
+.hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem,5vw,3rem); font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin-bottom: 12px; }
+.hero h1 .grad { background: linear-gradient(135deg,#818cf8 0%,#c084fc 50%,#67e8f9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero-sub { color: var(--text-muted); font-size: 0.9rem; max-width: 400px; margin: 0 auto 28px; line-height: 1.7; }
+
+.stats-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.stat-chip { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 16px; font-size: 0.8rem; color: var(--text-muted); }
+.stat-chip .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.stat-chip b { color: var(--text); font-weight: 700; }
+
+.toolbar { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; max-width: 1120px; margin: 28px auto 18px; padding: 0 28px; gap: 14px; flex-wrap: wrap; }
+.search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 340px; }
+.search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; pointer-events: none; }
+.search-input { width: 100%; padding: 10px 14px 10px 38px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--text); font-family: 'Space Grotesk', sans-serif; outline: none; transition: all 0.2s; }
+.search-input:focus { border-color: var(--accent); background: var(--surface2); box-shadow: 0 0 0 3px rgba(99,120,255,0.12); }
+.search-input::placeholder { color: var(--text-muted); }
+
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-btn { padding: 8px 15px; border-radius: 8px; border: 1.5px solid var(--border); background: transparent; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.18s; white-space: nowrap; }
+.filter-btn:hover { border-color: var(--border-hover); color: var(--text); }
+.filter-btn.active { border-color: transparent; color: #fff; }
+.filter-btn.f-all.active    { background: rgba(99,120,255,0.25); color: #818cf8; border-color: rgba(99,120,255,0.4); }
+.filter-btn.f-mongo.active  { background: rgba(16,185,129,0.2);  color: #34d399; border-color: rgba(16,185,129,0.4); }
+.filter-btn.f-mysql.active  { background: rgba(245,158,11,0.2);  color: #fbbf24; border-color: rgba(245,158,11,0.4); }
+.filter-btn.f-sql.active    { background: rgba(99,120,255,0.2);  color: #818cf8; border-color: rgba(99,120,255,0.4); }
+.filter-btn.f-custom.active { background: rgba(192,132,252,0.2); color: #d8b4fe; border-color: rgba(192,132,252,0.4); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(310px,1fr)); gap: 16px; max-width: 1120px; margin: 0 auto; padding: 0 28px 100px; position: relative; z-index: 1; }
+
+.file-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; position: relative; animation: slideUp 0.3s ease both; }
+.file-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; opacity: 0; transition: opacity 0.2s; }
+.file-card.type-mongodb::before { background: linear-gradient(90deg,#10b981,transparent); }
+.file-card.type-mysql::before   { background: linear-gradient(90deg,#f59e0b,transparent); }
+.file-card.type-sql::before     { background: linear-gradient(90deg,#6378ff,transparent); }
+.file-card.type-custom::before  { background: linear-gradient(90deg,#c084fc,transparent); }
+.file-card:hover { border-color: var(--border-hover); transform: translateY(-3px); box-shadow: var(--glow); }
+.file-card:hover::before { opacity: 1; }
+
+.card-top { padding: 18px 20px 14px; display: flex; align-items: flex-start; gap: 13px; }
+.card-icon { width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+.card-icon.ico-mongodb { background: rgba(16,185,129,0.15); }
+.card-icon.ico-mysql   { background: rgba(245,158,11,0.15); }
+.card-icon.ico-sql     { background: rgba(99,120,255,0.15); }
+.card-icon.ico-custom  { background: rgba(192,132,252,0.15); }
+
+.card-info { flex: 1; min-width: 0; }
+.card-name { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; }
+.card-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 99px; font-size: 0.67rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.badge-mongodb { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+.badge-mysql   { background: rgba(245,158,11,0.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+.badge-sql     { background: rgba(99,120,255,0.15);  color: #818cf8; border: 1px solid rgba(99,120,255,0.25); }
+.badge-custom  { background: rgba(192,132,252,0.15); color: #d8b4fe; border: 1px solid rgba(192,132,252,0.25); }
+.card-date { font-size: 0.72rem; color: var(--text-muted); }
+.card-desc { font-size: 0.73rem; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+
+.card-preview { margin: 0 16px 14px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.06); border-radius: 9px; overflow: hidden; }
+.preview-bar { display: flex; align-items: center; justify-content: space-between; padding: 5px 12px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); }
+.preview-lang { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.preview-dots { display: flex; gap: 4px; }
+.preview-dots span { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.12); }
+.card-preview pre { margin: 0; padding: 10px 12px; font-family: 'DM Mono', monospace; font-size: 0.71rem; line-height: 1.6; color: rgba(129,140,248,0.8); max-height: 96px; overflow: hidden; }
+
+.card-actions { display: flex; gap: 7px; padding: 12px 16px; border-top: 1px solid var(--border); margin-top: auto; }
+.card-btn { flex: 1; padding: 8px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; border: none; transition: all 0.18s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.btn-copy  { background: rgba(99,120,255,0.15); color: #818cf8; border: 1px solid rgba(99,120,255,0.25); }
+.btn-copy:hover { background: rgba(99,120,255,0.28); }
+.btn-copy.ok { background: rgba(34,197,94,0.18); color: #4ade80; border-color: rgba(34,197,94,0.3); }
+.btn-view  { background: rgba(34,211,238,0.12); color: #67e8f9; border: 1px solid rgba(34,211,238,0.2); }
+.btn-view:hover { background: rgba(34,211,238,0.22); }
+.btn-dl    { background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid var(--border); }
+.btn-dl:hover  { background: rgba(255,255,255,0.11); color: var(--text); }
+.btn-del   { background: rgba(239,68,68,0.1); color: #fca5a5; border: 1px solid rgba(239,68,68,0.18); }
+.btn-del:hover { background: rgba(239,68,68,0.22); }
+
+.empty-state { grid-column: 1/-1; text-align: center; padding: 80px 24px; }
+.empty-icon  { font-size: 3.5rem; margin-bottom: 16px; opacity: 0.7; }
+.empty-state h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: rgba(160,170,220,0.5); margin-bottom: 8px; }
+.empty-state p  { font-size: 0.85rem; color: var(--text-muted); max-width: 300px; margin: 0 auto 20px; line-height: 1.6; }
+.empty-cta { display: inline-flex; align-items: center; gap: 7px; padding: 11px 24px; border-radius: var(--radius-sm); background: var(--accent); border: none; color: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 20px rgba(99,120,255,0.35); }
+.empty-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(99,120,255,0.5); }
+
+.modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(4,6,12,0.88); backdrop-filter: blur(16px); align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+.modal { background: var(--surface); border: 1px solid rgba(99,120,255,0.3); border-radius: 20px; padding: 32px; width: 100%; max-width: 500px; box-shadow: 0 32px 80px rgba(0,0,0,0.7),0 0 60px rgba(99,120,255,0.08); animation: slideUp 0.28s ease; max-height: 90vh; overflow-y: auto; }
+.modal-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 900; color: var(--text); margin-bottom: 4px; }
+.modal-sub { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 24px; }
+
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; margin-bottom: 7px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+.form-input, .form-select, .form-textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'Space Grotesk', sans-serif; outline: none; transition: all 0.2s; }
+.form-input, .form-select { padding: 11px 14px; font-size: 0.88rem; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); background: var(--surface2); box-shadow: 0 0 0 3px rgba(99,120,255,0.12); }
+.form-textarea { padding: 12px 14px; font-size: 0.82rem; font-family: 'DM Mono', monospace; line-height: 1.65; resize: vertical; min-height: 140px; color: rgba(129,140,248,0.9); }
+
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+.btn-cancel { padding: 10px 20px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 9px; color: var(--text-muted); font-size: 0.83rem; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.18s; }
+.btn-cancel:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+.btn-save { padding: 10px 26px; background: var(--accent); border: none; border-radius: 9px; color: #fff; font-size: 0.83rem; font-weight: 700; cursor: pointer; font-family: 'Space Grotesk', sans-serif; box-shadow: 0 4px 18px rgba(99,120,255,0.35); transition: all 0.2s; }
+.btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 26px rgba(99,120,255,0.5); }
+
+#toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(16px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 10px 22px; border-radius: 99px; font-size: 0.83rem; font-weight: 600; opacity: 0; pointer-events: none; z-index: 600; transition: all 0.28s; white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+#toast.show    { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.success { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.4); color: #4ade80; }
+#toast.err     { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.4); color: #f87171; }
+
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{transform:translateY(18px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+@media(max-width:768px) {
+  .nav { padding: 12px 16px; }
+  .toolbar { flex-direction: column; align-items: stretch; padding: 0 16px; }
+  .search-wrap { max-width: 100%; }
+  .grid { grid-template-columns: 1fr; padding: 0 16px 80px; }
+  .hero { padding: 36px 20px 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/home">
+    <div class="nav-logo-icon">🦅</div>
+    QueryNest
+  </a>
+  <div class="nav-right">
+    <button class="nav-btn nav-primary" onclick="openSaveModal()">+ Save New File</button>
+    <a class="nav-btn nav-ghost" href="/queries">📚 Library</a>
+    <a class="nav-btn nav-ghost" href="/home">← Home</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">💾 Personal Collection</div>
+  <h1>My Saved <span class="grad">Files</span></h1>
+  <p class="hero-sub">Your query snippets — MongoDB, MySQL &amp; SQL files stored securely in your account.</p>
+  <div class="stats-row">
+    <div class="stat-chip"><div class="dot" style="background:#818cf8"></div> Total <b id="stat-total">0</b></div>
+    <div class="stat-chip"><div class="dot" style="background:#34d399"></div> Mongo <b id="stat-mongo">0</b></div>
+    <div class="stat-chip"><div class="dot" style="background:#fbbf24"></div> MySQL <b id="stat-mysql">0</b></div>
+    <div class="stat-chip"><div class="dot" style="background:#818cf8"></div> SQL <b id="stat-sql">0</b></div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="fsearch" placeholder="Search files..." oninput="renderFiles()"/>
+  </div>
+  <div class="filters">
+    <button class="filter-btn f-all active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn f-mongo"      onclick="setFilter('mongodb',this)">🍃 MongoDB</button>
+    <button class="filter-btn f-mysql"      onclick="setFilter('mysql',this)">🐬 MySQL</button>
+    <button class="filter-btn f-sql"        onclick="setFilter('sql',this)">🗄 SQL</button>
+    <button class="filter-btn f-custom"     onclick="setFilter('custom',this)">⭐ Custom</button>
+  </div>
+</div>
+
+<div class="grid" id="f-grid">
+  <div class="empty-state">
+    <div class="empty-icon">⏳</div>
+    <h3>Loading files...</h3>
+  </div>
+</div>
+
+<div class="modal-overlay" id="saveModal" onclick="if(event.target===this)closeSaveModal()">
+  <div class="modal">
+    <div class="modal-title">💾 Save Query File</div>
+    <div class="modal-sub">Add a snippet to your personal collection</div>
+    <div class="form-group">
+      <label class="form-label">File Name</label>
+      <input class="form-input" id="sm-name" placeholder="e.g. My MongoDB Queries"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Database Type</label>
+      <select class="form-select" id="sm-type">
+        <option value="mongodb">🍃 MongoDB</option>
+        <option value="mysql">🐬 MySQL</option>
+        <option value="sql">🗄 SQL (Standard)</option>
+        <option value="custom">⭐ Custom</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description (optional)</label>
+      <input class="form-input" id="sm-desc" placeholder="What does this file contain?"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Query Code</label>
+      <textarea class="form-textarea" id="sm-code" placeholder="-- Paste your queries here..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeSaveModal()">Cancel</button>
+      <button class="btn-save" onclick="saveFile()">💾 Save File</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+{% raw %}
+<script>
+let allFiles = [];
+let currentFilter = 'all';
+
+const DB_CONFIG = {
+  mongodb: { icon:'🍃', cls:'ico-mongodb', badge:'badge-mongodb', label:'MongoDB', type:'type-mongodb' },
+  mysql:   { icon:'🐬', cls:'ico-mysql',   badge:'badge-mysql',   label:'MySQL',   type:'type-mysql'   },
+  sql:     { icon:'🗄', cls:'ico-sql',     badge:'badge-sql',     label:'SQL',     type:'type-sql'     },
+  custom:  { icon:'⭐', cls:'ico-custom',  badge:'badge-custom',  label:'Custom',  type:'type-custom'  },
+};
+
+document.addEventListener('DOMContentLoaded', loadFiles);
+
+async function loadFiles() {
+  try {
+    const res = await fetch('/api/saved-files/list');
+    const data = await res.json();
+    if (data.success) allFiles = data.files || [];
+  } catch(e) {
+    allFiles = JSON.parse(localStorage.getItem('qn_saved_files') || '[]');
+  }
+  renderFiles(); updateStats();
+}
+
+function renderFiles() {
+  const q = document.getElementById('fsearch').value.toLowerCase().trim();
+  let items = allFiles.filter(f => {
+    const mF = currentFilter === 'all' || f.db_type === currentFilter;
+    const mS = !q || f.name.toLowerCase().includes(q) || (f.description||'').toLowerCase().includes(q) || (f.code||'').toLowerCase().includes(q);
+    return mF && mS;
+  });
+  if (!items.length) {
+    document.getElementById('f-grid').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📂</div>
+        <h3>${currentFilter==='all'&&!q ? 'No files saved yet' : 'No files found'}</h3>
+        <p>${currentFilter==='all'&&!q ? 'Save your query snippets here for quick access.' : 'Try a different search or filter.'}</p>
+        ${currentFilter==='all'&&!q ? '<button class="empty-cta" onclick="openSaveModal()">+ Save Your First File</button>' : ''}
+      </div>`;
+    return;
+  }
+  document.getElementById('f-grid').innerHTML = items.map((f,i) => {
+    const cfg = DB_CONFIG[f.db_type] || DB_CONFIG.custom;
+    const preview = (f.code||'').split('\n').slice(0,7).join('\n');
+    const date = f.created_at ? new Date(f.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'Saved';
+    return `
+    <div class="file-card ${cfg.type}" id="fc-${f.id}" style="animation-delay:${i*0.05}s">
+      <div class="card-top">
+        <div class="card-icon ${cfg.cls}">${cfg.icon}</div>
+        <div class="card-info">
+          <div class="card-name" title="${escHtml(f.name)}">${escHtml(f.name)}</div>
+          <div class="card-meta">
+            <span class="badge ${cfg.badge}">${cfg.label}</span>
+            <span class="card-date">📅 ${date}</span>
+          </div>
+          ${f.description ? `<div class="card-desc">${escHtml(f.description.substring(0,55))}${f.description.length>55?'…':''}</div>` : ''}
+        </div>
+      </div>
+      ${preview ? `<div class="card-preview"><div class="preview-bar"><span class="preview-lang">${cfg.label}</span><div class="preview-dots"><span></span><span></span><span></span></div></div><pre>${escHtml(preview)}</pre></div>` : ''}
+      <div class="card-actions">
+        <button class="card-btn btn-copy" onclick="copyFile(this,'${f.id}')">📋 Copy</button>
+        <button class="card-btn btn-view" onclick="viewFile('${f.id}')">👁 View</button>
+        <button class="card-btn btn-dl"   onclick="downloadFile('${f.id}')">⬇ Save</button>
+        <button class="card-btn btn-del"  onclick="deleteFile('${f.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = allFiles.length;
+  document.getElementById('stat-mongo').textContent = allFiles.filter(f=>f.db_type==='mongodb').length;
+  document.getElementById('stat-mysql').textContent = allFiles.filter(f=>f.db_type==='mysql').length;
+  document.getElementById('stat-sql').textContent   = allFiles.filter(f=>f.db_type==='sql').length;
+}
+
+function setFilter(type,el) {
+  currentFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); renderFiles();
+}
+
+function openSaveModal(prefill) {
+  if(prefill) {
+    document.getElementById('sm-name').value = prefill.name||'';
+    document.getElementById('sm-type').value = prefill.db_type||'mongodb';
+    document.getElementById('sm-desc').value = prefill.description||'';
+    document.getElementById('sm-code').value = prefill.code||'';
+  } else {
+    document.getElementById('sm-name').value='';
+    document.getElementById('sm-code').value='';
+    document.getElementById('sm-desc').value='';
+  }
+  document.getElementById('saveModal').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>document.getElementById('sm-name').focus(),100);
+}
+function closeSaveModal() {
+  document.getElementById('saveModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+async function saveFile() {
+  const name=document.getElementById('sm-name').value.trim();
+  const db_type=document.getElementById('sm-type').value;
+  const description=document.getElementById('sm-desc').value.trim();
+  const code=document.getElementById('sm-code').value.trim();
+  if(!name){showToast('⚠ Please enter a file name','err');return;}
+  if(!code){showToast('⚠ Please enter some queries','err');return;}
+  const file={id:'f'+Date.now(),name,db_type,description,code,created_at:new Date().toISOString()};
+  try {
+    const res=await fetch('/api/saved-files/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(file)});
+    const data=await res.json();
+    if(!data.success) throw new Error(data.message);
+  } catch(e) {
+    const local=JSON.parse(localStorage.getItem('qn_saved_files')||'[]');
+    local.unshift(file);localStorage.setItem('qn_saved_files',JSON.stringify(local));
+  }
+  allFiles.unshift(file);closeSaveModal();renderFiles();updateStats();showToast('✅ File saved!','success');
+}
+
+async function copyFile(btn,id) {
+  try {
+    const res=await fetch('/api/saved-files/view/'+id);
+    const data=await res.json();
+    if(!data.success){showToast('❌ Could not load file','err');return;}
+    await navigator.clipboard.writeText(data.file.code||'');
+    btn.textContent='✅ Copied!';btn.classList.add('ok');showToast('✅ Code copied!','success');
+    setTimeout(()=>{btn.textContent='📋 Copy';btn.classList.remove('ok');},2000);
+  } catch(e){showToast('❌ Copy failed','err');}
+}
+
+function downloadFile(id){window.location.href='/api/saved-files/download/'+id;showToast('⬇ Downloading...');}
+
+async function viewFile(id) {
+  try {
+    const res=await fetch('/api/saved-files/view/'+id);
+    const data=await res.json();
+    if(!data.success){showToast('❌ '+data.message,'err');return;}
+    const f=data.file;
+    openSaveModal({name:f.name,db_type:f.db_type,description:f.description,code:f.code});
+  } catch(e){showToast('❌ Could not load file','err');}
+}
+
+async function deleteFile(id) {
+  if(!confirm('Delete this file? This cannot be undone.'))return;
+  try{await fetch('/api/saved-files/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});}catch(e){}
+  const local=JSON.parse(localStorage.getItem('qn_saved_files')||'[]');
+  localStorage.setItem('qn_saved_files',JSON.stringify(local.filter(f=>f.id!==id)));
+  allFiles=allFiles.filter(f=>f.id!==id);renderFiles();updateStats();showToast('🗑 File deleted');
+}
+
+function showToast(msg,type) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=type||'';t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+{% endraw %}
+</body>
+</html>

@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueryNest — Premium Plans</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        /* Dark purple background — same as rest of app */
+        body { background: var(--bg); color: #e2d9f3; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
+        /* Modal */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;align-items:center;justify-content:center;padding:16px;}
+        .modal-overlay.active{display:flex;}
+        .modal{background:#1c0535;border:1px solid rgba(107,76,227,.5);border-radius:16px;padding:28px;max-width:430px;width:100%;position:relative;color:#e2d9f3;}
+        .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:#a78bfa;font-size:20px;cursor:pointer;padding:4px;}
+
+        /* Plan summary */
+        .plan-sum{background:rgba(107,76,227,.12);border:1px solid rgba(107,76,227,.25);border-radius:10px;padding:14px;text-align:center;margin-bottom:16px;}
+        .plan-sum .nm{font-size:14px;color:#c4b5fd;margin-bottom:4px;}
+        .plan-sum .amt{font-size:32px;font-weight:800;color:#a78bfa;}
+        .plan-sum .dc{font-size:12px;color:rgba(200,180,255,.5);}
+
+        /* Info box */
+        .info-box{border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;line-height:1.8;}
+        .info-box.test{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);color:rgba(253,230,138,.9);}
+        .info-box.test strong{color:#fbbf24;}
+        .info-box.test code{background:rgba(0,0,0,.3);padding:1px 7px;border-radius:4px;font-family:monospace;color:#fde68a;font-size:12px;}
+        .info-box.setup{background:rgba(107,76,227,.08);border:1px solid rgba(107,76,227,.25);color:rgba(200,180,255,.8);}
+        .info-box.setup code{background:rgba(0,0,0,.3);padding:1px 7px;border-radius:4px;font-family:monospace;color:#c4b5fd;font-size:12px;}
+        .info-box a{color:#a78bfa;}
+
+        /* Badge */
+        .test-badge{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;display:inline-block;margin-bottom:14px;letter-spacing:.4px;}
+
+        /* Pay button */
+        .btn-pay{width:100%;padding:14px;font-size:15px;font-weight:700;background:linear-gradient(135deg,#6b4ce3,#a855f7);color:#fff;border:none;border-radius:10px;cursor:pointer;transition:.2s;margin-top:4px;}
+        .btn-pay:hover:not(:disabled){opacity:.9;transform:translateY(-1px);}
+        .btn-pay:disabled{opacity:.6;cursor:not-allowed;}
+
+        /* Spinner */
+        .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:6px;}
+        @keyframes sp{to{transform:rotate(360deg);}}
+
+        /* Success */
+        .success-screen{text-align:center;padding:20px 0;}
+        .success-screen .ico{font-size:60px;margin-bottom:12px;}
+        .success-screen h2{color:#a78bfa;margin-bottom:8px;font-size:22px;}
+        .success-screen p{color:rgba(200,180,255,.7);font-size:14px;line-height:1.6;}
+        .expiry-badge{display:inline-block;margin-top:12px;background:rgba(107,76,227,.2);border:1px solid rgba(107,76,227,.4);border-radius:20px;padding:6px 18px;font-size:13px;color:#c4b5fd;}
+        .btn-goto{display:inline-block;margin-top:20px;background:linear-gradient(135deg,#6b4ce3,#a855f7);color:#fff;padding:13px 30px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;}
+
+        /* Toast */
+        #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#6b4ce3;color:#fff;padding:10px 22px;border-radius:20px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:9999;white-space:nowrap;}
+        #toast.show{opacity:1;}
+        #toast.err{background:#ef4444;}
+        #toast.ok{background:#22c55e;}
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+    <a href="/home" class="nav-logo">🦅 Query<span>Nest</span></a>
+    <div class="nav-right">
+        <span class="nav-badge" id="navBadge" style="display:none;">✅ Premium Active</span>
+        <a href="/home" class="nav-back">← Back</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-badge">⚡ Premium Access</div>
+    <h1>Unlock <em>Full Power</em><br>of QueryNest</h1>
+    <p>AI Code Editor, unlimited queries, aur advanced programming help — sab ek jagah.</p>
+</div>
+
+<!-- Premium active banner -->
+<div id="premiumBanner" style="display:none;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:12px;padding:16px;text-align:center;max-width:620px;margin:0 auto 28px;color:#86efac;">
+    <h3 style="margin:0 0 6px;">✅ Premium Already Active!</h3>
+    <p id="premiumInfo" style="margin:0;font-size:14px;"></p>
+</div>
+
+<!-- PLANS -->
+<div class="plans-wrap">
+    <div class="plan-card" data-plan="monthly">
+        <div class="plan-name">Monthly</div>
+        <div class="plan-price"><sup>₹</sup>199</div>
+        <div class="plan-period">per month • 30 days</div>
+        <ul class="plan-features">
+            <li>✅ AI-Powered Code Editor</li>
+            <li>✅ Unlimited AI Searches</li>
+            <li>✅ SQL, Python, Java, C/C++</li>
+            <li>✅ Email Support</li>
+        </ul>
+        <button class="btn-plan outline" onclick="openPayment('monthly')">Get Started</button>
+    </div>
+
+    <div class="plan-card popular" data-plan="quarterly">
+        <div class="popular-chip">🔥 Most Popular</div>
+        <div class="plan-name">Quarterly</div>
+        <div class="plan-price"><sup>₹</sup>499</div>
+        <div class="plan-period">per 3 months • 90 days</div>
+        <div class="plan-savings">💰 Save ₹98 vs Monthly</div>
+        <ul class="plan-features">
+            <li>✅ Everything in Monthly</li>
+            <li>⭐ Priority Support</li>
+            <li>⭐ Early Feature Access</li>
+            <li>✅ Advanced DB Optimization</li>
+        </ul>
+        <button class="btn-plan primary" onclick="openPayment('quarterly')">Choose Quarterly</button>
+    </div>
+
+    <div class="plan-card" data-plan="yearly">
+        <div class="plan-name">Yearly</div>
+        <div class="plan-price"><sup>₹</sup>1499</div>
+        <div class="plan-period">per year • 365 days</div>
+        <div class="plan-savings">🚀 Save ₹889 vs Monthly</div>
+        <ul class="plan-features">
+            <li>✅ Everything in Quarterly</li>
+            <li>⭐ VIP Badge + Access</li>
+            <li>⭐ Direct Developer Support</li>
+            <li>⭐ Lifetime Renewal Discount</li>
+        </ul>
+        <button class="btn-plan outline" onclick="openPayment('yearly')">Go Yearly</button>
+    </div>
+</div>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+    <div class="trust-item"><span>🔒</span> Razorpay Secured</div>
+    <div class="trust-item"><span>⚡</span> Instant Activation</div>
+    <div class="trust-item"><span>💳</span> Card / UPI / NetBanking</div>
+    <div class="trust-item"><span>📧</span> Confirmation Email</div>
+    <div class="trust-item"><span>🧪</span> Test Mode Active</div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-wrap">
+    <div class="faq-title">Common Questions</div>
+    <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Test payment kaise karein? <span class="arr">▾</span></button>
+        <div class="faq-a"><p>Card: <strong>4111 1111 1111 1111</strong> | Expiry: <strong>12/29</strong> | CVV: <strong>123</strong><br>UPI: <strong>success@razorpay</strong> — koi real paisa nahi katega!</p></div>
+    </div>
+    <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Razorpay test keys kahan se milenge? <span class="arr">▾</span></button>
+        <div class="faq-a"><p><a href="https://dashboard.razorpay.com" target="_blank" style="color:#a78bfa;">dashboard.razorpay.com</a> → Sign up → Test Mode ON → Settings → API Keys → Generate</p></div>
+    </div>
+    <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Premium kab activate hoga? <span class="arr">▾</span></button>
+        <div class="faq-a"><p>Payment complete hote hi turant — confirmation page dikhega aur email bhi aayega.</p></div>
+    </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="payModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+
+        <!-- Step 1: Checkout -->
+        <div id="step1">
+            <div style="text-align:center;margin-bottom:16px;">
+                <span class="test-badge">🧪 RAZORPAY TEST MODE</span>
+            </div>
+            <h2 style="font-size:18px;margin:0 0 14px;text-align:center;">💳 Complete Payment</h2>
+
+            <div class="plan-sum">
+                <div class="nm" id="s-name">—</div>
+                <div class="amt" id="s-amount">—</div>
+                <div class="dc" id="s-desc">—</div>
+            </div>
+
+            <!-- Test credentials -->
+            <div class="info-box test">
+                <strong>🧪 Test Credentials (koi real paisa nahi katega):</strong><br>
+                Card: <code>4111 1111 1111 1111</code> | Exp: <code>12/29</code> | CVV: <code>123</code><br>
+                UPI: <code>success@razorpay</code> | NetBanking: any bank → Success
+            </div>
+
+            <!-- Setup hint (shown only if keys not set) -->
+            <div class="info-box setup" id="setupHint" style="display:none;">
+                <strong>⚙️ Razorpay Test Keys Set Karo:</strong><br>
+                1. <a href="https://dashboard.razorpay.com" target="_blank">dashboard.razorpay.com</a> → Sign up (free)<br>
+                2. Top-right toggle → <strong>Test Mode ON</strong><br>
+                3. Settings → API Keys → <strong>Generate Test Key</strong><br>
+                4. <code>app.py</code> line 1375 mein paste karo:<br>
+                &nbsp;&nbsp;<code>RAZORPAY_KEY_ID = 'rzp_test_xxxx'</code><br>
+                &nbsp;&nbsp;<code>RAZORPAY_KEY_SECRET = 'xxxx'</code>
+            </div>
+
+            <button class="btn-pay" id="payBtn" onclick="startPayment()">
+                🚀 Pay with Razorpay
+            </button>
+
+            <p style="color:rgba(200,180,255,.35);font-size:11px;text-align:center;margin-top:10px;">
+                🔒 256-bit SSL • Powered by Razorpay Test Mode
+            </p>
+        </div>
+
+        <!-- Step 2: Success -->
+        <div id="step2" style="display:none;">
+            <div class="success-screen">
+                <div class="ico">🎉</div>
+                <h2>Premium Activated!</h2>
+                <p>Aapka QueryNest Premium successfully activate ho gaya!<br>
+                   Razorpay test payment verified ✅</p>
+                <div class="expiry-badge" id="expiryBadge">Valid till —</div>
+                <br>
+                <a href="/home-premium" class="btn-goto">🚀 Code Editor Kholein →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Razorpay Checkout SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   QueryNest — Razorpay Test Payment
+   Backend: /api/razorpay/create-order + /api/razorpay/verify
+═══════════════════════════════════════════════════ */
+
+let _plan = null, _orderId = null;
+
+const PLANS = {
+    monthly:   { name:'Monthly Plan',   price:199,  desc:'1 Month Premium Access'  },
+    quarterly: { name:'Quarterly Plan', price:499,  desc:'3 Months Premium Access' },
+    yearly:    { name:'Yearly Plan',    price:1499, desc:'1 Year Premium Access'    }
+};
+
+let _userHasActivePremium = false;
+
+// Check premium on load
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const r = await fetch('/api/premium/status');
+        const d = await r.json();
+        if (d.success && d.premium) {
+            _userHasActivePremium = true;
+            document.getElementById('premiumBanner').style.display = 'block';
+            document.getElementById('navBadge').style.display = 'inline-block';
+            document.getElementById('premiumInfo').textContent =
+                `✅ ${d.plan.charAt(0).toUpperCase()+d.plan.slice(1)} Plan — Valid till ${d.expiry} (${d.days_left} din baaki)`;
+
+            // Disable all purchase buttons and show locked state
+            document.querySelectorAll('.btn-plan').forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.45';
+                btn.style.cursor = 'not-allowed';
+                btn.style.pointerEvents = 'none';
+                btn.innerHTML = '🔒 Active Plan — Expires ' + d.expiry;
+            });
+
+            // Show a notice below the banner
+            const notice = document.createElement('div');
+            notice.style.cssText = 'max-width:620px;margin:0 auto 20px;text-align:center;padding:12px 18px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:12px;color:#fcd34d;font-size:13px;font-weight:600;';
+            notice.innerHTML = '⚠️ Aapka <strong>' + d.plan.charAt(0).toUpperCase()+d.plan.slice(1) + ' Plan</strong> abhi active hai (<strong>' + d.expiry + '</strong> tak). Expiry ke baad naya plan le sakte hain.';
+            document.getElementById('premiumBanner').insertAdjacentElement('afterend', notice);
+        }
+    } catch(e) {}
+});
+
+function openPayment(plan) {
+    if (_userHasActivePremium) {
+        alert('⚠️ Aapka premium plan abhi active hai! Expiry ke baad naya plan purchase kar sakte hain.');
+        return;
+    }
+    _plan = plan;
+    _orderId = null;
+    const m = PLANS[plan];
+    document.getElementById('s-name').textContent   = m.name;
+    document.getElementById('s-amount').textContent = `₹${m.price}`;
+    document.getElementById('s-desc').textContent   = m.desc;
+    document.getElementById('step1').style.display  = '';
+    document.getElementById('step2').style.display  = 'none';
+    document.getElementById('setupHint').style.display = 'none';
+    const btn = document.getElementById('payBtn');
+    btn.disabled  = false;
+    btn.innerHTML = '🚀 Pay with Razorpay';
+    document.getElementById('payModal').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('payModal').classList.remove('active');
+}
+
+async function startPayment() {
+    const btn = document.getElementById('payBtn');
+    btn.disabled  = true;
+    btn.innerHTML = '<span class="spin"></span> Creating order...';
+
+    try {
+        // Step 1: Create order on backend
+        const r1 = await fetch('/api/razorpay/create-order', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ plan: _plan })
+        });
+        const d1 = await r1.json();
+
+        if (!d1.success) {
+            showToast(d1.message || 'Order create karne mein error', 'err');
+            btn.disabled  = false;
+            btn.innerHTML = '🚀 Pay with Razorpay';
+            return;
+        }
+
+        _orderId = d1.order_id;
+
+        // Step 2: Check if real keys set
+        const hasRealKey = d1.key_id && d1.key_id !== 'rzp_test_placeholder' && d1.key_id.startsWith('rzp_test_');
+        const isDemo     = !hasRealKey || d1.razorpay_order_id.startsWith('order_DEMO_');
+
+        if (isDemo) {
+            // No real keys — show Razorpay-style dummy checkout
+            btn.disabled  = false;
+            btn.innerHTML = '🚀 Pay with Razorpay';
+            showRazorpayDummy(d1);
+            return;
+        }
+
+        // Step 3: Open real Razorpay checkout
+        btn.innerHTML = '<span class="spin"></span> Opening Razorpay...';
+        const m = PLANS[_plan];
+
+        const options = {
+            key:         d1.key_id,
+            amount:      d1.amount,
+            currency:    'INR',
+            name:        'QueryNest',
+            description: m.desc,
+            order_id:    d1.razorpay_order_id,
+            prefill: {
+                name:  d1.user_name  || '',
+                email: d1.user_email || ''
+            },
+            notes: { plan: _plan, order_id: _orderId },
+            theme: { color: '#6b4ce3' },
+
+            handler: async function(response) {
+                showToast('Payment done! Verifying...', 'ok');
+                await verifyPayment(response);
+            },
+            modal: {
+                ondismiss: function() {
+                    btn.disabled  = false;
+                    btn.innerHTML = '🚀 Pay with Razorpay';
+                    showToast('Payment cancelled', '');
+                }
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function(resp) {
+            showToast('Payment failed: ' + (resp.error.description || 'Unknown'), 'err');
+            btn.disabled  = false;
+            btn.innerHTML = '🔁 Try Again';
+        });
+        rzp.open();
+
+    } catch(e) {
+        showToast('Error: ' + e.message, 'err');
+        btn.disabled  = false;
+        btn.innerHTML = '🚀 Pay with Razorpay';
+    }
+}
+
+// Razorpay-style dummy checkout modal
+/* ═══════════════════════════════════════════════════════════════
+   DUMMY RAZORPAY — with Card Validation + QR Scanner
+   Card must be filled → then QR scanner appears → scan to pay
+═══════════════════════════════════════════════════════════════ */
+
+function showRazorpayDummy(orderData) {
+    document.getElementById('rzpDummyModal')?.remove();
+    const m   = PLANS[_plan];
+    const oid = orderData.order_id;
+    const div = document.createElement('div');
+    div.id = 'rzpDummyModal';
+    div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
+
+    div.innerHTML = `
+      <div style="background:#fff;border-radius:12px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5);margin:auto;">
+
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#1a56db,#2d81f7);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="color:#fff;font-weight:700;font-size:16px;">🦅 QueryNest</div>
+            <div style="color:rgba(255,255,255,.85);font-size:13px;">₹${m.price} — ${m.name}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="color:rgba(255,255,255,.55);font-size:10px;letter-spacing:.5px;">SECURED BY</div>
+            <div style="color:#fff;font-weight:800;font-size:16px;letter-spacing:-0.5px;">razorpay</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div id="rzpTabs" style="display:flex;border-bottom:2px solid #f0f0f0;">
+          <button onclick="rzpTab('card')" id="tab-card"
+            style="flex:1;padding:11px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#fff;color:#1a56db;border-bottom:2px solid #1a56db;margin-bottom:-2px;">
+            💳 Card
+          </button>
+          <button onclick="rzpTab('upi')" id="tab-upi"
+            style="flex:1;padding:11px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#f9f9f9;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;">
+            📱 UPI
+          </button>
+          <button onclick="rzpTab('netbanking')" id="tab-nb"
+            style="flex:1;padding:11px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#f9f9f9;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;">
+            🏦 Netbanking
+          </button>
+        </div>
+
+        <div style="padding:20px;">
+
+          <!-- ── CARD PANEL ── -->
+          <div id="panel-card">
+            <div style="font-size:12px;color:#888;margin-bottom:4px;">Card Number *</div>
+            <input id="rzp-cardnum" placeholder="4111 1111 1111 1111" maxlength="19"
+              oninput="fmtCard(this)"
+              style="width:100%;border:1.5px solid #ddd;border-radius:8px;padding:10px 13px;font-size:14px;margin-bottom:10px;box-sizing:border-box;outline:none;font-family:monospace;letter-spacing:1px;">
+
+            <div style="display:flex;gap:10px;margin-bottom:10px;">
+              <div style="flex:1;">
+                <div style="font-size:12px;color:#888;margin-bottom:4px;">Expiry (MM/YY) *</div>
+                <input id="rzp-exp" placeholder="12/29" maxlength="5"
+                  oninput="fmtExp(this)"
+                  style="width:100%;border:1.5px solid #ddd;border-radius:8px;padding:10px 13px;font-size:14px;box-sizing:border-box;outline:none;">
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:12px;color:#888;margin-bottom:4px;">CVV *</div>
+                <input id="rzp-cvv" placeholder="123" maxlength="4" type="password"
+                  style="width:100%;border:1.5px solid #ddd;border-radius:8px;padding:10px 13px;font-size:14px;box-sizing:border-box;outline:none;">
+              </div>
+            </div>
+
+            <div style="font-size:12px;color:#888;margin-bottom:4px;">Name on Card *</div>
+            <input id="rzp-name" placeholder="e.g. Rahul Sharma"
+              style="width:100%;border:1.5px solid #ddd;border-radius:8px;padding:10px 13px;font-size:14px;margin-bottom:14px;box-sizing:border-box;outline:none;">
+
+            <div id="rzp-card-err" style="color:#e53e3e;font-size:12px;margin-bottom:8px;display:none;"></div>
+
+            <button onclick="validateCard('${oid}','${_plan}')"
+              style="width:100%;background:linear-gradient(135deg,#1a56db,#2d81f7);color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.3px;">
+              🔒 Pay ₹${m.price}
+            </button>
+
+            <div style="margin-top:10px;font-size:11px;color:#b0b0b0;text-align:center;">
+              Test card: <b>4111 1111 1111 1111</b> | Exp: <b>12/29</b> | CVV: <b>123</b>
+            </div>
+          </div>
+
+          <!-- ── UPI PANEL ── -->
+          <div id="panel-upi" style="display:none;">
+            <div style="font-size:12px;color:#888;margin-bottom:4px;">UPI ID *</div>
+            <div style="display:flex;gap:8px;">
+              <input id="rzp-upi" placeholder="yourname@upi" value=""
+                style="flex:1;border:1.5px solid #ddd;border-radius:8px;padding:10px 13px;font-size:14px;outline:none;color:#333;">
+              <button onclick="validateUpi('${oid}','${_plan}')"
+                style="background:linear-gradient(135deg,#1a56db,#2d81f7);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;">
+                Verify
+              </button>
+            </div>
+            <div id="rzp-upi-err" style="color:#e53e3e;font-size:12px;margin-top:6px;display:none;"></div>
+            <div style="margin-top:10px;font-size:11px;color:#b0b0b0;">
+              Test UPI: <b>success@razorpay</b>
+            </div>
+          </div>
+
+          <!-- ── NETBANKING PANEL ── -->
+          <div id="panel-netbanking" style="display:none;">
+            <div style="font-size:13px;color:#555;margin-bottom:12px;">Select your bank:</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+              ${['SBI','HDFC','ICICI','Axis','Kotak','PNB','BOB','Yes Bank'].map(b =>
+                `<button onclick="selectBank(this,'${oid}','${_plan}')"
+                  data-bank="${b}"
+                  style="border:1.5px solid #e0e0e0;border-radius:8px;padding:10px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#444;transition:.15s;"
+                  onmouseover="this.style.borderColor='#2d81f7';this.style.color='#2d81f7';"
+                  onmouseout="this.style.borderColor='#e0e0e0';this.style.color='#444';">${b}</button>`
+              ).join('')}
+            </div>
+          </div>
+
+          <!-- Cancel -->
+          <button onclick="document.getElementById('rzpDummyModal').remove()"
+            style="width:100%;background:#fff;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px;font-size:13px;color:#888;cursor:pointer;margin-top:10px;">
+            Cancel
+          </button>
+          <div style="text-align:center;margin-top:10px;font-size:11px;color:#bbb;">
+            🔒 256-bit SSL Encryption • Secured by Razorpay • Test Mode
+          </div>
+        </div>
+      </div>`;
+
+    document.body.appendChild(div);
+}
+
+// ── Tab switcher ──────────────────────────────────────────────────
+function rzpTab(tab) {
+    ['card','upi','netbanking'].forEach(t => {
+        const panel = document.getElementById('panel-' + t);
+        const btn   = document.getElementById('tab-' + (t==='netbanking'?'nb':t));
+        if (!panel || !btn) return;
+        const active = t === tab;
+        panel.style.display = active ? '' : 'none';
+        btn.style.color          = active ? '#1a56db' : '#666';
+        btn.style.background     = active ? '#fff' : '#f9f9f9';
+        btn.style.borderBottom   = active ? '2px solid #1a56db' : '2px solid transparent';
+    });
+}
+
+// ── Input formatters ──────────────────────────────────────────────
+function fmtCard(el) {
+    let v = el.value.replace(/\D/g,'').substring(0,16);
+    el.value = v.match(/.{1,4}/g)?.join(' ') || v;
+}
+function fmtExp(el) {
+    let v = el.value.replace(/\D/g,'');
+    if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
+    el.value = v;
+}
+
+// ── Card validation → show QR scanner ────────────────────────────
+function validateCard(oid, planKey) {
+    const num  = (document.getElementById('rzp-cardnum').value || '').replace(/\s/g,'');
+    const exp  = (document.getElementById('rzp-exp').value || '').trim();
+    const cvv  = (document.getElementById('rzp-cvv').value || '').trim();
+    const name = (document.getElementById('rzp-name').value || '').trim();
+    const err  = document.getElementById('rzp-card-err');
+
+    err.style.display = 'none';
+
+    if (num.length < 13) {
+        err.textContent = '❌ Sahi card number enter karo (min 13 digits).'; err.style.display=''; return;
+    }
+    if (!/^\d{2}\/\d{2}$/.test(exp)) {
+        err.textContent = '❌ Expiry format galat hai — MM/YY chahiye.'; err.style.display=''; return;
+    }
+    const [mm, yy] = exp.split('/').map(Number);
+    if (mm < 1 || mm > 12) {
+        err.textContent = '❌ Month 01–12 ke beech hona chahiye.'; err.style.display=''; return;
+    }
+    const now = new Date(); const fullYear = 2000 + yy;
+    if (fullYear < now.getFullYear() || (fullYear === now.getFullYear() && mm < now.getMonth()+1)) {
+        err.textContent = '❌ Card expire ho gaya hai.'; err.style.display=''; return;
+    }
+    if (cvv.length < 3) {
+        err.textContent = '❌ CVV 3–4 digits ka hona chahiye.'; err.style.display=''; return;
+    }
+    if (name.length < 2) {
+        err.textContent = '❌ Card par naam enter karo.'; err.style.display=''; return;
+    }
+
+    // All valid → register server-side token, then show QR scanner
+    callValidateDemo(oid, planKey, 'card', document.getElementById('rzp-card-err'));
+}
+
+// ── UPI validation → show QR scanner ─────────────────────────────
+function validateUpi(oid, planKey) {
+    const upi = (document.getElementById('rzp-upi').value || '').trim();
+    const err = document.getElementById('rzp-upi-err');
+    err.style.display = 'none';
+    if (!upi || !upi.includes('@')) {
+        err.textContent = '❌ Valid UPI ID enter karo (e.g. name@upi).'; err.style.display=''; return;
+    }
+    callValidateDemo(oid, planKey, 'upi', err);
+}
+
+// ── Netbanking select → show QR scanner ──────────────────────────
+function selectBank(btn, oid, planKey) {
+    callValidateDemo(oid, planKey, 'netbanking', null);
+}
+
+// ── Server-side validation token before QR ────────────────────────
+async function callValidateDemo(oid, planKey, method, errEl) {
+    try {
+        const r = await fetch('/api/razorpay/validate-demo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({order_id: oid, method: method})
+        });
+        const d = await r.json();
+        if (!d.success) {
+            if (errEl) { errEl.textContent = d.message || 'Validation failed'; errEl.style.display = ''; }
+            return;
+        }
+        showQRScanner(oid, planKey, method);
+    } catch(e) {
+        if (errEl) { errEl.textContent = '❌ Server error — try again.'; errEl.style.display = ''; }
+    }
+}
+
+// ── QR Scanner modal ──────────────────────────────────────────────
+function showQRScanner(oid, planKey, method) {
+    document.getElementById('rzpDummyModal')?.remove();
+    const m = PLANS[planKey];
+
+    // Generate a simple SVG QR-style grid (visual only, not real QR)
+    function makeQR() {
+        const cells = 21;
+        const size  = 210;
+        const cs    = size / cells;
+        // deterministic pseudorandom pattern seeded by oid
+        let seed = oid.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+        function rand() { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; }
+
+        // Fixed finder patterns (top-left, top-right, bottom-left)
+        const fixed = new Set();
+        for (let r=0;r<7;r++) for (let c=0;c<7;c++) fixed.add(r+','+c);
+        for (let r=0;r<7;r++) for (let c=cells-7;c<cells;c++) fixed.add(r+','+c);
+        for (let r=cells-7;r<cells;r++) for (let c=0;c<7;c++) fixed.add(r+','+c);
+
+        let rects = '';
+        for (let r=0;r<cells;r++) {
+            for (let c=0;c<cells;c++) {
+                let fill = '#fff';
+                if (fixed.has(r+','+c)) {
+                    // Finder pattern: outer ring dark, inner 3x3 dark
+                    const inTL = r<7&&c<7, inTR = r<7&&c>=cells-7, inBL = r>=cells-7&&c<7;
+                    if (inTL||inTR||inBL) {
+                        const lr = inTL?r:(inTR?r:r-(cells-7));
+                        const lc = inTL?c:(inTR?c-(cells-7):c);
+                        if (lr===0||lr===6||lc===0||lc===6) fill='#111';
+                        else if (lr>=2&&lr<=4&&lc>=2&&lc<=4) fill='#111';
+                        else fill='#fff';
+                    }
+                } else {
+                    fill = rand() > 0.45 ? '#111' : '#fff';
+                }
+                rects += `<rect x="${c*cs}" y="${r*cs}" width="${cs}" height="${cs}" fill="${fill}"/>`;
+            }
+        }
+        return `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg"
+          style="width:200px;height:200px;border:6px solid #fff;border-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,.15);">
+          <rect width="${size}" height="${size}" fill="#fff"/>
+          ${rects}
+        </svg>`;
+    }
+
+    const qDiv = document.createElement('div');
+    qDiv.id = 'rzpQrModal';
+    qDiv.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;';
+
+    qDiv.innerHTML = `
+      <div style="background:#fff;border-radius:16px;width:100%;max-width:380px;padding:28px 24px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.5);">
+        <div style="font-size:22px;font-weight:800;color:#1a1a2e;margin-bottom:4px;">📷 Scan to Pay</div>
+        <div style="font-size:13px;color:#888;margin-bottom:18px;">Apne UPI app se is QR code ko scan karo</div>
+
+        <div style="display:inline-block;position:relative;margin-bottom:18px;">
+          ${makeQR()}
+          <!-- Scanning laser line animation -->
+          <div id="qrLaser" style="position:absolute;top:0;left:6px;right:6px;height:2px;background:linear-gradient(90deg,transparent,#e53e3e,transparent);animation:laserScan 1.8s ease-in-out infinite;"></div>
+          <style>
+            @keyframes laserScan {
+              0%   { top: 6px;   opacity:1; }
+              50%  { top: 204px; opacity:1; }
+              100% { top: 6px;   opacity:1; }
+            }
+          </style>
+        </div>
+
+        <div style="background:#f8f8f8;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#555;">
+          <b>Amount:</b> ₹${m.price} &nbsp;|&nbsp; <b>Merchant:</b> QueryNest
+        </div>
+
+        <div id="qrStatus" style="font-size:13px;color:#888;margin-bottom:16px;">
+          ⏳ Scanning ka wait kar rahe hain...
+        </div>
+
+        <!-- Simulate scan button -->
+        <button id="scanBtn" onclick="simulateScan('${oid}','${planKey}')"
+          style="width:100%;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;letter-spacing:.3px;">
+          ✅ QR Scan Kiya — Payment Confirm
+        </button>
+
+        <button onclick="document.getElementById('rzpQrModal').remove()"
+          style="width:100%;background:#fff;border:1.5px solid #e0e0e0;border-radius:10px;padding:10px;font-size:13px;color:#888;cursor:pointer;">
+          ← Wapas Jao
+        </button>
+
+        <div style="margin-top:12px;font-size:11px;color:#bbb;">🔒 Secured by Razorpay • Test Mode</div>
+      </div>`;
+
+    document.body.appendChild(qDiv);
+
+    // Auto-animate status after 2s to feel real
+    setTimeout(() => {
+        const s = document.getElementById('qrStatus');
+        if (s) s.innerHTML = '📷 QR detected — waiting for confirmation...';
+    }, 2000);
+}
+
+// ── Simulate scan → complete payment ─────────────────────────────
+async function simulateScan(oid, planKey) {
+    const btn = document.getElementById('scanBtn');
+    if (btn) { btn.disabled=true; btn.innerHTML='<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:6px;"></span>Processing...'; }
+    const s = document.getElementById('qrStatus');
+    if (s) s.innerHTML = '✅ QR Scanned! Payment processing...';
+
+    try {
+        const r = await fetch('/api/razorpay/verify', {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+                razorpay_order_id:   'order_DEMO_' + oid,
+                razorpay_payment_id: 'pay_DUMMY_'  + Date.now(),
+                razorpay_signature:  'dummy_sig',
+                plan: planKey, order_id: oid
+            })
+        });
+        const d = await r.json();
+        document.getElementById('rzpQrModal')?.remove();
+        if (d.success) showSuccess(d.expiry);
+        else showToast(d.message || 'Payment failed', 'err');
+    } catch(e) {
+        document.getElementById('rzpQrModal')?.remove();
+        showToast('Error: '+e.message, 'err');
+    }
+}
+
+// Legacy function kept for compatibility (not called in new flow)
+async function processDummyPay(method, orderId, planKey) {
+    showQRScanner(orderId, planKey, method);
+}
+
+// Verify real Razorpay payment
+async function verifyPayment(rzpResp) {
+    try {
+        const r = await fetch('/api/razorpay/verify', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+                razorpay_order_id:   rzpResp.razorpay_order_id,
+                razorpay_payment_id: rzpResp.razorpay_payment_id,
+                razorpay_signature:  rzpResp.razorpay_signature,
+                plan:                _plan,
+                order_id:            _orderId
+            })
+        });
+        const d = await r.json();
+        if (d.success) showSuccess(d.expiry);
+        else showToast(d.message || 'Verification failed', 'err');
+    } catch(e) {
+        showToast('Verify error: ' + e.message, 'err');
+    }
+}
+
+function showSuccess(expiry) {
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = '';
+    document.getElementById('expiryBadge').textContent = `Valid till ${expiry}`;
+    document.getElementById('navBadge').style.display  = 'inline-block';
+    showToast('🎉 Premium Activated!', 'ok');
+}
+
+let _tt;
+function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + type;
+    clearTimeout(_tt);
+    _tt = setTimeout(() => { t.className = ''; }, 3500);
+}
+
+document.getElementById('payModal').addEventListener('click', e => {
+    if (e.target.id === 'payModal') closeModal();
+});
+
+function toggleFaq(btn) {
+    const a = btn.nextElementSibling;
+    const open = a.classList.contains('open');
+    document.querySelectorAll('.faq-a').forEach(x => x.classList.remove('open'));
+    document.querySelectorAll('.faq-q .arr').forEach(x => x.textContent = '▾');
+    if (!open) { a.classList.add('open'); btn.querySelector('.arr').textContent = '▴'; }
+}
+</script>
+</body>
+</html>

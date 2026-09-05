@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Saved Programs — QueryNest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Syne:wght@700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+<style>
+:root {
+  --bg: #160428;
+  --surface: #0d1120;
+  --surface2: #111828;
+  --border: rgba(99,120,255,0.12);
+  --border-hover: rgba(99,120,255,0.3);
+  --text: #e8eaf6;
+  --text-muted: rgba(160,170,220,0.5);
+  --accent: #6378ff;
+  --accent2: #c084fc;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --glow: 0 0 40px rgba(99,120,255,0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 10% 0%, rgba(99,120,255,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 100%, rgba(245,158,11,0.05) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+.nav { position: sticky; top: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 14px 40px; background: rgba(8,11,20,0.85); backdrop-filter: blur(24px); border-bottom: 1px solid var(--border); }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--text); text-decoration: none; letter-spacing: -0.02em; }
+.nav-logo-icon { width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.nav-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 600; font-family: 'Space Grotesk', sans-serif; text-decoration: none; cursor: pointer; border: none; transition: all 0.18s; }
+.nav-ghost { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); }
+.nav-ghost:hover { background: rgba(255,255,255,0.09); color: var(--text); border-color: var(--border-hover); }
+.nav-primary { background: var(--accent); color: #fff; box-shadow: 0 4px 20px rgba(99,120,255,0.35); }
+.nav-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(99,120,255,0.5); }
+
+.hero { position: relative; z-index: 1; text-align: center; padding: 56px 24px 36px; }
+.hero-eyebrow { display: inline-flex; align-items: center; gap: 7px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); border-radius: 99px; padding: 5px 14px; font-size: 0.72rem; font-weight: 600; color: #fbbf24; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 18px; }
+.hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem,5vw,3rem); font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin-bottom: 12px; }
+.hero h1 .grad { background: linear-gradient(135deg,#fbbf24 0%,#f87171 50%,#c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero-sub { color: var(--text-muted); font-size: 0.9rem; max-width: 420px; margin: 0 auto 28px; line-height: 1.7; }
+
+.stats-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.stat-chip { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 16px; font-size: 0.8rem; color: var(--text-muted); }
+.stat-chip .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.stat-chip b { color: var(--text); font-weight: 700; }
+
+.toolbar { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; max-width: 1120px; margin: 28px auto 18px; padding: 0 28px; gap: 14px; flex-wrap: wrap; }
+.search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 340px; }
+.search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; pointer-events: none; }
+.search-input { width: 100%; padding: 10px 14px 10px 38px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--text); font-family: 'Space Grotesk', sans-serif; outline: none; transition: all 0.2s; }
+.search-input:focus { border-color: var(--accent); background: var(--surface2); box-shadow: 0 0 0 3px rgba(99,120,255,0.12); }
+.search-input::placeholder { color: var(--text-muted); }
+
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-btn { padding: 8px 15px; border-radius: 8px; border: 1.5px solid var(--border); background: transparent; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.18s; white-space: nowrap; }
+.filter-btn:hover { border-color: var(--border-hover); color: var(--text); }
+.filter-btn.active { border-color: transparent; color: #fff; }
+.filter-btn.f-all.active    { background: rgba(99,120,255,0.25); color: #818cf8; border-color: rgba(99,120,255,0.4); }
+.filter-btn.f-python.active { background: rgba(59,130,246,0.2);  color: #93c5fd; border-color: rgba(59,130,246,0.4); }
+.filter-btn.f-java.active   { background: rgba(245,158,11,0.2);  color: #fbbf24; border-color: rgba(245,158,11,0.4); }
+.filter-btn.f-c.active      { background: rgba(99,102,241,0.2);  color: #a5b4fc; border-color: rgba(99,102,241,0.4); }
+.filter-btn.f-cpp.active    { background: rgba(16,185,129,0.2);  color: #34d399; border-color: rgba(16,185,129,0.4); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(320px,1fr)); gap: 16px; max-width: 1120px; margin: 0 auto; padding: 0 28px 100px; position: relative; z-index: 1; }
+
+.prog-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; position: relative; animation: slideUp 0.3s ease both; }
+.prog-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; opacity: 0; transition: opacity 0.2s; }
+.prog-card.lang-python::before { background: linear-gradient(90deg,#3b82f6,transparent); }
+.prog-card.lang-java::before   { background: linear-gradient(90deg,#f59e0b,transparent); }
+.prog-card.lang-c::before      { background: linear-gradient(90deg,#6366f1,transparent); }
+.prog-card.lang-cpp::before    { background: linear-gradient(90deg,#10b981,transparent); }
+.prog-card:hover { border-color: var(--border-hover); transform: translateY(-3px); box-shadow: var(--glow); }
+.prog-card:hover::before { opacity: 1; }
+
+.card-top { padding: 18px 20px 14px; display: flex; align-items: flex-start; gap: 13px; }
+.card-icon { width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+.card-icon.ico-python { background: rgba(59,130,246,0.18); }
+.card-icon.ico-java   { background: rgba(245,158,11,0.18); }
+.card-icon.ico-c      { background: rgba(99,102,241,0.18); }
+.card-icon.ico-cpp    { background: rgba(16,185,129,0.18); }
+
+.card-info { flex: 1; min-width: 0; }
+.card-name { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; }
+.card-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 99px; font-size: 0.67rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.badge-python { background: rgba(59,130,246,0.15);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
+.badge-java   { background: rgba(245,158,11,0.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+.badge-c      { background: rgba(99,102,241,0.15);  color: #a5b4fc; border: 1px solid rgba(99,102,241,0.25); }
+.badge-cpp    { background: rgba(16,185,129,0.15);  color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+.card-date  { font-size: 0.72rem; color: var(--text-muted); }
+.topic-chip { display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 99px; padding: 2px 9px; font-size: 0.68rem; color: var(--text-muted); }
+.card-desc  { font-size: 0.73rem; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+
+.card-preview { margin: 0 16px 14px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.06); border-radius: 9px; overflow: hidden; }
+.preview-bar { display: flex; align-items: center; justify-content: space-between; padding: 5px 12px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); }
+.preview-lang { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.preview-dots { display: flex; gap: 4px; }
+.preview-dots span { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.12); }
+.card-preview pre { margin: 0; padding: 10px 12px; font-family: 'DM Mono', monospace; font-size: 0.71rem; line-height: 1.6; color: rgba(134,239,172,0.85); max-height: 96px; overflow: hidden; }
+
+.card-actions { display: flex; gap: 7px; padding: 12px 16px; border-top: 1px solid var(--border); margin-top: auto; }
+.card-btn { flex: 1; padding: 8px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; border: none; transition: all 0.18s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.btn-copy  { background: rgba(99,120,255,0.15); color: #818cf8; border: 1px solid rgba(99,120,255,0.25); }
+.btn-copy:hover { background: rgba(99,120,255,0.28); }
+.btn-copy.ok { background: rgba(34,197,94,0.18); color: #4ade80; border-color: rgba(34,197,94,0.3); }
+.btn-view  { background: rgba(34,211,238,0.12); color: #67e8f9; border: 1px solid rgba(34,211,238,0.2); }
+.btn-view:hover { background: rgba(34,211,238,0.22); }
+.btn-dl    { background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid var(--border); }
+.btn-dl:hover  { background: rgba(255,255,255,0.11); color: var(--text); }
+.btn-del   { background: rgba(239,68,68,0.1); color: #fca5a5; border: 1px solid rgba(239,68,68,0.18); }
+.btn-del:hover { background: rgba(239,68,68,0.22); }
+
+.empty-state { grid-column: 1/-1; text-align: center; padding: 80px 24px; }
+.empty-icon { font-size: 3.5rem; margin-bottom: 16px; opacity: 0.7; }
+.empty-state h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: rgba(160,170,220,0.5); margin-bottom: 8px; }
+.empty-state p  { font-size: 0.85rem; color: var(--text-muted); max-width: 300px; margin: 0 auto 20px; line-height: 1.6; }
+.empty-cta { display: inline-flex; align-items: center; gap: 7px; padding: 11px 24px; border-radius: var(--radius-sm); background: var(--accent); border: none; color: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 20px rgba(99,120,255,0.35); }
+.empty-cta:hover { transform: translateY(-1px); }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(4,6,12,0.88); backdrop-filter: blur(16px); align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+.modal { background: var(--surface); border: 1px solid rgba(99,120,255,0.3); border-radius: 20px; padding: 32px; width: 100%; max-width: 560px; box-shadow: 0 32px 80px rgba(0,0,0,0.7),0 0 60px rgba(99,120,255,0.08); animation: slideUp 0.28s ease; max-height: 90vh; overflow-y: auto; }
+.modal-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 900; color: var(--text); margin-bottom: 4px; }
+.modal-sub { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 24px; }
+
+/* LANG PILLS */
+.lang-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.lang-pill { display: flex; align-items: center; gap: 6px; padding: 8px 15px; border-radius: 9px; border: 1.5px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text-muted); font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.18s; }
+.lang-pill:hover { border-color: var(--border-hover); color: var(--text); }
+.lang-pill.sel { border-color: transparent; color: #fff; }
+.lang-pill.sel.python { background: linear-gradient(135deg,#3b82f6,#06b6d4); }
+.lang-pill.sel.java   { background: linear-gradient(135deg,#f59e0b,#ef4444); }
+.lang-pill.sel.c      { background: linear-gradient(135deg,#6366f1,#8b5cf6); }
+.lang-pill.sel.cpp    { background: linear-gradient(135deg,#10b981,#0891b2); }
+
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; margin-bottom: 7px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+.form-input, .form-textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'Space Grotesk', sans-serif; outline: none; transition: all 0.2s; }
+.form-input { padding: 11px 14px; font-size: 0.88rem; }
+.form-input:focus, .form-textarea:focus { border-color: var(--accent); background: var(--surface2); box-shadow: 0 0 0 3px rgba(99,120,255,0.12); }
+.form-textarea { padding: 12px 14px; font-size: 0.82rem; font-family: 'DM Mono', monospace; line-height: 1.65; resize: vertical; min-height: 160px; color: rgba(134,239,172,0.9); }
+
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+.btn-cancel { padding: 10px 20px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 9px; color: var(--text-muted); font-size: 0.83rem; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.18s; }
+.btn-cancel:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+.btn-save { padding: 10px 26px; background: var(--accent); border: none; border-radius: 9px; color: #fff; font-size: 0.83rem; font-weight: 700; cursor: pointer; font-family: 'Space Grotesk', sans-serif; box-shadow: 0 4px 18px rgba(99,120,255,0.35); transition: all 0.2s; }
+.btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 26px rgba(99,120,255,0.5); }
+
+#toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(16px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 10px 22px; border-radius: 99px; font-size: 0.83rem; font-weight: 600; opacity: 0; pointer-events: none; z-index: 600; transition: all 0.28s; white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+#toast.show    { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.success { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.4); color: #4ade80; }
+#toast.err     { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.4); color: #f87171; }
+
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{transform:translateY(18px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+@media(max-width:768px) {
+  .nav { padding: 12px 16px; }
+  .toolbar { flex-direction: column; align-items: stretch; padding: 0 16px; }
+  .search-wrap { max-width: 100%; }
+  .grid { grid-template-columns: 1fr; padding: 0 16px 80px; }
+  .hero { padding: 36px 20px 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/home">
+    <div class="nav-logo-icon">🦅</div>
+    QueryNest
+  </a>
+  <div class="nav-right">
+    <button class="nav-btn nav-primary" onclick="openSaveModal()">+ Save Program</button>
+    <a class="nav-btn nav-ghost" href="/saved-files">💾 Saved Files</a>
+    <a class="nav-btn nav-ghost" href="/home">← Home</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">💻 Code Library</div>
+  <h1>Saved <span class="grad">Programs</span></h1>
+  <p class="hero-sub">Your personal code library — Python, Java, C &amp; C++ programs stored securely on the server.</p>
+  <div class="stats-row">
+    <div class="stat-chip"><div class="dot" style="background:#818cf8"></div> Total <b id="stat-total">0</b></div>
+    <div class="stat-chip"><div class="dot" style="background:#93c5fd"></div> Python <b id="stat-python">0</b></div>
+    <div class="stat-chip"><div class="dot" style="background:#fbbf24"></div> Java <b id="stat-java">0</b></div>
+    <div class="stat-chip"><div class="dot" style="background:#a5b4fc"></div> C <b id="stat-c">0</b></div>
+    <div class="stat-chip"><div class="dot" style="background:#34d399"></div> C++ <b id="stat-cpp">0</b></div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="psearch" placeholder="Search programs..." oninput="renderPrograms()"/>
+  </div>
+  <div class="filters">
+    <button class="filter-btn f-all active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn f-python"     onclick="setFilter('python',this)">🐍 Python</button>
+    <button class="filter-btn f-java"       onclick="setFilter('java',this)">☕ Java</button>
+    <button class="filter-btn f-c"          onclick="setFilter('c',this)">⚙ C</button>
+    <button class="filter-btn f-cpp"        onclick="setFilter('cpp',this)">🔷 C++</button>
+  </div>
+</div>
+
+<div class="grid" id="p-grid">
+  <div class="empty-state">
+    <div class="empty-icon">⏳</div>
+    <h3>Loading programs...</h3>
+  </div>
+</div>
+
+<!-- SAVE MODAL -->
+<div class="modal-overlay" id="saveModal" onclick="if(event.target===this)closeSaveModal()">
+  <div class="modal">
+    <div class="modal-title">💻 Save Program</div>
+    <div class="modal-sub">Save your code — only you can access it</div>
+
+    <div class="form-group">
+      <label class="form-label">Language</label>
+      <div class="lang-pills">
+        <button class="lang-pill python sel" onclick="selectLang('python',this)">🐍 Python</button>
+        <button class="lang-pill java"       onclick="selectLang('java',this)">☕ Java</button>
+        <button class="lang-pill c"          onclick="selectLang('c',this)">⚙ C</button>
+        <button class="lang-pill cpp"        onclick="selectLang('cpp',this)">🔷 C++</button>
+      </div>
+      <input type="hidden" id="sm-lang" value="python"/>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Program Name</label>
+      <input class="form-input" id="sm-name" placeholder="e.g. Bubble Sort in Python"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Topic / Category</label>
+      <input class="form-input" id="sm-topic" placeholder="e.g. Sorting, Recursion, OOP..."/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description (optional)</label>
+      <input class="form-input" id="sm-desc" placeholder="What does this program do?"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="sm-code-label">Code (.py)</label>
+      <textarea class="form-textarea" id="sm-code" placeholder="# Paste your code here..."></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeSaveModal()">Cancel</button>
+      <button class="btn-save" onclick="saveProgram()">💾 Save Program</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+{% raw %}
+<script>
+let allPrograms = [];
+let currentFilter = 'all';
+
+const LANG_CONFIG = {
+  python: { icon:'🐍', cls:'ico-python', badge:'badge-python', label:'Python', ext:'py',   type:'lang-python', placeholder:'# Python code here...' },
+  java:   { icon:'☕', cls:'ico-java',   badge:'badge-java',   label:'Java',   ext:'java', type:'lang-java',   placeholder:'// Java code here...'   },
+  c:      { icon:'⚙',  cls:'ico-c',      badge:'badge-c',      label:'C',      ext:'c',    type:'lang-c',      placeholder:'// C code here...'       },
+  cpp:    { icon:'🔷', cls:'ico-cpp',    badge:'badge-cpp',    label:'C++',    ext:'cpp',  type:'lang-cpp',    placeholder:'// C++ code here...'     },
+};
+
+document.addEventListener('DOMContentLoaded', loadPrograms);
+
+async function loadPrograms() {
+  try {
+    const res=await fetch('/api/saved-programs/list');
+    const data=await res.json();
+    if(data.success) allPrograms=data.programs||[];
+  } catch(e) {
+    allPrograms=JSON.parse(localStorage.getItem('qn_saved_programs')||'[]');
+  }
+  renderPrograms(); updateStats();
+}
+
+function renderPrograms() {
+  const q=document.getElementById('psearch').value.toLowerCase().trim();
+  const items=allPrograms.filter(p=>{
+    const mF=currentFilter==='all'||p.lang===currentFilter;
+    const mS=!q||p.name.toLowerCase().includes(q)||(p.topic||'').toLowerCase().includes(q)||(p.description||'').toLowerCase().includes(q);
+    return mF&&mS;
+  });
+  if(!items.length){
+    document.getElementById('p-grid').innerHTML=`
+      <div class="empty-state">
+        <div class="empty-icon">💻</div>
+        <h3>${currentFilter==='all'&&!q?'No programs saved yet':'No programs found'}</h3>
+        <p>${currentFilter==='all'&&!q?'Save your Python, Java, C & C++ programs here.':'Try a different search or filter.'}</p>
+        ${currentFilter==='all'&&!q?'<button class="empty-cta" onclick="openSaveModal()">+ Save Your First Program</button>':''}
+      </div>`;
+    return;
+  }
+  document.getElementById('p-grid').innerHTML=items.map((p,i)=>{
+    const cfg=LANG_CONFIG[p.lang]||LANG_CONFIG.python;
+    const date=p.created_at?new Date(p.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'Saved';
+    return `
+    <div class="prog-card ${cfg.type}" id="pc-${p.id}" style="animation-delay:${i*0.05}s">
+      <div class="card-top">
+        <div class="card-icon ${cfg.cls}">${cfg.icon}</div>
+        <div class="card-info">
+          <div class="card-name" title="${escHtml(p.name)}">${escHtml(p.name)}</div>
+          <div class="card-meta">
+            <span class="badge ${cfg.badge}">${cfg.label}</span>
+            ${p.topic?`<span class="topic-chip">🏷 ${escHtml(p.topic)}</span>`:''}
+            <span class="card-date">📅 ${date}</span>
+          </div>
+          ${p.description?`<div class="card-desc">${escHtml(p.description.substring(0,60))}${p.description.length>60?'…':''}</div>`:''}
+        </div>
+      </div>
+      ${p.preview?`<div class="card-preview"><div class="preview-bar"><span class="preview-lang">${cfg.label} · .${cfg.ext}</span><div class="preview-dots"><span></span><span></span><span></span></div></div><pre>${escHtml(p.preview)}</pre></div>`:''}
+      <div class="card-actions">
+        <button class="card-btn btn-copy" onclick="copyProgram(this,'${p.id}')">📋 Copy</button>
+        <button class="card-btn btn-view" onclick="viewProgram('${p.id}')">👁 View</button>
+        <button class="card-btn btn-dl"   onclick="downloadProgram('${p.id}')">⬇ Save</button>
+        <button class="card-btn btn-del"  onclick="deleteProgram('${p.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent  = allPrograms.length;
+  document.getElementById('stat-python').textContent = allPrograms.filter(p=>p.lang==='python').length;
+  document.getElementById('stat-java').textContent   = allPrograms.filter(p=>p.lang==='java').length;
+  document.getElementById('stat-c').textContent      = allPrograms.filter(p=>p.lang==='c').length;
+  document.getElementById('stat-cpp').textContent    = allPrograms.filter(p=>p.lang==='cpp').length;
+}
+
+function setFilter(lang,el){
+  currentFilter=lang;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');renderPrograms();
+}
+
+function selectLang(lang,el){
+  document.querySelectorAll('.lang-pill').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('sm-lang').value=lang;
+  const cfg=LANG_CONFIG[lang];
+  document.getElementById('sm-code').placeholder=cfg.placeholder;
+  document.getElementById('sm-code-label').textContent=`Code (.${cfg.ext})`;
+}
+
+function openSaveModal(prefill){
+  if(prefill){
+    document.querySelectorAll('.lang-pill').forEach(b=>b.classList.remove('sel'));
+    const pill=document.querySelector(`.lang-pill.${prefill.lang||'python'}`);
+    if(pill)pill.classList.add('sel');
+    document.getElementById('sm-lang').value   = prefill.lang||'python';
+    document.getElementById('sm-name').value   = prefill.name||'';
+    document.getElementById('sm-topic').value  = prefill.topic||'';
+    document.getElementById('sm-desc').value   = prefill.description||'';
+    document.getElementById('sm-code').value   = prefill.code||'';
+  } else {
+    document.getElementById('sm-name').value  ='';
+    document.getElementById('sm-topic').value ='';
+    document.getElementById('sm-desc').value  ='';
+    document.getElementById('sm-code').value  ='';
+  }
+  document.getElementById('saveModal').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>document.getElementById('sm-name').focus(),100);
+}
+function closeSaveModal(){
+  document.getElementById('saveModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+async function saveProgram(){
+  const lang  = document.getElementById('sm-lang').value;
+  const name  = document.getElementById('sm-name').value.trim();
+  const topic = document.getElementById('sm-topic').value.trim();
+  const desc  = document.getElementById('sm-desc').value.trim();
+  const code  = document.getElementById('sm-code').value.trim();
+  if(!name){showToast('⚠ Please enter a program name','err');return;}
+  if(!code){showToast('⚠ Please paste your code','err');return;}
+  const program={id:'p'+Date.now(),lang,name,topic,description:desc,code,created_at:new Date().toISOString()};
+  try{
+    const res=await fetch('/api/saved-programs/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(program)});
+    const data=await res.json();
+    if(!data.success) throw new Error(data.message);
+  }catch(e){
+    const local=JSON.parse(localStorage.getItem('qn_saved_programs')||'[]');
+    local.unshift(program);localStorage.setItem('qn_saved_programs',JSON.stringify(local));
+  }
+  program.preview=code.split('\n').filter(l=>l.trim()).slice(0,6).join('\n');
+  allPrograms.unshift(program);closeSaveModal();renderPrograms();updateStats();showToast('✅ Program saved!','success');
+}
+
+async function copyProgram(btn,id){
+  try{
+    const res=await fetch('/api/saved-programs/view/'+id);
+    const data=await res.json();
+    if(!data.success){showToast('❌ '+data.message,'err');return;}
+    await navigator.clipboard.writeText(data.program.code||'');
+    btn.textContent='✅ Copied!';btn.classList.add('ok');showToast('✅ Code copied!','success');
+    setTimeout(()=>{btn.textContent='📋 Copy';btn.classList.remove('ok');},2000);
+  }catch(e){showToast('❌ Copy failed','err');}
+}
+
+async function viewProgram(id){
+  try{
+    const res=await fetch('/api/saved-programs/view/'+id);
+    const data=await res.json();
+    if(!data.success){showToast('❌ '+data.message,'err');return;}
+    openSaveModal(data.program);
+  }catch(e){showToast('❌ Could not load program','err');}
+}
+
+function downloadProgram(id){window.location.href='/api/saved-programs/download/'+id;showToast('⬇ Downloading...');}
+
+async function deleteProgram(id){
+  if(!confirm('Delete this program? This cannot be undone.'))return;
+  try{await fetch('/api/saved-programs/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});}catch(e){}
+  const local=JSON.parse(localStorage.getItem('qn_saved_programs')||'[]');
+  localStorage.setItem('qn_saved_programs',JSON.stringify(local.filter(p=>p.id!==id)));
+  allPrograms=allPrograms.filter(p=>p.id!==id);renderPrograms();updateStats();showToast('🗑 Program deleted');
+}
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=type||'';t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+{% endraw %}
+</body>
+</html>

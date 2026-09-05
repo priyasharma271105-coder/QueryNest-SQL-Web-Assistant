@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueryNest - AI Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        .ai-chat-box{height:420px;overflow-y:auto;background:rgba(0,0,0,0.35);border:2px solid rgba(107,76,227,0.3);border-radius:14px;padding:18px;margin-bottom:14px;scroll-behavior:smooth}
+        .msg{display:flex;margin-bottom:14px;animation:fadeIn .25s ease}
+        .msg.user{justify-content:flex-end}.msg.bot{justify-content:flex-start}
+        .bubble{max-width:80%;padding:12px 16px;border-radius:14px;font-size:14px;line-height:1.6;word-break:break-word}
+        .msg.user .bubble{background:linear-gradient(135deg,#6b4ce3,#ec4899);color:#fff;border-bottom-right-radius:4px}
+        .msg.bot  .bubble{background:rgba(107,76,227,0.12);border:1.5px solid rgba(107,76,227,0.3);color:#e2d9f3;border-bottom-left-radius:4px}
+        .bubble pre{background:#0d1117;border:1px solid rgba(107,76,227,0.4);border-radius:8px;padding:12px;margin:8px 0;overflow-x:auto;font-family:'Courier New',monospace;font-size:12.5px;color:#a5f3fc;white-space:pre}
+        .bubble code{background:rgba(107,76,227,0.25);padding:2px 6px;border-radius:4px;font-size:12px;font-family:monospace}
+        .bubble strong{color:#c4b5fd}
+        .bubble a{color:#a78bfa}
+        @keyframes blink{0%,100%{opacity:.2;transform:scale(.85)}50%{opacity:1;transform:scale(1)}}
+        #srContent pre{background:#0d1117;border:1px solid rgba(107,76,227,0.4);border-radius:10px;padding:16px;margin:10px 0;overflow-x:auto;font-family:'Courier New',monospace;font-size:13px;color:#a5f3fc;white-space:pre;line-height:1.6}
+        #srContent code{background:rgba(107,76,227,0.25);padding:2px 7px;border-radius:4px;font-size:12.5px;font-family:monospace;color:#c4b5fd}
+        #srContent strong{color:#e2d9f3}
+        #srContent::-webkit-scrollbar{width:5px}
+        #srContent::-webkit-scrollbar-track{background:transparent}
+        #srContent::-webkit-scrollbar-thumb{background:rgba(107,76,227,0.4);border-radius:3px}
+        .t-bub{display:flex;align-items:center;gap:4px;padding:12px 16px}
+        .t-bub span{width:8px;height:8px;border-radius:50%;background:#a78bfa;display:inline-block;animation:bounce 1.2s infinite ease-in-out}
+        .t-bub span:nth-child(2){animation-delay:.2s}.t-bub span:nth-child(3){animation-delay:.4s}
+        @keyframes bounce{0%,80%,100%{transform:scale(.7);opacity:.5}40%{transform:scale(1);opacity:1}}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+        .chat-row{display:flex;gap:10px;align-items:center}
+        .chat-row input{flex:1;background:rgba(255,255,255,0.07);border:2px solid rgba(107,76,227,0.4);border-radius:12px;padding:12px 16px;color:#e2d9f3;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:border-color .2s}
+        .chat-row input:focus{border-color:#a78bfa;background:rgba(107,76,227,0.1)}
+        .chat-row input::placeholder{color:rgba(200,180,255,0.4)}
+        .btn-mic{border:2px solid rgba(107,76,227,0.5);border-radius:12px;padding:11px 15px;font-size:16px;cursor:pointer;background:rgba(107,76,227,0.25);color:#fff;flex-shrink:0;transition:all .2s}
+        .btn-mic:hover{background:rgba(107,76,227,0.5)}.btn-mic.on{background:#7c3aed;animation:pulse 1s infinite}
+        .btn-go{border:none;border-radius:12px;padding:12px 22px;font-size:14px;cursor:pointer;font-weight:700;flex-shrink:0;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;box-shadow:0 4px 15px rgba(124,58,237,0.4);transition:all .2s}
+        .btn-go:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(124,58,237,0.5)}.btn-go:disabled{opacity:.5;cursor:not-allowed;transform:none}
+        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.5)}50%{box-shadow:0 0 0 8px rgba(124,58,237,0)}}
+        .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+        .chip{padding:5px 14px;border-radius:99px;border:1.5px solid rgba(107,76,227,0.4);background:rgba(107,76,227,0.1);color:rgba(200,180,255,0.7);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Poppins',sans-serif}
+        .chip.on,.chip:hover{background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;border-color:transparent}
+        .ai-hd{font-size:22px;font-weight:800;margin-bottom:16px;background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:10px}
+        .g-badge{font-size:11px;font-weight:700;background:linear-gradient(135deg,#1a73e8,#34a853);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;border:1px solid rgba(26,115,232,0.3);padding:2px 8px;border-radius:99px;display:inline-block}
+        .key-banner{background:rgba(107,76,227,0.15);border:1px dashed rgba(107,76,227,0.4);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:rgba(200,180,255,0.7);display:none}
+        .key-banner input{background:rgba(0,0,0,0.3);border:1px solid rgba(107,76,227,0.4);border-radius:8px;padding:6px 10px;color:#e2d9f3;font-size:12px;font-family:monospace;width:300px;outline:none;margin:6px 4px 0 0}
+        .key-banner button{background:linear-gradient(135deg,#7c3aed,#ec4899);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+    </style>
+</head>
+<body>
+<div class="bg-animation"><div class="blob blob1"></div><div class="blob blob2"></div><div class="blob blob3"></div></div>
+<div class="content">
+  <nav>
+    <div class="nav-container">
+      <div class="logo" onclick="location.href='/home'" style="cursor:pointer">🔍 QueryNest</div>
+      <div class="nav-tabs">
+        <div class="nav-tab active" onclick="switchTab(this,'all')">All</div>
+        <div class="nav-tab" onclick="switchTab(this,'sql')">SQL</div>
+        <div class="nav-tab" onclick="switchTab(this,'mysql')">MySQL</div>
+        <div class="nav-tab" onclick="switchTab(this,'mongodb')">MongoDB</div>
+        <div class="nav-tab" onclick="switchTab(this,'python')">Python</div>
+        <div class="nav-tab" onclick="switchTab(this,'java')">Java</div>
+        <div class="nav-tab" onclick="switchTab(this,'c')">C</div>
+        <div class="nav-tab" onclick="switchTab(this,'cpp')">C++</div>
+      </div>
+      <div class="nav-right">
+        <button class="btn-back" onclick="location.href='/ide'" style="background:linear-gradient(135deg,#6b4ce3,#ec4899);color:#fff;border:none;font-weight:700;">🖥️ IDE</button>
+        <button class="btn-back" onclick="history.back()">← Back</button>
+        <div class="user-info">Hello, <strong id="nav-user">User</strong></div>
+        <button class="btn-logout" onclick="location.href='/logout'">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>Welcome to QueryNest</h1>
+      <p>Your Ultimate Code & Database Explorer</p>
+      <div class="header-subtitle">🚀 Powered by QueryNest AI — Ask anything!</div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-section">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search queries... e.g. 'prime number in c'">
+        <button id="searchMicBtn" title="Voice search — Hindi ya English bolein" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px 8px;color:#a78bfa;vertical-align:middle;">🎤</button>
+        <button class="btn-search" onclick="doSearch()">Search</button>
+      </div>
+    </div>
+
+    <!-- Search result — improved interactive panel -->
+    <div id="srPanel" style="display:none;max-width:900px;margin:0 auto 40px;animation:fadeIn .3s ease;">
+      <div style="background:rgba(22,4,40,0.97);border:2px solid rgba(107,76,227,0.4);border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.5);">
+        <!-- Panel header -->
+        <div style="background:linear-gradient(135deg,rgba(107,76,227,0.25),rgba(168,85,247,0.15));border-bottom:1px solid rgba(107,76,227,0.25);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <div id="srIcon" style="font-size:20px;flex-shrink:0;">📖</div>
+            <div id="srTitle" style="font-size:16px;font-weight:800;color:#e2d9f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span id="srSourceBadge" style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;background:rgba(107,76,227,0.3);color:#c4b5fd;letter-spacing:.05em;"></span>
+            <button onclick="copySrCode()" title="Copy code" style="background:rgba(255,255,255,0.07);border:1px solid rgba(107,76,227,0.3);color:#a78bfa;border-radius:8px;padding:5px 11px;cursor:pointer;font-size:13px;">📋 Copy</button>
+            <button onclick="document.getElementById('srPanel').style.display='none'" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#a78bfa;border-radius:8px;padding:5px 11px;cursor:pointer;font-size:14px;">✕</button>
+          </div>
+        </div>
+        <!-- Panel body -->
+        <div id="srContent" style="padding:22px;color:#c4b5fd;font-size:14px;line-height:1.85;max-height:60vh;overflow-y:auto;"></div>
+        <!-- Panel footer actions -->
+        <div id="srFooter" style="border-top:1px solid rgba(107,76,227,0.2);padding:12px 20px;display:none;align-items:center;gap:10px;background:rgba(0,0,0,0.2);">
+          <span style="color:rgba(200,180,255,0.4);font-size:12px;flex:1;">Aur detail chahiye?</span>
+          <button id="srAskAI" onclick="askAIFromSearch()" style="background:linear-gradient(135deg,#6b4ce3,#a855f7);border:none;color:#fff;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;">🤖 AI se poochho</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Saved programs panel HIDDEN — users ko nahi dikhna -->
+    <!-- was: shown when tab clicked -->
+    <div id="savedPanel" style="display:none !important;"></div>
+
+    <!-- Language cards -->
+    <div style="margin-bottom:50px;">
+      <h2 class="languages-title">Select Your Language</h2>
+      <div class="languages-grid">
+        <div class="language-card sql"     onclick="pickLang('sql')"    ><span class="language-icon">🗄️</span><div class="language-name">SQL</div>    <div class="language-desc">Database Queries</div></div>
+        <div class="language-card mysql"   onclick="pickLang('mysql')"  ><span class="language-icon">🐬</span><div class="language-name">MySQL</div>  <div class="language-desc">Relational DB</div></div>
+        <div class="language-card mongodb" onclick="pickLang('mongodb')"><span class="language-icon">🍃</span><div class="language-name">MongoDB</div><div class="language-desc">NoSQL Database</div></div>
+        <div class="language-card python"  onclick="pickLang('python')" ><span class="language-icon">🐍</span><div class="language-name">Python</div> <div class="language-desc">General Purpose</div></div>
+        <div class="language-card java"    onclick="pickLang('java')"   ><span class="language-icon">☕</span><div class="language-name">Java</div>    <div class="language-desc">Enterprise App</div></div>
+        <div class="language-card c"       onclick="pickLang('c')"      ><span class="language-icon">⚙️</span><div class="language-name">C</div>      <div class="language-desc">System Programming</div></div>
+        <div class="language-card cpp"     onclick="pickLang('cpp')"    ><span class="language-icon">⚡</span><div class="language-name">C++</div>    <div class="language-desc">High Performance</div></div>
+      </div>
+    </div>
+
+    <!-- GEMINI CHATBOT -->
+    <div class="main-grid main-grid--single">
+      <div class="ai-section ai-section--full">
+        <div class="ai-hd">🤖 AI Assistant <span class="g-badge" style="background:linear-gradient(135deg,#6b4ce3,#a855f7);color:#fff;">QueryNest AI</span></div>
+
+        <!-- AI powered by QueryNest — no key needed -->
+
+        <!-- Language chips -->
+        <div class="chips">
+          <span class="chip" data-l="general" onclick="setLang('general',this)">💬 General</span>
+          <span class="chip on" data-l="python" onclick="setLang('python',this)">🐍 Python</span>
+          <span class="chip" data-l="sql"     onclick="setLang('sql',this)">🗄️ SQL</span>
+          <span class="chip" data-l="mysql"   onclick="setLang('mysql',this)">🐬 MySQL</span>
+          <span class="chip" data-l="mongodb" onclick="setLang('mongodb',this)">🍃 MongoDB</span>
+          <span class="chip" data-l="java"    onclick="setLang('java',this)">☕ Java</span>
+          <span class="chip" data-l="c"       onclick="setLang('c',this)">⚙️ C</span>
+          <span class="chip" data-l="cpp"     onclick="setLang('cpp',this)">⚡ C++</span>
+        </div>
+
+        <!-- Chat box -->
+        <div class="ai-chat-box" id="chatBox">
+          <div class="msg bot">
+            <div class="bubble">
+              👋 Hi! Main <strong>QueryNest AI</strong> hoon!<br>
+              Kuch bhi poochho — SQL, Python, MongoDB, Java, C, C++ ya koi bhi sawaal 🚀<br>
+              <small style="color:rgba(200,180,255,0.4);font-size:11px;">⚡ Powered by QueryNest AI</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input -->
+        <div class="chat-row">
+          <input type="text" id="chatInput" placeholder="Kuch bhi poochho... e.g. 'happy number in python'" autocomplete="off">
+          <button class="btn-mic" id="micBtn" title="Voice">🎤</button>
+          <button class="btn-go"  id="sendBtn">Send 📤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="features-section">
+      <h2 class="features-title">✨ Powerful Features</h2>
+      <div class="features-grid">
+        <div class="feature-item"><div class="feature-icon">⚡</div><div class="feature-name">Lightning Fast</div><div class="feature-desc">Execute code instantly</div></div>
+        <div class="feature-item"><div class="feature-icon">🤖</div><div class="feature-name">QueryNest AI</div><div class="feature-desc">Smart answers</div></div>
+        <div class="feature-item"><div class="feature-icon">🎨</div><div class="feature-name">Beautiful UI</div><div class="feature-desc">Modern interface</div></div>
+        <div class="feature-item"><div class="feature-icon">🔒</div><div class="feature-name">Secure</div><div class="feature-desc">Data protection</div></div>
+        <div class="feature-item"><div class="feature-icon">📱</div><div class="feature-name">Responsive</div><div class="feature-desc">Works everywhere</div></div>
+        <div class="feature-item"><div class="feature-icon">📚</div><div class="feature-name">Learn</div><div class="feature-desc">Educational</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/voice-input.js"></script>
+<script>
+/* ════════════════════════════════════
+   QueryNest — AI Chatbot
+   Uses Flask backend /api/gemini-chat
+   Powered by QueryNest AI
+════════════════════════════════════ */
+
+var curLang = '';  // '' = All languages
+var chatHistory = [];  // conversation history for multi-turn AI
+
+// ── HTML helpers ───────────────────────────────────────────────
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt(text){
+  text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, function(_,l,c){ return '<pre>'+esc(c.trim())+'</pre>'; });
+  text = text.replace(/`([^`\n]+)`/g,'<code>$1</code>');
+  text = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  text = text.replace(/\*(.*?)\*/g,'<em>$1</em>');
+  text = text.replace(/\n/g,'<br>');
+  return text;
+}
+function addMsg(role, html){
+  var box=document.getElementById('chatBox');
+  var d=document.createElement('div'); d.className='msg '+role;
+  d.innerHTML='<div class="bubble">'+html+'</div>';
+  box.appendChild(d); box.scrollTop=box.scrollHeight;
+  return d;
+}
+function showTyping(){
+  var box=document.getElementById('chatBox');
+  var d=document.createElement('div'); d.className='msg bot'; d.id='td';
+  d.innerHTML='<div class="bubble t-bub"><span></span><span></span><span></span></div>';
+  box.appendChild(d); box.scrollTop=box.scrollHeight;
+}
+function removeTyping(){ var e=document.getElementById('td'); if(e)e.remove(); }
+
+// ── Language ───────────────────────────────────────────────────
+function setLang(lang,el){
+  curLang = (lang === 'all' || !lang) ? '' : lang;
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});
+  if(el)el.classList.add('on');
+}
+function switchTab(el,lang){
+  curLang = (lang === 'all' || !lang) ? '' : lang;
+  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.classList.remove('on');
+    if(c.getAttribute('data-l')===lang)c.classList.add('on');
+  });
+  showSavedPrograms(lang);
+}
+
+function showSavedPrograms(lang) {
+  // Saved panel hidden — not shown to users
+  var panel = document.getElementById('savedPanel');
+  if (panel) panel.style.display = 'none';
+}
+
+function loadSaved(title) {
+  var input = document.getElementById('searchInput');
+  if (input) {
+    input.value = title;
+    doSearch();
+  }
+}
+function pickLang(lang){
+  curLang = (lang === 'all' || !lang) ? '' : lang;
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.classList.remove('on');
+    if(c.getAttribute('data-l')===lang)c.classList.add('on');
+  });
+  document.getElementById('chatBox').scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(function(){document.getElementById('chatInput').focus();},400);
+}
+
+// ── AI CALL (via Flask backend) ───────────────────────
+function callClaudeAI(message, lang) {
+  var langName = (lang || 'python').toUpperCase();
+
+  var systemPrompt =
+    'You are QueryNest AI — a smart, friendly programming assistant like ChatGPT.\n' +
+    'Current language focus: ' + langName + '.\n' +
+    'BEHAVIOR:\n' +
+    '1. Write code ONLY in ' + langName + ' unless user asks for another language\n' +
+    '2. Give COMPLETE, WORKING code — no placeholders or "..." shortcuts\n' +
+    '3. Add short inline comments on important lines\n' +
+    '4. Wrap ALL code in triple backticks with language label\n' +
+    '5. After code, show expected output as a comment block\n' +
+    '6. Respond in Hinglish — friendly and conversational tone\n' +
+    '7. Explain HOW the code works in 2-3 sentences\n' +
+    '8. NEVER refuse programming questions — always give a complete answer\n' +
+    '9. For complex problems, break down logic before writing code';
+
+  // Build history for context (do NOT push yet — push after we get reply)
+  var msgs = chatHistory.slice(-10).concat([{ role: 'user', content: message }]);
+
+  return fetch('/api/gemini-chat', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    credentials: 'include',
+    body: JSON.stringify({
+      message: message,
+      lang: lang || 'python',
+      system: systemPrompt,
+      messages: msgs
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    // Extract reply — check all possible response fields
+    var reply = '';
+    if (d.reply) reply = d.reply;
+    else if (d.content && Array.isArray(d.content) && d.content.length > 0) {
+      var textBlock = d.content.find(function(b) { return b.type === 'text'; });
+      if (textBlock) reply = textBlock.text;
+    }
+    if (!reply) reply = d.message || '⚠️ Koi response nahi aaya. Dobara try karo.';
+    // Now push both sides into history
+    chatHistory.push({ role: 'user', content: message });
+    chatHistory.push({ role: 'assistant', content: reply });
+    return reply;
+  })
+  .catch(function(err) {
+    return '⚠️ Network error: ' + String(err) + '\n\nPage refresh karo ya dobara try karo.';
+  });
+}
+
+// ── SEND CHAT ──────────────────────────────────────────────────
+function sendChat(){
+  var input = document.getElementById('chatInput');
+  var btn   = document.getElementById('sendBtn');
+  var msg   = input.value.trim();
+  if(!msg) return;
+
+  addMsg('user', esc(msg));
+  input.value = '';
+  btn.disabled = true;
+  showTyping();
+
+  callClaudeAI(msg, curLang || 'python')
+  .then(function(reply) {
+    removeTyping();
+    addMsg('bot', fmt(reply));
+  })
+  .catch(function(err) {
+    removeTyping();
+    addMsg('bot',
+      '⚠️ <strong>Error:</strong> ' + esc(String(err)) + '<br><br>' +
+      'Page refresh karo ya dobara try karo.'
+    );
+  })
+  .finally(function(){
+    btn.disabled = false;
+    document.getElementById('chatInput').focus();
+  });
+}
+
+// ── Wire buttons ───────────────────────────────────────────────
+document.getElementById('sendBtn').onclick = sendChat;
+document.getElementById('chatInput').addEventListener('keydown', function(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}
+});
+
+// ── Voice input (via voice-input.js module) ───────────────────
+// Uses QNVoice module from /static/js/voice-input.js
+document.addEventListener('DOMContentLoaded', function() {
+  // Voice for Chat
+  QNVoice.init('micBtn', 'chatInput', {
+    onResult: function(translatedText, rawText) {
+      // If was Hindi, show what was understood
+      if (QNVoice.isDevanagari(rawText) && translatedText !== rawText) {
+        addMsg('bot', '🎤 Suna: <em>' + esc(rawText) + '</em> → <strong>' + esc(translatedText) + '</strong>');
+      }
+      // Auto-send after voice input
+      setTimeout(function() { sendChat(); }, 300);
+    },
+    onError: function(err) {
+      addMsg('bot', '⚠️ Mic error: ' + err + '. Browser mein microphone allow karo.');
+    }
+  });
+
+  // Voice for Search bar
+  if (document.getElementById('searchMicBtn')) {
+    QNVoice.init('searchMicBtn', 'searchInput', {
+      onResult: function(translatedText) {
+        setTimeout(function() { doSearch(); }, 300);
+      }
+    });
+  }
+});
+
+// ── Search ─────────────────────────────────────────────────────
+var _lastSearchQuery = '';
+
+function doSearch(useAI){
+  var raw = document.getElementById('searchInput').value.trim();
+  var q = (typeof QNVoice !== 'undefined' && QNVoice.isDevanagari && QNVoice.isDevanagari(raw))
+        ? QNVoice.translateToEnglish(raw) : raw;
+  if (!q) return;
+  _lastSearchQuery = q;
+  var forceAI = useAI === true;
+
+  var srPanel   = document.getElementById('srPanel');
+  var srTitle   = document.getElementById('srTitle');
+  var srContent = document.getElementById('srContent');
+  var srIcon    = document.getElementById('srIcon');
+  var srBadge   = document.getElementById('srSourceBadge');
+  var srFooter  = document.getElementById('srFooter');
+
+  // Show panel with loading state
+  srIcon.textContent    = forceAI ? '🤖' : '🔍';
+  srTitle.textContent   = forceAI ? 'AI soch raha hai...' : 'Searching database...';
+  srBadge.textContent   = forceAI ? 'AI' : 'Searching...';
+  srFooter.style.display = 'none';
+  srContent.innerHTML   = '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;">'
+    + '<div class="t-bub" style="display:inline-flex;gap:5px;"><span style="width:8px;height:8px;background:#a78bfa;border-radius:50%;animation:blink 1.2s ease-in-out infinite;display:inline-block;"></span>'
+    + '<span style="width:8px;height:8px;background:#a78bfa;border-radius:50%;animation:blink 1.2s ease-in-out .2s infinite;display:inline-block;"></span>'
+    + '<span style="width:8px;height:8px;background:#a78bfa;border-radius:50%;animation:blink 1.2s ease-in-out .4s infinite;display:inline-block;"></span></div>'
+    + '<span style="color:rgba(200,180,255,0.5);font-size:13px;">' + (forceAI ? 'AI generating answer...' : 'Looking through database...') + '</span></div>';
+  srPanel.style.display = 'block';
+  srPanel.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+  fetch('/api/search', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    credentials: 'include',
+    body: JSON.stringify({query: q, lang: curLang||'', use_ai: forceAI})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    // If not found in DB, auto-retry with AI
+    if (!forceAI && (d.source==='not_found' || !d.success || (d.result && !d.result.content))) {
+      srIcon.textContent  = '🤖';
+      srTitle.textContent = 'AI se poochh raha hoon...';
+      srBadge.textContent = 'AI';
+      srContent.innerHTML = '<div style="color:rgba(200,180,255,0.5);font-size:13px;padding:8px 0;">Database mein nahi mila — AI se puchh raha hoon... ✨</div>';
+      doSearch(true);
+      return;
+    }
+
+    // Source badge
+    var sourceLabel = {
+      'database':   '📊 Database',
+      'local_json': '📁 Library',
+      'builtin':    '⚡ Built-in',
+      'ai':         '🤖 AI Generated',
+      'claude_ai':  '🤖 Claude AI'
+    }[d.source] || (forceAI ? '🤖 AI' : '📖 Found');
+
+    srBadge.textContent   = sourceLabel;
+    srIcon.textContent    = forceAI ? '🤖' : '✅';
+
+    if (d.result && d.result.content) {
+      srTitle.textContent = d.result.title || q;
+      srContent.innerHTML = fmt(d.result.content);
+      srFooter.style.display = 'flex';
+    } else if (d.success === false && d.message) {
+      srIcon.textContent  = '❌';
+      srTitle.textContent = 'Result nahi mila';
+      srBadge.textContent = '';
+      srContent.innerHTML = '<div style="color:rgba(220,200,255,0.75);font-size:14px;padding:4px 0;">'
+        + fmt(d.message)
+        + '</div><div style="margin-top:14px;">'
+        + '<button onclick="askAIFromSearch()" style="background:linear-gradient(135deg,#6b4ce3,#a855f7);border:none;color:#fff;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;">🤖 AI se puchho</button></div>';
+    } else {
+      srTitle.textContent = q;
+      srContent.innerHTML = '<div style="color:rgba(220,200,255,0.7);font-size:14px;">Koi result nahi mila.</div>';
+      srFooter.style.display = 'flex';
+    }
+  })
+  .catch(function(err){
+    srIcon.textContent  = '⚠️';
+    srTitle.textContent = 'Error';
+    srContent.innerHTML = '<div style="color:#f87171;font-size:13px;">Connection error: ' + String(err) + '</div>';
+  });
+}
+
+function askAIFromSearch() {
+  if (!_lastSearchQuery) return;
+  // Put query in AI chat and trigger AI
+  var input = document.getElementById('chatInput') || document.getElementById('searchInput');
+  var chatInput = document.getElementById('chatInput');
+  if (chatInput) {
+    chatInput.value = _lastSearchQuery;
+    document.getElementById('srPanel').style.display = 'none';
+    chatInput.scrollIntoView({behavior:'smooth'});
+    // Trigger send if sendMsg exists
+    if (typeof sendMsg === 'function') { setTimeout(sendMsg, 100); }
+  } else {
+    doSearch(true);
+  }
+}
+
+function copySrCode() {
+  var content = document.getElementById('srContent');
+  var pre = content ? content.querySelector('pre') : null;
+  var text = pre ? pre.textContent : (content ? content.innerText : '');
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(function(){
+    var btn = event.target;
+    var orig = btn.innerHTML;
+    btn.innerHTML = '✅ Copied!';
+    btn.style.color = '#22c55e';
+    setTimeout(function(){ btn.innerHTML = orig; btn.style.color = ''; }, 1800);
+  }).catch(function(){ /* fallback silent */ });
+}
+
+document.getElementById('searchInput').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
+
+// ── Load username ──────────────────────────────────────────────
+fetch('/api/me',{credentials:'include'})
+  .then(function(r){return r.json();})
+  .then(function(d){if(d.success&&d.user){var e=document.getElementById('nav-user');if(e)e.textContent=d.user.name;}})
+  .catch(function(){});
+
+// ── Stub functions (no longer needed, kept for safety) ────────
+function checkKeyBanner() { /* no-op — key banner removed */ }
+function getKey() { return true; /* AI always available via backend */ }
+function saveKey(k) { /* no-op */ }
+
+
+// ── On load ────────────────────────────────────────────────────
+window.onload = function() {
+  checkKeyBanner();
+  // Update welcome bubble
+  var box = document.getElementById('chatBox');
+  var msg = box ? box.querySelector('.bubble') : null;
+  if (msg) {
+    msg.innerHTML = '👋 Hi! Main <strong>QueryNest AI</strong> hoon!<br>'
+      + 'Kuch bhi poochho — SQL, Python, MongoDB, Java, C, C++ 🚀<br>'
+      + '<small style="color:rgba(200,180,255,0.4);font-size:11px;">⚡ QueryNest AI — Ready!</small>';
+  }
+};
+</script>
+</body>
+</html>

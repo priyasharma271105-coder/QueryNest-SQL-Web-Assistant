@@ -1,0 +1,428 @@
+[
+  {
+    "title": "Java Hello World and Basics",
+    "language": "java",
+    "tags": [
+      "hello world",
+      "basic",
+      "print",
+      "java",
+      "beginner"
+    ],
+    "content": "public class HelloWorld {                              // class define karo\n    public static void main(String[] args) {   // entry point — JVM starts here\n        // ── Print statements ──────────────────────────────────\n        System.out.println(\"Hello, World!\");     // println = print + newline\n        System.out.println(\"Welcome to QueryNest!\");   // output print karo\n\n        // ── Variable declaration (must specify type in Java) ──\n        int     age    = 20;     // integer — whole numbers only\n        double  marks  = 92.5;   // double — decimal numbers (64-bit precision)\n        float   pi     = 3.14f;  // float — decimal (32-bit, needs 'f' suffix)\n        String  name   = \"Alice\"; // String — text (capital S, it's an object)\n        boolean active = true;    // boolean — only true or false\n        char    grade  = 'A';     // char — single character in single quotes\n\n        // ── Formatted output ─────────────────────────────────\n        System.out.println(\"Name: \" + name);    // string concatenation with +\n        System.out.printf(\"Marks: %.2f%n\", marks); // printf: %.2f = 2 decimal places, %n = newline\n\n        // ── Type casting ──────────────────────────────────────\n        int x = (int) marks;     // double → int (truncates decimal, cast needed)\n        double y = age;          // int → double (automatic, no cast needed)\n        System.out.println(\"Cast: \" + x + \", Auto: \" + y); // output print karo\n    }\n}"
+  },
+  {
+    "title": "Java If Else and Switch",
+    "language": "java",
+    "tags": [
+      "if",
+      "else",
+      "switch",
+      "conditions",
+      "java"
+    ],
+    "content": "public class Conditions {                              // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        int marks = 85;   // value to evaluate\n\n        // ── if-else chain ─────────────────────────────────────\n        if      (marks >= 90) System.out.println(\"Grade: A\");  // 90 and above\n        else if (marks >= 80) System.out.println(\"Grade: B\");  // 80-89\n        else if (marks >= 70) System.out.println(\"Grade: C\");  // 70-79\n        else if (marks >= 60) System.out.println(\"Grade: D\");  // 60-69 (passing)\n        else                  System.out.println(\"Grade: F\");  // below 60 (fail)\n\n        // ── Ternary operator: condition ? valueIfTrue : valueIfFalse ──\n        String result = marks >= 60 ? \"Pass\" : \"Fail\";  // one-line if-else\n        System.out.println(\"Result: \" + result);          // Pass\n\n        // ── switch statement ──────────────────────────────────\n        int day = 3;                                   // integer variable\n        switch (day) {\n            case 1:  System.out.println(\"Monday\");    break;  // break prevents fall-through\n            case 2:  System.out.println(\"Tuesday\");   break; // output print karo\n            case 3:  System.out.println(\"Wednesday\"); break;  // matches!\n            case 6:                                           // fall-through: 6 and 7\n            case 7:  System.out.println(\"Weekend!\"); break; // output print karo\n            default: System.out.println(\"Other\");            // no case matched\n        }\n\n        // ── Logical operators ─────────────────────────────────\n        int age = 20;                                  // integer variable\n        if (age >= 18 && age <= 60) System.out.println(\"Working age\");  // && = AND\n        if (marks > 90 || age < 18) System.out.println(\"Special\");      // || = OR\n        if (!(marks < 60)) System.out.println(\"Not failing\");            // ! = NOT\n    }\n}"
+  },
+  {
+    "title": "Java For While Loop",
+    "language": "java",
+    "tags": [
+      "for",
+      "while",
+      "do while",
+      "loop",
+      "java"
+    ],
+    "content": "public class Loops {                                   // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        // for loop\n        for (int i = 1; i <= 5; i++)                   // integer variable\n            System.out.print(i + \" \");  // 1 2 3 4 5\n        System.out.println();                          // output print karo\n\n        // while loop\n        int n = 10;                                    // integer variable\n        while (n > 0) {                                // jab tak condition True ho\n            System.out.print(n + \" \");                 // output print karo\n            n -= 2;\n        }\n        System.out.println();                          // output print karo\n\n        // do-while (runs at least once)\n        int x = 1;                                     // integer variable\n        do {\n            System.out.print(x + \" \");                 // output print karo\n            x++;\n        } while (x <= 5);                              // jab tak condition True ho\n        System.out.println();                          // output print karo\n\n        // enhanced for (for-each)\n        int[] arr = {10, 20, 30, 40, 50};\n        for (int val : arr)                            // loop — repeat karo\n            System.out.print(val + \" \");               // output print karo\n        System.out.println();                          // output print karo\n\n        // break and continue\n        for (int i = 1; i <= 10; i++) {                // integer variable\n            if (i % 2 == 0) continue;  // skip even\n            if (i > 7)      break;     // stop after 7\n            System.out.print(i + \" \"); // 1 3 5 7\n        }\n    }\n}"
+  },
+  {
+    "title": "Java Arrays",
+    "language": "java",
+    "tags": [
+      "array",
+      "arrays",
+      "sort",
+      "search",
+      "java"
+    ],
+    "content": "import java.util.Arrays;\n\npublic class ArrayDemo {                               // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        // 1D array\n        int[] marks = {92, 78, 85, 91, 74};\n        System.out.println(\"Length: \" + marks.length); // output print karo\n        System.out.println(\"First:  \" + marks[0]);     // output print karo\n        System.out.println(\"Last:   \" + marks[marks.length - 1]); // output print karo\n\n        // Sum and average\n        int sum = 0;                                   // integer variable\n        for (int m : marks) sum += m;                  // loop — repeat karo\n        System.out.printf(\"Sum: %d, Avg: %.1f%n\", sum, (double)sum/marks.length); // output print karo\n\n        // Sort\n        Arrays.sort(marks);                            // array sort karo\n        System.out.println(\"Sorted: \" + Arrays.toString(marks)); // output print karo\n\n        // Binary search (after sorting)\n        int idx = Arrays.binarySearch(marks, 85);      // integer variable\n        System.out.println(\"Index of 85: \" + idx);     // output print karo\n\n        // 2D array\n        int[][] matrix = {\n            {1, 2, 3},\n            {4, 5, 6},\n            {7, 8, 9}\n        };\n        for (int[] row : matrix) {                     // loop — repeat karo\n            for (int val : row)                        // loop — repeat karo\n                System.out.printf(\"%3d\", val);         // output print karo\n            System.out.println();                      // output print karo\n        }\n\n        // Copy array\n        int[] copy = Arrays.copyOf(marks, marks.length);\n        int[] partial = Arrays.copyOfRange(marks, 1, 4);\n        System.out.println(\"Copy: \"    + Arrays.toString(copy)); // output print karo\n        System.out.println(\"Partial: \" + Arrays.toString(partial)); // output print karo\n    }\n}"
+  },
+  {
+    "title": "Java String Methods",
+    "language": "java",
+    "tags": [
+      "string",
+      "methods",
+      "substring",
+      "split",
+      "java"
+    ],
+    "content": "public class StringMethods {                           // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        String s = \"Hello, QueryNest!\";                // String variable\n\n        System.out.println(s.length());             // 17\n        System.out.println(s.toUpperCase());        // HELLO, QUERYNEST!\n        System.out.println(s.toLowerCase());        // hello, querynest!\n        System.out.println(s.replace(\"Hello\",\"Hi\")); // Hi, QueryNest!\n        System.out.println(s.contains(\"Query\"));    // true\n        System.out.println(s.startsWith(\"Hello\"));  // true\n        System.out.println(s.endsWith(\"!\"));         // true\n        System.out.println(s.indexOf(\"Q\"));          // 7\n        System.out.println(s.substring(7));          // QueryNest!\n        System.out.println(s.substring(7, 12));      // Query\n        System.out.println(s.trim());                // no leading/trailing spaces\n        System.out.println(s.charAt(0));             // H\n\n        // Split\n        String csv = \"Alice,20,Mumbai,92.5\";           // String variable\n        String[] parts = csv.split(\",\");\n        for (String p : parts) System.out.println(p);  // output print karo\n\n        // StringBuilder (efficient)\n        StringBuilder sb = new StringBuilder();        // object banao\n        for (int i = 1; i <= 5; i++) sb.append(i).append(\" \"); // integer variable\n        System.out.println(sb.toString().trim()); // 1 2 3 4 5\n\n        // Compare\n        String a = \"hello\", b = \"HELLO\";               // String variable\n        System.out.println(a.equals(b));           // false\n        System.out.println(a.equalsIgnoreCase(b)); // true\n        System.out.println(a.compareTo(\"world\")); // negative\n    }\n}"
+  },
+  {
+    "title": "Java ArrayList and Collections",
+    "language": "java",
+    "tags": [
+      "arraylist",
+      "list",
+      "collections",
+      "iterator",
+      "java"
+    ],
+    "content": "import java.util.*;\n\npublic class ListDemo {                                // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        // ArrayList\n        ArrayList<String> students = new ArrayList<>(); // object banao\n        students.add(\"Alice\");                         // list mein add karo\n        students.add(\"Bob\");                           // list mein add karo\n        students.add(\"Charlie\");                       // list mein add karo\n        students.add(1, \"Dave\");    // insert at index 1\n\n        System.out.println(students);           // [Alice, Dave, Bob, Charlie]\n        System.out.println(students.get(0));    // Alice\n        System.out.println(students.size());    // 4\n        System.out.println(students.contains(\"Bob\")); // true\n        System.out.println(students.indexOf(\"Bob\"));  // 2\n\n        students.remove(\"Bob\");                 // remove by value\n        students.remove(0);                    // remove by index\n        students.set(0, \"David\");              // update\n\n        Collections.sort(students);            // sort alphabetically\n        Collections.reverse(students);         // reverse\n        Collections.shuffle(students);         // shuffle\n\n        // Iterate\n        for (String s : students) System.out.print(s + \" \"); // output print karo\n        System.out.println();                          // output print karo\n\n        // LinkedList\n        LinkedList<Integer> ll = new LinkedList<>();   // object banao\n        ll.addFirst(10); ll.addLast(20); ll.add(30);   // list mein add karo\n        System.out.println(\"First: \" + ll.getFirst()); // output print karo\n        System.out.println(\"Last:  \" + ll.getLast());  // output print karo\n        ll.removeFirst(); ll.removeLast();\n    }\n}"
+  },
+  {
+    "title": "Java HashMap",
+    "language": "java",
+    "tags": [
+      "hashmap",
+      "map",
+      "treemap",
+      "key value",
+      "java"
+    ],
+    "content": "import java.util.*;\n\npublic class MapDemo {                                 // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        // HashMap — unordered\n        HashMap<String, Integer> marks = new HashMap<>(); // object banao\n        marks.put(\"Alice\",   92);                      // map mein daalo\n        marks.put(\"Bob\",     78);                      // map mein daalo\n        marks.put(\"Charlie\", 85);                      // map mein daalo\n\n        System.out.println(marks.get(\"Alice\"));         // 92\n        System.out.println(marks.getOrDefault(\"Eve\", 0)); // 0\n        System.out.println(marks.containsKey(\"Bob\"));   // true\n        System.out.println(marks.containsValue(85));    // true\n        System.out.println(marks.size());               // 3\n\n        marks.put(\"Alice\", 97);       // update\n        marks.remove(\"Bob\");           // delete\n        marks.putIfAbsent(\"Diana\", 88); // add only if absent\n\n        // Iterate\n        for (Map.Entry<String,Integer> e : marks.entrySet()) // loop — repeat karo\n            System.out.println(e.getKey() + \" -> \" + e.getValue()); // output print karo\n\n        System.out.println(\"Keys:   \" + marks.keySet()); // output print karo\n        System.out.println(\"Values: \" + marks.values()); // output print karo\n\n        // TreeMap — sorted by key\n        TreeMap<String,Integer> tm = new TreeMap<>(marks); // object banao\n        System.out.println(\"First: \" + tm.firstKey()); // output print karo\n        System.out.println(\"Last:  \" + tm.lastKey());  // output print karo\n\n        // Frequency map (count occurrences)\n        String[] words = {\"apple\",\"banana\",\"apple\",\"cherry\",\"banana\",\"apple\"};\n        HashMap<String,Integer> freq = new HashMap<>(); // object banao\n        for (String w : words)                         // loop — repeat karo\n            freq.put(w, freq.getOrDefault(w, 0) + 1);  // map mein daalo\n        System.out.println(\"Frequency: \" + freq);      // output print karo\n    }\n}"
+  },
+  {
+    "title": "Java OOP Classes and Objects",
+    "language": "java",
+    "tags": [
+      "class",
+      "object",
+      "oop",
+      "constructor",
+      "this",
+      "java"
+    ],
+    "content": "public class Student {                                 // class define karo\n    // Instance variables\n    private String name;\n    private int    age;\n    private double marks;\n    private static int count = 0;  // class variable\n\n    // Constructor\n    public Student(String name, int age, double marks) {\n        this.name  = name;                             // current object ka member\n        this.age   = age;                              // current object ka member\n        this.marks = marks;                            // current object ka member\n        count++;\n    }\n\n    // Overloaded constructor\n    public Student(String name) {\n        this(name, 0, 0.0);\n    }\n\n    // Getters and Setters\n    public String getName()  { return name; }          // value return karo\n    public double getMarks() { return marks; }         // value return karo\n    public void   setMarks(double m) {\n        if (m >= 0 && m <= 100) this.marks = m;        // condition check karo\n    }\n\n    // Method\n    public String getGrade() {\n        if (marks >= 90) return \"A\";                   // condition check karo\n        if (marks >= 75) return \"B\";                   // condition check karo\n        if (marks >= 60) return \"C\";                   // condition check karo\n        return \"F\";                                    // value return karo\n    }\n\n    public static int getCount() { return count; }     // value return karo\n\n    @Override                                          // parent method replace kar rahe hain\n    public String toString() {\n        return String.format(\"Student{name='%s', marks=%.1f, grade='%s'}\", // value return karo\n                             name, marks, getGrade());\n    }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        Student s1 = new Student(\"Alice\", 20, 92.5);   // object banao\n        Student s2 = new Student(\"Bob\",   21, 78.0);   // object banao\n        Student s3 = new Student(\"Charlie\");           // object banao\n\n        System.out.println(s1);                        // output print karo\n        System.out.println(s2.getGrade());             // output print karo\n        System.out.println(\"Total students: \" + Student.getCount()); // output print karo\n\n        s3.setMarks(85);\n        System.out.println(s3.getName() + \": \" + s3.getGrade()); // output print karo\n    }\n}"
+  },
+  {
+    "title": "Java Inheritance and Polymorphism",
+    "language": "java",
+    "tags": [
+      "inheritance",
+      "extends",
+      "super",
+      "override",
+      "polymorphism",
+      "java"
+    ],
+    "content": "// Base class\nclass Animal {\n    protected String name;\n    protected String sound;\n\n    public Animal(String name, String sound) {\n        this.name  = name;                             // current object ka member\n        this.sound = sound;                            // current object ka member\n    }\n\n    public void speak() {\n        System.out.println(name + \" says: \" + sound);  // output print karo\n    }\n\n    public String describe() {\n        return \"I am \" + name;                         // value return karo\n    }\n}\n\n// Subclasses\nclass Dog extends Animal {                             // parent class se inherit karo\n    private String breed;\n\n    public Dog(String name, String breed) {\n        super(name, \"Woof\");                           // parent constructor call karo\n        this.breed = breed;                            // current object ka member\n    }\n\n    @Override                                          // parent method replace kar rahe hain\n    public void speak() {\n        super.speak();\n        System.out.println(\"(\" + breed + \" breed)\");   // output print karo\n    }\n\n    public void fetch() { System.out.println(name + \" fetches the ball!\"); } // output print karo\n}\n\nclass Cat extends Animal {                             // parent class se inherit karo\n    public Cat(String name) { super(name, \"Meow\"); }   // parent constructor call karo\n\n    @Override                                          // parent method replace kar rahe hain\n    public String describe() {\n        return super.describe() + \" and I am independent\"; // value return karo\n    }\n}\n\npublic class InheritanceDemo {                         // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        Animal[] animals = {new Dog(\"Rex\",\"Labrador\"), new Cat(\"Whiskers\"), new Dog(\"Buddy\",\"Poodle\")}; // object banao\n\n        for (Animal a : animals) {                     // loop — repeat karo\n            a.speak();           // polymorphism\n            System.out.println(a.describe());          // output print karo\n            if (a instanceof Dog d) d.fetch(); // pattern matching (Java 16+)\n            System.out.println();                      // output print karo\n        }\n    }\n}"
+  },
+  {
+    "title": "Java Interface and Abstract Class",
+    "language": "java",
+    "tags": [
+      "interface",
+      "abstract",
+      "implements",
+      "java",
+      "oop"
+    ],
+    "content": "// Interface\ninterface Drawable {                                   // contract define karo\n    void draw();                            // abstract\n    default void describe() {               // default method\n        System.out.println(\"I am a shape\");            // output print karo\n    }\n    static Drawable create() { return () -> System.out.println(\"Shape\"); } // static\n}\n\ninterface Resizable {                                  // contract define karo\n    void resize(double factor);\n}\n\n// Abstract class\nabstract class Shape {                                 // must be implemented in subclass\n    protected String color;\n    public Shape(String color) { this.color = color; } // current object ka member\n    public abstract double area();          // must override\n    public void showColor() {\n        System.out.println(\"Color: \" + color);         // output print karo\n    }\n}\n\n// Concrete class\nclass Circle extends Shape implements Drawable, Resizable { // interface follow karo\n    private double radius;\n\n    public Circle(double r, String color) {\n        super(color);                                  // parent constructor call karo\n        this.radius = r;                               // current object ka member\n    }\n\n    @Override public void   draw()            { System.out.printf(\"Circle r=%.1f%n\", radius); } // output print karo\n    @Override public double area()            { return Math.PI * radius * radius; } // value return karo\n    @Override public void   resize(double f)  { radius *= f; } // parent method replace kar rahe hain\n}\n\nclass Rectangle extends Shape implements Drawable {    // interface follow karo\n    private double w, h;\n    public Rectangle(double w, double h, String c) { super(c); this.w=w; this.h=h; } // parent constructor call karo\n    @Override public void   draw() { System.out.printf(\"Rect %sx%s%n\",w,h); } // output print karo\n    @Override public double area() { return w * h; }   // value return karo\n}\n\npublic class InterfaceDemo {                           // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        Shape[] shapes = { new Circle(5, \"red\"), new Rectangle(4,6,\"blue\") }; // object banao\n        for (Shape s : shapes) {                       // loop — repeat karo\n            ((Drawable) s).draw();\n            System.out.printf(\"Area: %.2f%n\", s.area()); // output print karo\n            s.showColor();\n            System.out.println();                      // output print karo\n        }\n    }\n}"
+  },
+  {
+    "title": "Java Exception Handling",
+    "language": "java",
+    "tags": [
+      "exception",
+      "try",
+      "catch",
+      "finally",
+      "throw",
+      "java"
+    ],
+    "content": "// Custom exception\nclass MarksException extends Exception {               // parent class se inherit karo\n    private int marks;\n    public MarksException(int m) {\n        super(\"Invalid marks: \" + m + \". Must be 0-100\"); // parent constructor call karo\n        this.marks = m;                                // current object ka member\n    }\n    public int getMarks() { return marks; }            // value return karo\n}\n\npublic class ExceptionDemo {                           // class define karo\n    static void validateMarks(int m) throws MarksException { // exception throw ho sakti hai\n        if (m < 0 || m > 100) throw new MarksException(m); // condition check karo\n    }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        // Multiple exceptions\n        try {                                          // error pakadne ki koshish karo\n            int[] arr = {1, 2, 3};\n            System.out.println(arr[5]);       // ArrayIndexOutOfBoundsException\n        } catch (ArrayIndexOutOfBoundsException e) {   // error handle karo\n            System.out.println(\"Array error: \" + e.getMessage()); // output print karo\n        } finally {                                    // hamesha chalega\n            System.out.println(\"Finally always runs\"); // output print karo\n        }\n\n        // Custom exception\n        try { validateMarks(110); }                    // error pakadne ki koshish karo\n        catch (MarksException e) {                     // error handle karo\n            System.out.println(e.getMessage());        // output print karo\n            System.out.println(\"Bad value: \" + e.getMarks()); // output print karo\n        }\n\n        // Multi-catch (Java 7+)\n        try {                                          // error pakadne ki koshish karo\n            String s = null;                           // String variable\n            s.length();  // NullPointerException\n        } catch (NullPointerException | IllegalArgumentException e) { // error handle karo\n            System.out.println(\"Caught: \" + e.getClass().getSimpleName()); // output print karo\n        }\n\n        // Try-with-resources\n        try (java.io.StringReader sr = new java.io.StringReader(\"test\")) { // object banao\n            System.out.println((char) sr.read());  // t\n        } catch (Exception e) { e.printStackTrace(); } // error handle karo\n    }\n}"
+  },
+  {
+    "title": "Java Prime Number",
+    "language": "java",
+    "tags": [
+      "prime",
+      "number",
+      "algorithm",
+      "java"
+    ],
+    "content": "public class PrimeNumber {                             // class define karo\n    // Returns true if n is prime, false otherwise\n    static boolean isPrime(int n) {                    // class level — object ki zaroorat nahi\n        if (n < 2)      return false;     // numbers less than 2 are not prime\n        if (n == 2)     return true;      // 2 is the only even prime\n        if (n % 2 == 0) return false;     // all other even numbers are not prime\n        for (int i = 3; i <= Math.sqrt(n); i += 2)  // check odd divisors up to √n\n            if (n % i == 0) return false;            // found a divisor — not prime\n        return true;                      // no divisors found — it IS prime\n    }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        // ── Check specific numbers ─────────────────────────────\n        int[] tests = {2, 3, 4, 17, 25, 37, 100, 97};\n        for (int n : tests)                            // loop — repeat karo\n            System.out.printf(\"%3d: %s%n\", n, isPrime(n) ? \"Prime ✓\" : \"Not prime ✗\"); // output print karo\n\n        // ── Print all primes from 1 to 50 ─────────────────────\n        System.out.print(\"\\nPrimes (2-50): \");         // output print karo\n        for (int i = 2; i <= 50; i++)                  // integer variable\n            if (isPrime(i)) System.out.print(i + \" \");  // only print primes\n        System.out.println();                          // output print karo\n\n        // ── Count primes up to 1000 ───────────────────────────\n        long count = 0;\n        for (int i = 2; i <= 1000; i++) if (isPrime(i)) count++; // integer variable\n        System.out.println(\"Primes up to 1000: \" + count);  // 168\n    }\n}"
+  },
+  {
+    "title": "Java Fibonacci",
+    "language": "java",
+    "tags": [
+      "fibonacci",
+      "series",
+      "recursion",
+      "java"
+    ],
+    "content": "public class Fibonacci {                               // class define karo\n    // Iterative\n    static long fibIter(int n) {                       // class level — object ki zaroorat nahi\n        if (n <= 1) return n;                          // condition check karo\n        long a = 0, b = 1;\n        for (int i = 2; i <= n; i++) {                 // integer variable\n            long tmp = a + b; a = b; b = tmp;\n        }\n        return b;                                      // value return karo\n    }\n\n    // Recursive (slow for large n)\n    static long fibRec(int n) {                        // class level — object ki zaroorat nahi\n        if (n <= 1) return n;                          // condition check karo\n        return fibRec(n-1) + fibRec(n-2);              // value return karo\n    }\n\n    // Memoized\n    static long[] memo = new long[100];                // object banao\n    static long fibMemo(int n) {                       // class level — object ki zaroorat nahi\n        if (n <= 1) return n;                          // condition check karo\n        if (memo[n] != 0) return memo[n];              // condition check karo\n        return memo[n] = fibMemo(n-1) + fibMemo(n-2);  // value return karo\n    }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        System.out.print(\"Series: \");                  // output print karo\n        for (int i = 0; i < 10; i++)                   // integer variable\n            System.out.print(fibIter(i) + \" \");  // 0 1 1 2 3 5 8 13 21 34\n        System.out.println();                          // output print karo\n\n        System.out.println(\"fib(10) = \" + fibIter(10));   // 55\n        System.out.println(\"fib(40) = \" + fibMemo(40));   // 102334155\n    }\n}"
+  },
+  {
+    "title": "Java Bubble Sort",
+    "language": "java",
+    "tags": [
+      "bubble sort",
+      "selection sort",
+      "insertion sort",
+      "sorting",
+      "java"
+    ],
+    "content": "import java.util.Arrays;   // for Arrays.toString() and Arrays.sort()\n\npublic class Sorting {                                 // class define karo\n    // ── Bubble Sort: compare adjacent elements, swap if wrong order ──\n    static void bubbleSort(int[] arr) {                // class level — object ki zaroorat nahi\n        int n = arr.length;                            // integer variable\n        for (int i = 0; i < n-1; i++) {         // n-1 passes needed\n            for (int j = 0; j < n-i-1; j++) {   // last i elements already sorted\n                if (arr[j] > arr[j+1]) {          // if left > right (wrong order)\n                    int t = arr[j];               // temp variable to hold value during swap\n                    arr[j]   = arr[j+1];          // move smaller to left\n                    arr[j+1] = t;                 // move larger to right\n                }\n            }\n        }\n    }\n\n    // ── Selection Sort: find minimum, swap to front ───────────────\n    static void selectionSort(int[] arr) {             // class level — object ki zaroorat nahi\n        for (int i = 0; i < arr.length; i++) {         // integer variable\n            int minIdx = i;                       // assume position i has minimum\n            for (int j = i+1; j < arr.length; j++)     // integer variable\n                if (arr[j] < arr[minIdx]) minIdx = j;  // found smaller — update min\n            int t = arr[i]; arr[i] = arr[minIdx]; arr[minIdx] = t;  // swap to position i\n        }\n    }\n\n    // ── Insertion Sort: take one element, insert into correct position ─\n    static void insertionSort(int[] arr) {             // class level — object ki zaroorat nahi\n        for (int i = 1; i < arr.length; i++) {         // integer variable\n            int key = arr[i];    // element to be placed correctly\n            int j   = i - 1;                           // integer variable\n            while (j >= 0 && arr[j] > key) {   // shift larger elements right\n                arr[j + 1] = arr[j];\n                j--;\n            }\n            arr[j + 1] = key;    // insert key at correct position\n        }\n    }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        int[] data = {64, 34, 25, 12, 22, 11, 90};   // unsorted array\n        System.out.println(\"Original:   \" + Arrays.toString(data)); // output print karo\n\n        int[] b   = data.clone();  // clone creates independent copy\n        int[] s   = data.clone();\n        int[] ins = data.clone();\n\n        bubbleSort(b);           System.out.println(\"Bubble:    \" + Arrays.toString(b)); // output print karo\n        selectionSort(s);        System.out.println(\"Selection: \" + Arrays.toString(s)); // output print karo\n        insertionSort(ins);      System.out.println(\"Insertion: \" + Arrays.toString(ins)); // output print karo\n\n        int[] javaSort = data.clone();\n        Arrays.sort(javaSort);   // Java's built-in sort (TimSort — very fast)\n        System.out.println(\"Arrays.sort: \" + Arrays.toString(javaSort)); // output print karo\n    }\n}"
+  },
+  {
+    "title": "Java Pattern Printing",
+    "language": "java",
+    "tags": [
+      "pattern",
+      "star",
+      "triangle",
+      "pyramid",
+      "java",
+      "loop"
+    ],
+    "content": "public class Patterns {                                // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        int n = 5;                                     // integer variable\n\n        // 1. Right triangle\n        System.out.println(\"Right Triangle:\");         // output print karo\n        for (int i = 1; i <= n; i++) {                 // integer variable\n            for (int j = 0; j < i; j++) System.out.print(\"* \"); // output print karo\n            System.out.println();                      // output print karo\n        }\n\n        // 2. Inverted triangle\n        System.out.println(\"Inverted:\");               // output print karo\n        for (int i = n; i >= 1; i--) {                 // integer variable\n            for (int j = 0; j < i; j++) System.out.print(\"* \"); // output print karo\n            System.out.println();                      // output print karo\n        }\n\n        // 3. Pyramid\n        System.out.println(\"Pyramid:\");                // output print karo\n        for (int i = 1; i <= n; i++) {                 // integer variable\n            for (int j = i; j < n; j++) System.out.print(\" \"); // output print karo\n            for (int j = 1; j <= 2*i-1; j++) System.out.print(\"*\"); // output print karo\n            System.out.println();                      // output print karo\n        }\n\n        // 4. Number triangle\n        System.out.println(\"Number Triangle:\");        // output print karo\n        for (int i = 1; i <= n; i++) {                 // integer variable\n            for (int j = 1; j <= i; j++) System.out.print(j + \" \"); // output print karo\n            System.out.println();                      // output print karo\n        }\n\n        // 5. Floyd's triangle\n        System.out.println(\"Floyd's Triangle:\");       // output print karo\n        int num = 1;                                   // integer variable\n        for (int i = 1; i <= n; i++) {                 // integer variable\n            for (int j = 0; j < i; j++) System.out.print(num++ + \" \"); // output print karo\n            System.out.println();                      // output print karo\n        }\n    }\n}"
+  },
+  {
+    "title": "Java Generic Class and Methods",
+    "language": "java",
+    "tags": [
+      "generics",
+      "generic",
+      "template",
+      "type parameter",
+      "java"
+    ],
+    "content": "// Generic class\nclass Pair<T, U> {\n    private T first;\n    private U second;\n\n    public Pair(T first, U second) {\n        this.first  = first;                           // current object ka member\n        this.second = second;                          // current object ka member\n    }\n\n    public T getFirst()  { return first; }             // value return karo\n    public U getSecond() { return second; }            // value return karo\n\n    @Override                                          // parent method replace kar rahe hain\n    public String toString() {\n        return \"(\" + first + \", \" + second + \")\";      // value return karo\n    }\n}\n\n// Generic Stack\nclass GenericStack<T> {\n    private java.util.ArrayList<T> items = new java.util.ArrayList<>(); // object banao\n    public void push(T item)  { items.add(item); }     // list mein add karo\n    public T    pop()         { return items.isEmpty() ? null : items.remove(items.size()-1); } // value return karo\n    public T    peek()        { return items.isEmpty() ? null : items.get(items.size()-1); } // value return karo\n    public boolean isEmpty()  { return items.isEmpty(); } // value return karo\n    public int  size()        { return items.size(); } // value return karo\n}\n\n// Generic method\npublic class GenericsDemo {                            // class define karo\n    static <T extends Comparable<T>> T findMax(T[] arr) { // class level — object ki zaroorat nahi\n        T max = arr[0];\n        for (T item : arr) if (item.compareTo(max) > 0) max = item; // loop — repeat karo\n        return max;                                    // value return karo\n    }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        Pair<String, Integer> student = new Pair<>(\"Alice\", 92); // object banao\n        System.out.println(student);           // (Alice, 92)\n        System.out.println(student.getFirst()); // Alice\n\n        GenericStack<Integer> stack = new GenericStack<>(); // object banao\n        stack.push(10); stack.push(20); stack.push(30);\n        System.out.println(\"Pop: \" + stack.pop()); // 30\n        System.out.println(\"Peek: \"+ stack.peek()); // 20\n\n        Integer[] nums = {3, 7, 1, 9, 4};\n        System.out.println(\"Max: \" + findMax(nums)); // 9\n\n        String[] words = {\"banana\",\"apple\",\"cherry\"};\n        System.out.println(\"Max: \" + findMax(words)); // cherry\n    }\n}"
+  },
+  {
+    "title": "Java Factorial and Armstrong",
+    "language": "java",
+    "tags": [
+      "factorial",
+      "armstrong",
+      "number",
+      "java"
+    ],
+    "content": "public class NumberPrograms {                          // class define karo\n    static long factorial(int n) {                     // class level — object ki zaroorat nahi\n        if (n <= 1) return 1;                          // condition check karo\n        return n * factorial(n - 1);                   // value return karo\n    }\n\n    static boolean isArmstrong(int n) {                // class level — object ki zaroorat nahi\n        String s   = String.valueOf(n);                // String variable\n        int power  = s.length();                       // integer variable\n        int sum    = 0;                                // integer variable\n        for (char c : s.toCharArray())                 // loop — repeat karo\n            sum += (int) Math.pow(c - '0', power);     // math operation\n        return sum == n;                               // value return karo\n    }\n\n    static boolean isPerfect(int n) {                  // class level — object ki zaroorat nahi\n        int sum = 1;                                   // integer variable\n        for (int i = 2; i * i <= n; i++) {             // integer variable\n            if (n % i == 0) {                          // condition check karo\n                sum += i;\n                if (i != n/i) sum += n/i;              // condition check karo\n            }\n        }\n        return n > 1 && sum == n;                      // value return karo\n    }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        // Factorial\n        for (int i = 0; i <= 7; i++)                   // integer variable\n            System.out.printf(\"%2d! = %d%n\", i, factorial(i)); // output print karo\n\n        // Armstrong\n        System.out.print(\"Armstrong (1-500): \");       // output print karo\n        for (int i = 1; i <= 500; i++)                 // integer variable\n            if (isArmstrong(i)) System.out.print(i + \" \"); // output print karo\n        System.out.println();                          // output print karo\n        // 1 2 3 4 5 6 7 8 9 153 370 371 407\n\n        // Perfect numbers\n        System.out.print(\"Perfect (1-1000): \");        // output print karo\n        for (int i = 2; i <= 1000; i++)                // integer variable\n            if (isPerfect(i)) System.out.print(i + \" \"); // output print karo\n        System.out.println();                          // output print karo\n        // 6 28 496\n    }\n}"
+  },
+  {
+    "title": "Java Stack Queue LinkedList",
+    "language": "java",
+    "tags": [
+      "stack",
+      "queue",
+      "linked list",
+      "data structure",
+      "java"
+    ],
+    "content": "import java.util.*;\n\npublic class DataStructures {                          // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        // ── Stack ──────────────────────────────────────────\n        Stack<Integer> stack = new Stack<>();          // object banao\n        stack.push(10); stack.push(20); stack.push(30);\n        System.out.println(\"Stack: \"   + stack);       // output print karo\n        System.out.println(\"Pop: \"     + stack.pop());   // 30\n        System.out.println(\"Peek: \"    + stack.peek());  // 20\n        System.out.println(\"Empty: \"   + stack.isEmpty()); // false\n\n        // ── Queue ──────────────────────────────────────────\n        Queue<String> queue = new LinkedList<>();      // object banao\n        queue.add(\"Alice\"); queue.add(\"Bob\"); queue.add(\"Charlie\"); // list mein add karo\n        System.out.println(\"Queue: \"   + queue);       // output print karo\n        System.out.println(\"Poll: \"    + queue.poll()); // Alice (removes)\n        System.out.println(\"Peek: \"    + queue.peek()); // Bob (doesn't remove)\n\n        // ── Deque (Double-ended queue) ─────────────────────\n        Deque<Integer> deque = new ArrayDeque<>();     // object banao\n        deque.addFirst(10); deque.addLast(20);\n        deque.addFirst(5);  deque.addLast(25);\n        System.out.println(\"Deque: \"   + deque); // [5,10,20,25]\n\n        // ── PriorityQueue (min-heap) ───────────────────────\n        PriorityQueue<Integer> pq = new PriorityQueue<>(); // object banao\n        pq.add(30); pq.add(10); pq.add(20);            // list mein add karo\n        while (!pq.isEmpty())                          // jab tak condition True ho\n            System.out.print(pq.poll() + \" \"); // 10 20 30\n        System.out.println();                          // output print karo\n\n        // ── HashSet ────────────────────────────────────────\n        HashSet<String> set = new HashSet<>();         // object banao\n        set.add(\"apple\"); set.add(\"banana\"); set.add(\"apple\"); // duplicate ignored\n        System.out.println(\"Set: \" + set);  // {apple, banana}\n    }\n}"
+  },
+  {
+    "title": "Java Palindrome and Reverse",
+    "language": "java",
+    "tags": [
+      "palindrome",
+      "reverse",
+      "string",
+      "java"
+    ],
+    "content": "import java.util.Arrays;   // for Arrays.sort()\n\npublic class StringProblems {                          // class define karo\n    // Check if string is palindrome (reads same forward and backward)\n    static boolean isPalindromeStr(String s) {         // class level — object ki zaroorat nahi\n        s = s.toLowerCase().replaceAll(\"[^a-z0-9]\", \"\");  // normalize: lowercase, remove non-alphanumeric\n        String reversed = new StringBuilder(s).reverse().toString();  // reverse the string\n        return s.equals(reversed);   // compare original with reversed\n    }\n\n    // Check if number is palindrome\n    static boolean isPalindromeNum(int n) {            // class level — object ki zaroorat nahi\n        String s = String.valueOf(n);    // convert number to string\n        String r = new StringBuilder(s).reverse().toString();  // reverse\n        return s.equals(r);              // compare\n    }\n\n    // Check if two strings are anagrams (same letters, different order)\n    static boolean isAnagram(String a, String b) {     // class level — object ki zaroorat nahi\n        char[] ca = a.toLowerCase().toCharArray();  // convert to char arrays\n        char[] cb = b.toLowerCase().toCharArray();\n        Arrays.sort(ca);   // sort both alphabetically\n        Arrays.sort(cb);                               // array sort karo\n        return Arrays.equals(ca, cb);  // sorted anagrams will be identical\n    }\n\n    // Reverse words in a sentence\n    static String reverseWords(String s) {             // class level — object ki zaroorat nahi\n        String[] words = s.split(\" \");   // split by spaces into word array\n        StringBuilder sb = new StringBuilder();        // object banao\n        for (int i = words.length - 1; i >= 0; i--)   // iterate backwards\n            sb.append(words[i]).append(\" \");            // add each word with space\n        return sb.toString().trim();                    // remove trailing space\n    }\n\n    // Count vowels in string\n    static int countVowels(String s) {                 // class level — object ki zaroorat nahi\n        int count = 0;                                 // integer variable\n        for (char c : s.toLowerCase().toCharArray())   // check each character\n            if (\"aeiou\".indexOf(c) >= 0) count++;      // if it's a vowel, count it\n        return count;                                  // value return karo\n    }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        // Test palindromes\n        String[] words = {\"madam\", \"hello\", \"racecar\", \"level\", \"A man a plan a canal Panama\"};\n        for (String w : words)                         // loop — repeat karo\n            System.out.printf(\"%-30s: %s%n\", w, isPalindromeStr(w) ? \"Palindrome\" : \"Not\"); // output print karo\n\n        System.out.println();                          // output print karo\n        // Test numbers\n        int[] nums = {121, 12321, 123, 1001};\n        for (int n : nums)                             // loop — repeat karo\n            System.out.printf(\"%5d: %s%n\", n, isPalindromeNum(n) ? \"Palindrome\" : \"Not\"); // output print karo\n\n        System.out.println();                          // output print karo\n        System.out.println(isAnagram(\"listen\", \"silent\"));  // true\n        System.out.println(reverseWords(\"Hello World Java\")); // Java World Hello\n        System.out.println(countVowels(\"Hello World\"));       // 3\n    }\n}"
+  },
+  {
+    "title": "Java Matrix Multiplication",
+    "language": "java",
+    "tags": [
+      "matrix",
+      "multiplication",
+      "2d array",
+      "java"
+    ],
+    "content": "import java.util.Arrays;   // for Arrays.toString()\n\npublic class MatrixOps {                               // class define karo\n    // Multiply two matrices: C[i][j] = sum of A[i][k] * B[k][j] for all k\n    // Rule: columns of A must equal rows of B\n    static int[][] multiply(int[][] A, int[][] B) {    // class level — object ki zaroorat nahi\n        int n = A.length;      // rows of A (= rows of result C)\n        int m = B[0].length;   // columns of B (= columns of result C)\n        int p = B.length;      // rows of B (= columns of A, must match)\n        int[][] C = new int[n][m];      // result matrix, initialized to 0\n        for (int i = 0; i < n; i++)     // for each row of A\n            for (int j = 0; j < m; j++) // for each column of B\n                for (int k = 0; k < p; k++)   // dot product\n                    C[i][j] += A[i][k] * B[k][j];  // accumulate sum\n        return C;                                      // value return karo\n    }\n\n    // Transpose: swap rows and columns (T[j][i] = M[i][j])\n    static int[][] transpose(int[][] M) {              // class level — object ki zaroorat nahi\n        int rows = M.length, cols = M[0].length;       // integer variable\n        int[][] T = new int[cols][rows];   // dimensions are swapped\n        for (int i = 0; i < rows; i++)                 // integer variable\n            for (int j = 0; j < cols; j++)             // integer variable\n                T[j][i] = M[i][j];         // swap row and column index\n        return T;                                      // value return karo\n    }\n\n    // Print matrix with a label\n    static void print(int[][] M, String label) {       // class level — object ki zaroorat nahi\n        System.out.println(label + \":\");               // output print karo\n        for (int[] row : M)                            // loop — repeat karo\n            System.out.println(\"  \" + Arrays.toString(row));  // print each row\n    }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        int[][] A = {{1,2,3},{4,5,6},{7,8,9}};   // 3×3 matrix A\n        int[][] B = {{9,8,7},{6,5,4},{3,2,1}};   // 3×3 matrix B\n\n        print(A, \"Matrix A\");\n        print(B, \"Matrix B\");\n        print(multiply(A, B),   \"A × B\");        // matrix multiplication\n        print(transpose(A),     \"Transpose A\");  // swap rows and columns\n    }\n}"
+  },
+  {
+    "title": "Java Binary Search",
+    "language": "java",
+    "tags": [
+      "binary search",
+      "search",
+      "algorithm",
+      "java"
+    ],
+    "content": "import java.util.Arrays;\n\npublic class BinarySearch {                            // class define karo\n    // Iterative\n    static int binarySearch(int[] arr, int target) {   // class level — object ki zaroorat nahi\n        int low = 0, high = arr.length - 1;            // integer variable\n        while (low <= high) {                          // jab tak condition True ho\n            int mid = low + (high - low) / 2;          // integer variable\n            if      (arr[mid] == target) return mid;   // condition check karo\n            else if (arr[mid] < target)  low  = mid + 1; // condition check karo\n            else                         high = mid - 1; // jab condition False ho\n        }\n        return -1;                                     // value return karo\n    }\n\n    // Recursive\n    static int binarySearchRec(int[] arr, int target, int low, int high) { // class level — object ki zaroorat nahi\n        if (low > high) return -1;                     // condition check karo\n        int mid = (low + high) / 2;                    // integer variable\n        if      (arr[mid] == target) return mid;       // condition check karo\n        else if (arr[mid] < target)  return binarySearchRec(arr, target, mid+1, high); // condition check karo\n        else                          return binarySearchRec(arr, target, low, mid-1); // jab condition False ho\n    }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        int[] arr = {2, 5, 8, 12, 16, 23, 38, 56, 72, 91};\n        System.out.println(\"Array: \" + Arrays.toString(arr)); // output print karo\n\n        System.out.println(\"Search 23: \" + binarySearch(arr, 23));    // 5\n        System.out.println(\"Search 99: \" + binarySearch(arr, 99));    // -1\n        System.out.println(\"Rec 56:    \" + binarySearchRec(arr, 56, 0, arr.length-1)); // 7\n\n        // Built-in\n        System.out.println(\"Arrays.binarySearch 16: \" + Arrays.binarySearch(arr, 16)); // 4\n    }\n}"
+  },
+  {
+    "title": "Java String Reverse and Anagram",
+    "language": "java",
+    "tags": [
+      "reverse",
+      "anagram",
+      "string",
+      "java"
+    ],
+    "content": "import java.util.Arrays;\n\npublic class StringProblems {                          // class define karo\n    // Reverse a string\n    static String reverse(String s) {                  // class level — object ki zaroorat nahi\n        return new StringBuilder(s).reverse().toString(); // value return karo\n    }\n\n    // Check anagram\n    static boolean isAnagram(String a, String b) {     // class level — object ki zaroorat nahi\n        char[] ca = a.toLowerCase().toCharArray();\n        char[] cb = b.toLowerCase().toCharArray();\n        Arrays.sort(ca); Arrays.sort(cb);              // array sort karo\n        return Arrays.equals(ca, cb);                  // value return karo\n    }\n\n    // Count vowels\n    static int countVowels(String s) {                 // class level — object ki zaroorat nahi\n        int count = 0;                                 // integer variable\n        for (char c : s.toLowerCase().toCharArray())   // loop — repeat karo\n            if (\"aeiou\".indexOf(c) >= 0) count++;      // condition check karo\n        return count;                                  // value return karo\n    }\n\n    // Remove duplicates\n    static String removeDuplicates(String s) {         // class level — object ki zaroorat nahi\n        StringBuilder sb = new StringBuilder();        // object banao\n        for (char c : s.toCharArray())                 // loop — repeat karo\n            if (sb.indexOf(String.valueOf(c)) < 0) sb.append(c); // condition check karo\n        return sb.toString();                          // value return karo\n    }\n\n    // Count words\n    static int countWords(String s) {                  // class level — object ki zaroorat nahi\n        return s.trim().isEmpty() ? 0 : s.trim().split(\"\\\\s+\").length; // value return karo\n    }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        System.out.println(reverse(\"QueryNest\"));         // tsenheyruQ\n        System.out.println(isAnagram(\"listen\",\"silent\")); // true\n        System.out.println(isAnagram(\"hello\",\"world\"));   // false\n        System.out.println(countVowels(\"Hello World\"));   // 3\n        System.out.println(removeDuplicates(\"programming\")); // progamin\n        System.out.println(countWords(\"Hello World Java\")); // 3\n    }\n}"
+  },
+  {
+    "title": "Java Scanner Input",
+    "language": "java",
+    "tags": [
+      "scanner",
+      "input",
+      "user input",
+      "java"
+    ],
+    "content": "import java.util.Scanner;\n\npublic class InputExample {                            // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        Scanner sc = new Scanner(System.in);           // user input ke liye Scanner banao\n        System.out.print(\"Enter your name: \");         // output print karo\n        String name = sc.nextLine();                   // user se input lo\n        System.out.print(\"Enter your age: \");          // output print karo\n        int age = sc.nextInt();                        // user se input lo\n        System.out.println(\"Hello \" + name + \"! You are \" + age + \" years old.\"); // output print karo\n        sc.close();\n    }\n}"
+  },
+  {
+    "title": "Java Diamond Pattern",
+    "language": "java",
+    "tags": [
+      "pattern",
+      "diamond",
+      "star",
+      "java"
+    ],
+    "content": "public class DiamondPattern {                          // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        int n = 5;                                     // integer variable\n        // Upper half\n        for (int i = 1; i <= n; i++) {                 // integer variable\n            for (int s = 1; s <= n - i; s++) System.out.print(\" \"); // output print karo\n            for (int j = 1; j <= 2 * i - 1; j++) System.out.print(\"*\"); // output print karo\n            System.out.println();                      // output print karo\n        }\n        // Lower half\n        for (int i = n - 1; i >= 1; i--) {             // integer variable\n            for (int s = 1; s <= n - i; s++) System.out.print(\" \"); // output print karo\n            for (int j = 1; j <= 2 * i - 1; j++) System.out.print(\"*\"); // output print karo\n            System.out.println();                      // output print karo\n        }\n    }\n}"
+  },
+  {
+    "title": "Java Merge Sort",
+    "language": "java",
+    "tags": [
+      "merge sort",
+      "sorting",
+      "divide conquer",
+      "java"
+    ],
+    "content": "public class MergeSort {                               // class define karo\n    static void merge(int[] arr, int l, int m, int r) { // class level — object ki zaroorat nahi\n        int n1 = m - l + 1, n2 = r - m;                // integer variable\n        int[] L = new int[n1], R = new int[n2];        // object banao\n        for (int i = 0; i < n1; i++) L[i] = arr[l + i]; // integer variable\n        for (int j = 0; j < n2; j++) R[j] = arr[m + 1 + j]; // integer variable\n        int i = 0, j = 0, k = l;                       // integer variable\n        while (i < n1 && j < n2) arr[k++] = (L[i] <= R[j]) ? L[i++] : R[j++]; // jab tak condition True ho\n        while (i < n1) arr[k++] = L[i++];              // jab tak condition True ho\n        while (j < n2) arr[k++] = R[j++];              // jab tak condition True ho\n    }\n    static void mergeSort(int[] arr, int l, int r) {   // class level — object ki zaroorat nahi\n        if (l < r) {                                   // condition check karo\n            int m = (l + r) / 2;                       // integer variable\n            mergeSort(arr, l, m);\n            mergeSort(arr, m + 1, r);\n            merge(arr, l, m, r);\n        }\n    }\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        int[] arr = {64, 25, 12, 22, 11};\n        mergeSort(arr, 0, arr.length - 1);\n        for (int x : arr) System.out.print(x + \" \"); // 11 12 22 25 64\n    }\n}"
+  },
+  {
+    "title": "Java Quick Sort",
+    "language": "java",
+    "tags": [
+      "quick sort",
+      "sorting",
+      "partition",
+      "java"
+    ],
+    "content": "public class QuickSort {                               // class define karo\n    static int partition(int[] arr, int low, int high) { // class level — object ki zaroorat nahi\n        int pivot = arr[high], i = low - 1;            // integer variable\n        for (int j = low; j < high; j++) {             // integer variable\n            if (arr[j] <= pivot) { i++; int t=arr[i]; arr[i]=arr[j]; arr[j]=t; } // integer variable\n        }\n        int t=arr[i+1]; arr[i+1]=arr[high]; arr[high]=t; // integer variable\n        return i + 1;                                  // value return karo\n    }\n    static void quickSort(int[] arr, int low, int high) { // class level — object ki zaroorat nahi\n        if (low < high) {                              // condition check karo\n            int pi = partition(arr, low, high);        // integer variable\n            quickSort(arr, low, pi - 1);\n            quickSort(arr, pi + 1, high);\n        }\n    }\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        int[] arr = {10, 7, 8, 9, 1, 5};\n        quickSort(arr, 0, arr.length - 1);\n        for (int x : arr) System.out.print(x + \" \");   // output print karo\n    }\n}"
+  },
+  {
+    "title": "Java Thread Example",
+    "language": "java",
+    "tags": [
+      "thread",
+      "multithreading",
+      "runnable",
+      "java"
+    ],
+    "content": "public class ThreadExample {                           // class define karo\n    static class MyThread extends Thread {             // class level — object ki zaroorat nahi\n        String name;\n        MyThread(String name) { this.name = name; }    // current object ka member\n        public void run() {\n            for (int i = 1; i <= 3; i++) {             // integer variable\n                System.out.println(name + \" - Count: \" + i); // output print karo\n                try { Thread.sleep(100); } catch (InterruptedException e) {} // error pakadne ki koshish karo\n            }\n        }\n    }\n    public static void main(String[] args) throws InterruptedException { // main method — program yahan se shuru hota hai\n        MyThread t1 = new MyThread(\"Thread-1\");        // object banao\n        MyThread t2 = new MyThread(\"Thread-2\");        // object banao\n        t1.start();\n        t2.start();\n        t1.join();\n        t2.join();\n        System.out.println(\"Both threads finished\");   // output print karo\n    }\n}"
+  },
+  {
+    "title": "Java Lambda and Stream",
+    "language": "java",
+    "tags": [
+      "lambda",
+      "stream",
+      "filter",
+      "map",
+      "java"
+    ],
+    "content": "import java.util.*;\nimport java.util.stream.*;\n\npublic class LambdaStream {                            // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        List<Integer> nums = Arrays.asList(1,2,3,4,5,6,7,8,9,10);\n\n        // Filter even, square, collect\n        List<Integer> result = nums.stream()\n            .filter(n -> n % 2 == 0)\n            .map(n -> n * n)\n            .collect(Collectors.toList());\n        System.out.println(result); // [4, 16, 36, 64, 100]\n\n        // Sum with reduce\n        int sum = nums.stream().reduce(0, Integer::sum); // integer variable\n        System.out.println(\"Sum: \" + sum);             // output print karo\n\n        // Sort strings\n        List<String> names = Arrays.asList(\"Charlie\",\"Alice\",\"Bob\");\n        names.stream().sorted().forEach(System.out::println);\n    }\n}"
+  },
+  {
+    "title": "Java File Read Write",
+    "language": "java",
+    "tags": [
+      "file",
+      "read",
+      "write",
+      "bufferedreader",
+      "java"
+    ],
+    "content": "import java.io.*;\n\npublic class FileExample {                             // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        String filename = \"test.txt\";                  // String variable\n        // Write\n        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) { // object banao\n            bw.write(\"Hello, QueryNest!\");\n            bw.newLine();\n            bw.write(\"Java file I/O\");\n            System.out.println(\"File written.\");       // output print karo\n        } catch (IOException e) { e.printStackTrace(); } // error handle karo\n\n        // Read\n        try (BufferedReader br = new BufferedReader(new FileReader(filename))) { // object banao\n            String line;\n            while ((line = br.readLine()) != null)     // jab tak condition True ho\n                System.out.println(line);              // output print karo\n        } catch (IOException e) { e.printStackTrace(); } // error handle karo\n    }\n}"
+  },
+  {
+    "title": "Java Enum Example",
+    "language": "java",
+    "tags": [
+      "enum",
+      "enumeration",
+      "switch",
+      "java"
+    ],
+    "content": "public class EnumExample {                             // class define karo\n    enum Day { MON, TUE, WED, THU, FRI, SAT, SUN }\n\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        Day today = Day.FRI;\n        switch (today) {\n            case SAT: case SUN:\n                System.out.println(\"Weekend!\"); break; // output print karo\n            default:\n                System.out.println(\"Weekday: \" + today); // output print karo\n        }\n        // Loop over all values\n        for (Day d : Day.values())                     // loop — repeat karo\n            System.out.println(d.name() + \" ordinal=\" + d.ordinal()); // output print karo\n    }\n}"
+  },
+  {
+    "title": "Java Number to Words",
+    "language": "java",
+    "tags": [
+      "number to words",
+      "conversion",
+      "java"
+    ],
+    "content": "public class NumberToWords {                           // class define karo\n    static final String[] ones = {\"\",\"one\",\"two\",\"three\",\"four\",\"five\",\"six\",\"seven\",\"eight\",\"nine\", // class level — object ki zaroorat nahi\n        \"ten\",\"eleven\",\"twelve\",\"thirteen\",\"fourteen\",\"fifteen\",\"sixteen\",\"seventeen\",\"eighteen\",\"nineteen\"};\n    static final String[] tens = {\"\",\"\",\"twenty\",\"thirty\",\"forty\",\"fifty\",\"sixty\",\"seventy\",\"eighty\",\"ninety\"}; // class level — object ki zaroorat nahi\n\n    static String convert(int n) {                     // class level — object ki zaroorat nahi\n        if (n == 0) return \"zero\";                     // condition check karo\n        if (n < 20) return ones[n];                    // condition check karo\n        if (n < 100) return tens[n/10] + (n%10 != 0 ? \" \" + ones[n%10] : \"\"); // condition check karo\n        return ones[n/100] + \" hundred\" + (n%100 != 0 ? \" \" + convert(n%100) : \"\"); // value return karo\n    }\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        System.out.println(convert(0));   // zero\n        System.out.println(convert(15));  // fifteen\n        System.out.println(convert(99));  // ninety nine\n        System.out.println(convert(100)); // one hundred\n        System.out.println(convert(256)); // two hundred fifty six\n    }\n}"
+  },
+  {
+    "title": "Java Happy Number",
+    "language": "java",
+    "tags": [
+      "happy number",
+      "sum of squares",
+      "java"
+    ],
+    "content": "public class HappyNumber {                             // class define karo\n    static int sumOfSquares(int n) {                   // class level — object ki zaroorat nahi\n        int sum = 0;                                   // integer variable\n        while (n > 0) { int d = n % 10; sum += d * d; n /= 10; } // integer variable\n        return sum;                                    // value return karo\n    }\n    static boolean isHappy(int n) {                    // class level — object ki zaroorat nahi\n        int slow = n, fast = sumOfSquares(n);          // integer variable\n        while (fast != 1 && slow != fast) {            // jab tak condition True ho\n            slow = sumOfSquares(slow);\n            fast = sumOfSquares(sumOfSquares(fast));\n        }\n        return fast == 1;                              // value return karo\n    }\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        for (int i = 1; i <= 20; i++)                  // integer variable\n            if (isHappy(i)) System.out.print(i + \" \"); // output print karo\n        // 1 7 10 13 19\n    }\n}"
+  },
+  {
+    "title": "Java Leap Year Check",
+    "language": "java",
+    "tags": [
+      "leap year",
+      "year",
+      "condition",
+      "java"
+    ],
+    "content": "public class LeapYear {                                // class define karo\n    static boolean isLeap(int year) {                  // class level — object ki zaroorat nahi\n        return (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0); // value return karo\n    }\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        int[] years = {1900, 2000, 2024, 2023, 1600};\n        for (int y : years)                            // loop — repeat karo\n            System.out.println(y + \" -> \" + (isLeap(y) ? \"Leap Year\" : \"Not Leap Year\")); // output print karo\n    }\n}"
+  },
+  {
+    "title": "Java Perfect Number",
+    "language": "java",
+    "tags": [
+      "perfect number",
+      "divisors",
+      "java"
+    ],
+    "content": "public class PerfectNumber {                           // class define karo\n    static boolean isPerfect(int n) {                  // class level — object ki zaroorat nahi\n        if (n <= 1) return false;                      // condition check karo\n        int sum = 1;                                   // integer variable\n        for (int i = 2; i * i <= n; i++) {             // integer variable\n            if (n % i == 0) {                          // condition check karo\n                sum += i;\n                if (i != n / i) sum += n / i;          // condition check karo\n            }\n        }\n        return sum == n;                               // value return karo\n    }\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        System.out.println(\"Perfect numbers up to 10000:\"); // output print karo\n        for (int i = 2; i <= 10000; i++)               // integer variable\n            if (isPerfect(i)) System.out.print(i + \" \"); // 6 28 496 8128\n    }\n}"
+  },
+  {
+    "title": "Java Roman to Integer",
+    "language": "java",
+    "tags": [
+      "roman numerals",
+      "conversion",
+      "map",
+      "java"
+    ],
+    "content": "import java.util.*;\n\npublic class RomanToInteger {                          // class define karo\n    static int romanToInt(String s) {                  // class level — object ki zaroorat nahi\n        Map<Character, Integer> map = new HashMap<>(); // object banao\n        map.put('I',1); map.put('V',5); map.put('X',10); map.put('L',50); // map mein daalo\n        map.put('C',100); map.put('D',500); map.put('M',1000); // map mein daalo\n        int result = 0;                                // integer variable\n        for (int i = 0; i < s.length(); i++) {         // integer variable\n            int curr = map.get(s.charAt(i));           // integer variable\n            int next = (i + 1 < s.length()) ? map.get(s.charAt(i + 1)) : 0; // integer variable\n            if (curr < next) result -= curr;           // condition check karo\n            else result += curr;                       // jab condition False ho\n        }\n        return result;                                 // value return karo\n    }\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        System.out.println(romanToInt(\"III\"));   // 3\n        System.out.println(romanToInt(\"IV\"));    // 4\n        System.out.println(romanToInt(\"IX\"));    // 9\n        System.out.println(romanToInt(\"LVIII\")); // 58\n        System.out.println(romanToInt(\"MCMXCIV\")); // 1994\n    }\n}"
+  },
+  {
+    "title": "Java Star Pyramid Pattern",
+    "language": "java",
+    "tags": [
+      "pyramid",
+      "star pattern",
+      "triangle",
+      "java"
+    ],
+    "content": "public class Pyramid {                                 // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        int n = 5;                                     // integer variable\n        // Solid pyramid\n        System.out.println(\"Solid Pyramid:\");          // output print karo\n        for (int i = 1; i <= n; i++) {                 // integer variable\n            for (int s = 1; s <= n - i; s++) System.out.print(\" \"); // output print karo\n            for (int j = 1; j <= 2*i-1; j++) System.out.print(\"*\"); // output print karo\n            System.out.println();                      // output print karo\n        }\n        // Inverted pyramid\n        System.out.println(\"\\nInverted Pyramid:\");     // output print karo\n        for (int i = n; i >= 1; i--) {                 // integer variable\n            for (int s = 1; s <= n - i; s++) System.out.print(\" \"); // output print karo\n            for (int j = 1; j <= 2*i-1; j++) System.out.print(\"*\"); // output print karo\n            System.out.println();                      // output print karo\n        }\n    }\n}"
+  },
+  {
+    "title": "Java Count Vowels Consonants",
+    "language": "java",
+    "tags": [
+      "vowels",
+      "consonants",
+      "string",
+      "count",
+      "java"
+    ],
+    "content": "public class VowelConsonant {                          // class define karo\n    public static void main(String[] args) {           // main method — program yahan se shuru hota hai\n        String str = \"Hello World Java Programming\";   // String variable\n        int vowels = 0, consonants = 0, others = 0;    // integer variable\n        for (char c : str.toLowerCase().toCharArray()) { // loop — repeat karo\n            if (\"aeiou\".indexOf(c) != -1) vowels++;    // condition check karo\n            else if (c >= 'a' && c <= 'z') consonants++; // condition check karo\n            else others++;                             // jab condition False ho\n        }\n        System.out.println(\"Vowels: \" + vowels);       // output print karo\n        System.out.println(\"Consonants: \" + consonants); // output print karo\n        System.out.println(\"Others (spaces/digits): \" + others); // output print karo\n    }\n}"
+  }
+]
