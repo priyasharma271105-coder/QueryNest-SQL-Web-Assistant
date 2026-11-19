@@ -1,26 +1,108 @@
 """QueryNest — Code execution engine: Python, Java, C, C++, SQL, MySQL, MongoDB."""
-import subprocess, tempfile, os, re, sys
+import subprocess, tempfile, os, re, sys, shutil
 import config
 
 EXEC_TIMEOUT = config.EXEC_TIMEOUT
+_IS_WIN = os.name == 'nt'
+_EXE = '.exe' if _IS_WIN else ''
 
-def run_subprocess(cmd, cwd=None, input_data=None, timeout=EXEC_TIMEOUT):
+def _utf8_env(extra=None):
+    env = {**os.environ, 'PYTHONIOENCODING': 'utf-8', 'PYTHONUTF8': '1', 'PYTHONUNBUFFERED': '1'}
+    if extra:
+        env.update(extra)
+    return env
+
+def _mingw_bin_dirs():
+    dirs = []
+    for p in (
+        r'C:\MinGW\bin',
+        r'C:\mingw64\bin',
+        r'C:\MinGW64\bin',
+        r'C:\msys64\ucrt64\bin',
+        r'C:\msys64\mingw64\bin',
+        r'C:\TDM-GCC-64\bin',
+        os.path.join(os.environ.get('MINGW_HOME', ''), 'bin') if os.environ.get('MINGW_HOME') else '',
+    ):
+        if p and os.path.isdir(p) and p not in dirs:
+            dirs.append(p)
+    return dirs
+
+def _compiler_env():
+    """Make sure gcc/g++ bin dir is on PATH so cc1.exe can load libmpc/libgmp DLLs."""
+    env = _utf8_env()
+    bins = _mingw_bin_dirs()
+    env['PATH'] = os.pathsep.join(bins + [env.get('PATH', '')])
+    return env
+
+def _find_compiler(*names):
+    env = _compiler_env()
+    for name in names:
+        exe = shutil.which(name, path=env.get('PATH'))
+        if exe:
+            return exe, env
+    return None, env
+
+def _win_hide_dll_popups():
+    """Stop Windows from showing 'dll not found' MessageBox during compile."""
+    if not _IS_WIN:
+        return lambda: None
     try:
-        result = subprocess.run(
-            cmd, cwd=cwd, input=input_data,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout
+        import ctypes
+        k32 = ctypes.windll.kernel32
+        SEM_FAILCRITICALERRORS = 0x0001
+        SEM_NOOPENFILEERRORBOX = 0x8000
+        old = k32.SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX)
+        return lambda: k32.SetErrorMode(old)
+    except Exception:
+        return lambda: None
+
+def _decode_bytes(b):
+    if not b:
+        return ''
+    for enc in ('utf-8', 'cp1252', 'latin-1'):
+        try:
+            return b.decode(enc)
+        except Exception:
+            pass
+    return b.decode('utf-8', errors='replace')
+
+def run_subprocess(cmd, cwd=None, input_data=None, timeout=EXEC_TIMEOUT, env=None):
+    restore = _win_hide_dll_popups()
+    try:
+        kwargs = dict(
+            cwd=cwd, input=input_data,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout,
+            env=env or _utf8_env(),
         )
-        def decode(b): 
-            if not b: return ''
-            for enc in ('utf-8','cp1252','latin-1'):
-                try: return b.decode(enc)
-                except: pass
-            return b.decode('utf-8', errors='replace')
-        return decode(result.stdout), decode(result.stderr), result.returncode
+        if _IS_WIN:
+            kwargs['creationflags'] = getattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000)
+        result = subprocess.run(cmd, **kwargs)
+        return _decode_bytes(result.stdout), _decode_bytes(result.stderr), result.returncode
     except subprocess.TimeoutExpired:
         return '', '⏱ Timeout (10s limit). Infinite loop check karo.', -1
     except FileNotFoundError as e:
         return '', f'❌ Compiler not found: {e}', -1
+    except OSError as e:
+        return '', f'❌ Compiler start nahi hua: {e}', -1
+    finally:
+        restore()
+
+def _compiler_missing_msg(kind):
+    return (
+        f'⚠️ {kind} compiler nahi mila / toot chuka hai (purana MinGW 4.8).\n'
+        'Windows pe naya MinGW-w64 install karo, phir QueryNest restart karo.\n'
+        'Download: https://winlibs.com/  ya  https://www.msys2.org/'
+    )
+
+def _compile_failed_msg(err, out):
+    msg = (err or out or '').strip()
+    if not msg:
+        return (
+            '⚠️ C/C++ compiler start nahi ho paya (libmpc / MinGW DLL missing).\n'
+            'C:\\MinGW\\bin ko PATH mein rakho, ya naya MinGW-w64 install karo:\n'
+            'https://winlibs.com/'
+        )
+    return msg
 
 def detect_input_calls(code, lang):
     """Detect if code uses stdin/input functions."""
@@ -36,7 +118,6 @@ def detect_input_calls(code, lang):
     return bool(re.search(pat, code))
 
 def execute_python(code, stdin_data=None):
-    env = {**os.environ, 'PYTHONIOENCODING':'utf-8', 'PYTHONUNBUFFERED':'1'}
     with tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False, encoding='utf-8') as f:
         f.write(code); fname = f.name
     try:
@@ -46,7 +127,10 @@ def execute_python(code, stdin_data=None):
             input_bytes = ('\n'.join(lines) + '\n').encode('utf-8')
         else:
             input_bytes = None
-        out, err, rc = run_subprocess([sys.executable, '-u', fname], input_data=input_bytes, timeout=EXEC_TIMEOUT)
+        out, err, rc = run_subprocess(
+            [sys.executable, '-X', 'utf8', '-u', fname],
+            input_data=input_bytes, timeout=EXEC_TIMEOUT, env=_utf8_env(),
+        )
         if rc == 0:
             return {'output': out.strip() or '(No print() output)', 'error': False}
         # EOFError means not enough inputs were provided
@@ -61,7 +145,6 @@ def execute_python(code, stdin_data=None):
         except: pass
 
 def execute_java(code, stdin_data=None):
-    import shutil
     javac = shutil.which('javac'); java = shutil.which('java')
     if not javac:
         return {'output': '⚠️ Java JDK install karo:\nwinget install Microsoft.OpenJDK.21\nYa: https://adoptium.net/', 'error': True}
@@ -69,7 +152,7 @@ def execute_java(code, stdin_data=None):
     cls = m.group(1) if m else 'Main'
     with tempfile.TemporaryDirectory() as d:
         jf = os.path.join(d, f'{cls}.java')
-        with open(jf, 'w') as f: f.write(code)
+        with open(jf, 'w', encoding='utf-8') as f: f.write(code)
         out, err, rc = run_subprocess([javac, jf], cwd=d)
         if rc != 0: return {'output': err or out, 'error': True}
         input_bytes = ('\n'.join(stdin_data.splitlines()) + '\n').encode('utf-8') if stdin_data else None
@@ -77,23 +160,53 @@ def execute_java(code, stdin_data=None):
         return {'output': out or '(No output)', 'error': rc != 0}
 
 def execute_c(code, stdin_data=None):
+    gcc, env = _find_compiler('gcc', 'gcc.exe')
+    if not gcc:
+        return {'output': _compiler_missing_msg('C (gcc)'), 'error': True}
     with tempfile.TemporaryDirectory() as d:
-        cf = os.path.join(d, 'prog.c'); of = os.path.join(d, 'prog')
-        with open(cf, 'w') as f: f.write(code)
-        out, err, rc = run_subprocess(['gcc', cf, '-o', of, '-lm'], cwd=d)
-        if rc != 0: return {'output': err or out, 'error': True}
+        cf = os.path.join(d, 'prog.c')
+        of = os.path.join(d, 'prog' + _EXE)
+        with open(cf, 'w', encoding='utf-8') as f:
+            f.write(code)
+        out, err, rc = run_subprocess([gcc, cf, '-o', of, '-lm', '-static-libgcc'], cwd=d, env=env)
+        if rc != 0:
+            return {'output': _compile_failed_msg(err, out), 'error': True}
         input_bytes = ('\n'.join(stdin_data.splitlines()) + '\n').encode('utf-8') if stdin_data else None
-        out, err, rc = run_subprocess([of], cwd=d, input_data=input_bytes)
+        out, err, rc = run_subprocess([of], cwd=d, input_data=input_bytes, env=env)
         return {'output': out or '(No output)', 'error': rc != 0}
 
 def execute_cpp(code, stdin_data=None):
+    gxx, env = _find_compiler('g++', 'g++.exe')
+    if not gxx:
+        return {'output': _compiler_missing_msg('C++ (g++)'), 'error': True}
     with tempfile.TemporaryDirectory() as d:
-        cf = os.path.join(d, 'prog.cpp'); of = os.path.join(d, 'prog')
-        with open(cf, 'w') as f: f.write(code)
-        out, err, rc = run_subprocess(['g++', cf, '-o', of, '-std=c++17'], cwd=d)
-        if rc != 0: return {'output': err or out, 'error': True}
+        cf = os.path.join(d, 'prog.cpp')
+        of = os.path.join(d, 'prog' + _EXE)
+        with open(cf, 'w', encoding='utf-8') as f:
+            f.write(code)
+        # Old MinGW 4.8 supports C++11, not C++17 — try modern flags then fall back.
+        attempts = (
+            ['-std=c++17'],
+            ['-std=c++14'],
+            ['-std=c++11'],
+            ['-std=gnu++11'],
+            [],
+        )
+        err = out = ''
+        rc = 1
+        for stdflag in attempts:
+            cmd = [gxx, cf, '-o', of] + stdflag + ['-static-libgcc', '-static-libstdc++']
+            out, err, rc = run_subprocess(cmd, cwd=d, env=env)
+            if rc == 0:
+                break
+            combined = (err or '') + (out or '')
+            if 'unrecognized command line option' in combined:
+                continue
+            break
+        if rc != 0:
+            return {'output': _compile_failed_msg(err, out), 'error': True}
         input_bytes = ('\n'.join(stdin_data.splitlines()) + '\n').encode('utf-8') if stdin_data else None
-        out, err, rc = run_subprocess([of], cwd=d, input_data=input_bytes)
+        out, err, rc = run_subprocess([of], cwd=d, input_data=input_bytes, env=env)
         return {'output': out or '(No output)', 'error': rc != 0}
 
 def execute_sql(code):

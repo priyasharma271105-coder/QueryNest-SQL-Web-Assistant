@@ -1,5 +1,5 @@
 """QueryNest — Page routes (HTML rendering)."""
-from flask import Blueprint, render_template, session, redirect, url_for
+from flask import Blueprint, render_template, session, redirect, url_for, request
 import database as db_module
 import config
 
@@ -45,9 +45,23 @@ def home():
 @login_required
 def home_premium(): return render_template('home_premium.html')
 
-@pages_bp.route('/ide')
+@pages_bp.route('/ai-chat', strict_slashes=False)
 @login_required
-def ide_page(): return render_template('ide.html')
+def ai_chat_page(): return render_template('ai_chat.html')
+
+@pages_bp.route('/search', strict_slashes=False)
+@login_required
+def search_results_page():
+    q = request.args.get('q', '')
+    lang = request.args.get('lang', '')
+    return redirect(url_for('pages.home_premium', q=q, lang=lang))
+
+@pages_bp.route('/ide')
+@pages_bp.route('/ide/<category>')
+@login_required
+def ide_page(category=None):
+    cat = (category or request.args.get('category') or request.args.get('type') or request.args.get('mode') or '').lower().strip()
+    return render_template('ide.html', category=cat)
 
 @pages_bp.route('/pricing')
 @login_required

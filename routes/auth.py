@@ -1,4 +1,5 @@
 """QueryNest — Auth routes: register, login, OTP, forgot password, logout."""
+from aws.sns_service import publish_notification
 from flask import Blueprint, request, jsonify, session, redirect, url_for
 from datetime import datetime, timedelta
 import database as db_module
@@ -56,17 +57,61 @@ def register():
 @auth_bp.route('/api/login', methods=['POST'])
 def login():
     users = db_module.get_users()
-    if users is None: return jsonify({'success':False,'message':'Database error'}), 500
-    data = request.json
-    email, password = data.get('email'), data.get('password')
-    user = users.find_one({'email':email})
-    if not user: return jsonify({'success':False,'message':'Email not registered!'})
-    if user['password'] != password: return jsonify({'success':False,'message':'Invalid password!'})
-    session.update({'user_id':user['user_id'],'name':user['name'],'email':email})
-    print(f"✅ Login: {user['name']}")
-    return jsonify({'success':True,'message':'Login successful!','redirect':'/home',
-                    'user':{'name':user['name'],'email':user['email'],'user_id':user['user_id']}})
+    if users is None:
+        return jsonify({
+            'success': False,
+            'message': 'Database error'
+        }), 500
 
+    data = request.get_json(silent=True) or {}
+    email, password = data.get('email'), data.get('password')
+
+    user = users.find_one({'email': email})
+    if not user:
+        return jsonify({'success': False, 'message': 'Email not registered!'})
+
+    if user['password'] != password:
+        return jsonify({'success': False, 'message': 'Invalid password!'})
+
+    session.update({
+        'user_id': user['user_id'],
+        'name': user['name'],
+        'email': email
+    })
+
+    print(f"✅ Login: {user['name']}")
+
+    # AWS SNS - Successful Login Notification
+    publish_notification(
+        subject="QueryNest - Login Alert",
+        message=(
+            "A successful login was detected in QueryNest.\n"
+            f"User: {user['name']}\n"
+            "Event: Successful Login\n"
+            "If this was not you, please secure your account."
+        )
+    )
+
+    return jsonify({
+        'success': True,
+        'message': 'Login successful!',
+        'redirect': '/home',
+        'user': {
+            'name': user['name'],
+            'email': user['email'],
+            'user_id': user['user_id']
+        }
+    })
+    return jsonify({
+        'success': True,
+        'message': 'Login successful!',
+        'redirect': '/home',
+        'user': {
+            'name': user['name'],
+            'email': user['email'],
+            'user_id': user['user_id']
+        }
+    })
 @auth_bp.route('/api/forgot-password/send-otp', methods=['POST'])
 def forgot_send_otp():
     users = db_module.get_users()

@@ -1,6 +1,7 @@
-"""
+﻿"""
 QueryNest — Database Connection
 Single MongoDB connection shared across all modules.
+Supports MongoDB Atlas URI with seamless fallback to local MongoDB instance.
 """
 try:
     from pymongo import MongoClient
@@ -21,19 +22,34 @@ def init_db():
         print("⚠️  MongoDB skipped — pymongo not installed")
         return
     print("🔌 Connecting to MongoDB...")
-    try:
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-        client.admin.command('ping')
-        db               = client[DB_NAME]
-        users_collection = db['users']
+
+    # Determine URIs to attempt: primary config URI, then local instance fallback
+    uris_to_try = []
+    if MONGO_URI and "<db_password>" not in MONGO_URI and "<password>" not in MONGO_URI:
+        uris_to_try.append(MONGO_URI)
+    if "mongodb://localhost:27017/" not in uris_to_try:
+        uris_to_try.append("mongodb://localhost:27017/")
+
+    connected = False
+    for uri in uris_to_try:
         try:
-            db['solutions'].create_index([('title','text'),('content','text'),('tags','text')])
+            client = MongoClient(uri, serverSelectionTimeoutMS=3000)
+            client.admin.command('ping')
+            db               = client[DB_NAME]
+            users_collection = db['users']
+            try:
+                db['solutions'].create_index([('title','text'),('content','text'),('tags','text')])
+            except Exception:
+                pass
+            print(f"✅ MongoDB connected → '{DB_NAME}' | users: {users_collection.count_documents({})}")
+            connected = True
+            break
         except Exception:
-            pass
-        print(f"✅ MongoDB connected → '{DB_NAME}' | users: {users_collection.count_documents({})}")
-    except Exception as e:
-        print(f"⚠️  MongoDB NOT connected: {e}")
-        print("   ➜  Run 'mongod' then restart app")
+            continue
+
+    if not connected:
+        print(f"⚠️  MongoDB NOT connected.")
+        print("   ➜  Check your MongoDB Atlas connection string or ensure local 'mongod' is running.")
         db               = None
         users_collection = None
 

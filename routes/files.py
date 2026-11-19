@@ -1,9 +1,10 @@
-"""QueryNest — Saved files & programs API routes."""
-import os, re, uuid
+﻿"""QueryNest — Saved files & programs API routes (with Amazon S3 integration)."""
+import os, re, uuid, base64
 from datetime import datetime
 from flask import Blueprint, request, jsonify, session, send_file
 import database as db_module
 import config
+from aws.s3_service import upload_file, delete_file, save_generated_pdf, generate_presigned_url
 
 files_bp = Blueprint('files', __name__)
 
@@ -43,11 +44,29 @@ def save_file():
         header = f"-- File   : {name}\n-- Type   : {db_type}\n-- Saved  : {created}\n-- User   : {uid}\n"
         if desc: header += f"-- Desc   : {desc}\n"
         header += "-"*60 + "\n\n"
-        with open(fpath, 'w', encoding='utf-8') as f: f.write(header + code)
-        meta = {'id':fid,'user_id':uid,'name':name,'db_type':db_type,'description':desc,'filename':fname,'created_at':created}
+        full_content = header + code
+        
+        # 1. Local filesystem save (preserves original working functionality)
+        with open(fpath, 'w', encoding='utf-8') as f: f.write(full_content)
+        
+        # 2. Amazon S3 storage sync (AWS integration)
+        s3_key = f"user_files/{_safe(uid)}/queries/{fname}"
+        s3_res = upload_file(full_content, s3_key, content_type='text/plain')
+
+        meta = {
+            'id':fid,
+            'user_id':uid,
+            'name':name,
+            'db_type':db_type,
+            'description':desc,
+            'filename':fname,
+            'created_at':created,
+            's3_key': s3_key,
+            'storage': s3_res.get('storage', 'LOCAL')
+        }
         col = _meta_col('saved_files')
         if col is not None: col.replace_one({'id':fid,'user_id':uid}, meta, upsert=True)
-        return jsonify({'success':True,'id':fid,'filename':fname})
+        return jsonify({'success':True,'id':fid,'filename':fname, 'storage': s3_res.get('storage', 'LOCAL')})
     except Exception as e:
         return jsonify({'success':False,'message':str(e)}), 500
 
@@ -101,6 +120,8 @@ def delete_saved_file():
     if meta:
         fp = os.path.join(_user_dir(uid, config.SAVED_QUERIES_DIR), meta.get('filename',''))
         if os.path.exists(fp): os.remove(fp)
+        if meta.get('s3_key'):
+            delete_file(meta['s3_key'])
         if col is not None: col.delete_one({'id':fid,'user_id':uid})
     return jsonify({'success':True})
 
@@ -125,11 +146,30 @@ def save_program():
         header = f"{cm} Program : {name}\n{cm} Language: {lang}\n{cm} Topic   : {topic}\n{cm} Saved   : {created}\n"
         if desc: header += f"{cm} Desc    : {desc}\n"
         header += (cm + ' ' + '-'*55) + '\n\n'
-        with open(fpath,'w',encoding='utf-8') as f: f.write(header + code)
-        meta = {'id':pid,'user_id':uid,'name':name,'lang':lang,'topic':topic,'description':desc,'filename':fname,'created_at':created}
+        full_content = header + code
+        
+        # 1. Local filesystem save
+        with open(fpath,'w',encoding='utf-8') as f: f.write(full_content)
+        
+        # 2. Amazon S3 storage sync
+        s3_key = f"user_files/{_safe(uid)}/programs/{fname}"
+        s3_res = upload_file(full_content, s3_key, content_type='text/plain')
+
+        meta = {
+            'id':pid,
+            'user_id':uid,
+            'name':name,
+            'lang':lang,
+            'topic':topic,
+            'description':desc,
+            'filename':fname,
+            'created_at':created,
+            's3_key': s3_key,
+            'storage': s3_res.get('storage', 'LOCAL')
+        }
         col = _meta_col('saved_programs')
         if col is not None: col.replace_one({'id':pid,'user_id':uid}, meta, upsert=True)
-        return jsonify({'success':True,'id':pid,'filename':fname})
+        return jsonify({'success':True,'id':pid,'filename':fname, 'storage': s3_res.get('storage', 'LOCAL')})
     except Exception as e:
         return jsonify({'success':False,'message':str(e)}), 500
 
@@ -186,5 +226,38 @@ def delete_saved_program():
     if meta:
         fp = os.path.join(_user_dir(uid, config.SAVED_PROGRAMS_DIR), meta.get('filename',''))
         if os.path.exists(fp): os.remove(fp)
+        if meta.get('s3_key'):
+            delete_file(meta['s3_key'])
         if col is not None: col.delete_one({'id':pid,'user_id':uid})
     return jsonify({'success':True})
+
+# ══════════════════════════════════════════════════════════════════
+# AMAZON S3 PDF STORAGE & CLOUD BACKUP
+# ══════════════════════════════════════════════════════════════════
+
+@files_bp.route('/api/pdf/save-s3', methods=['POST'])
+def save_pdf_to_s3():
+    """
+    Stores generated PDF or HTML report content to Amazon S3 (or local fallback).
+    Accepts raw content or base64 data.
+    """
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+    try:
+        data = request.get_json() or {}
+        uid = session['user_id']
+        filename = data.get('filename', f"QueryNest_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf")
+        
+        # Check if content is provided as base64 or raw string
+        if 'base64_data' in data:
+            raw_bytes = base64.b64decode(data['base64_data'])
+        else:
+            raw_bytes = data.get('content', '').encode('utf-8')
+
+        result = save_generated_pdf(uid, filename, raw_bytes)
+        presigned_url = generate_presigned_url(result['key'])
+        result['download_url'] = presigned_url
+
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500

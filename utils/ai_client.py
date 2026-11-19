@@ -57,7 +57,27 @@ def is_programming_topic(query):
 
 
 # ── Groq API via official package (fixes Cloudflare 403) ─────────────────────
-def call_groq(prompt, lang='', system_prompt=None, messages=None):
+def _vision_user_content(prompt, image):
+    """Build multimodal user content for Groq vision models."""
+    text = (prompt or '').strip() or 'Is image ko carefully padho. Agar code, SQL, error, ya assignment dikhe to complete working solution do. Hinglish mein explain karo.'
+    parts = [{'type': 'text', 'text': text}]
+    if image and image.get('data'):
+        mime = (image.get('mime') or 'image/jpeg').split(';')[0].strip().lower()
+        if mime not in ('image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'):
+            mime = 'image/jpeg'
+        if mime == 'image/jpg':
+            mime = 'image/jpeg'
+        b64 = image.get('data', '')
+        if b64.startswith('data:'):
+            b64 = b64.split(',', 1)[-1]
+        parts.append({
+            'type': 'image_url',
+            'image_url': {'url': f'data:{mime};base64,{b64}'},
+        })
+    return parts
+
+
+def call_groq(prompt, lang='', system_prompt=None, messages=None, image=None):
     """
     Call Groq using the official `groq` Python package.
     This avoids the HTTP 403 / error code 1010 Cloudflare block
@@ -74,7 +94,26 @@ def call_groq(prompt, lang='', system_prompt=None, messages=None):
     if not api_key or 'YOUR' in api_key or not api_key.startswith('gsk_'):
         return None, 'Groq key not set or invalid (must start with gsk_)'
 
-    model     = getattr(config, 'GROQ_MODEL', 'llama-3.3-70b-versatile')
+    preferred = getattr(config, 'GROQ_MODEL', 'llama-3.3-70b-versatile')
+    vision_preferred = getattr(config, 'GROQ_VISION_MODEL', 'meta-llama/llama-4-scout-17b-16e-instruct')
+    models_to_try = []
+    if image:
+        for candidate in (
+            vision_preferred,
+            'meta-llama/llama-4-scout-17b-16e-instruct',
+            'meta-llama/llama-4-maverick-17b-128e-instruct',
+        ):
+            if candidate and candidate not in models_to_try:
+                models_to_try.append(candidate)
+    else:
+        for candidate in (
+            preferred,
+            'llama-3.3-70b-versatile',
+            'openai/gpt-oss-20b',
+            'gemma2-9b-it',
+        ):
+            if candidate and candidate not in models_to_try:
+                models_to_try.append(candidate)
     lang_name = lang.upper() if lang else 'Python'
 
     if system_prompt is None:
@@ -94,31 +133,59 @@ def call_groq(prompt, lang='', system_prompt=None, messages=None):
 
     chat_messages = [{'role': 'system', 'content': system_prompt}]
 
-    if messages:
-        for msg in messages[-6:]:
-            role    = msg.get('role', 'user')
-            content = msg.get('content', '')
-            if role in ('user', 'assistant') and content:
-                chat_messages.append({'role': role, 'content': content})
+    if image:
+        # Vision calls: keep short text history, attach image on the latest user turn
+        if messages:
+            for msg in messages[-4:]:
+                role = msg.get('role', 'user')
+                content = msg.get('content', '')
+                if role in ('user', 'assistant') and isinstance(content, str) and content:
+                    chat_messages.append({'role': role, 'content': content})
+        user_content = _vision_user_content(prompt, image)
+        if chat_messages and chat_messages[-1].get('role') == 'user':
+            chat_messages[-1] = {'role': 'user', 'content': user_content}
+        else:
+            chat_messages.append({'role': 'user', 'content': user_content})
     else:
-        chat_messages.append({'role': 'user', 'content': prompt})
+        if messages:
+            for msg in messages[-6:]:
+                role    = msg.get('role', 'user')
+                content = msg.get('content', '')
+                if role in ('user', 'assistant') and content:
+                    chat_messages.append({'role': role, 'content': content})
+        else:
+            chat_messages.append({'role': 'user', 'content': prompt})
 
-    if chat_messages[-1]['role'] != 'user':
-        chat_messages.append({'role': 'user', 'content': prompt})
+        if chat_messages[-1]['role'] != 'user':
+            chat_messages.append({'role': 'user', 'content': prompt})
 
     try:
-        client     = Groq(api_key=api_key)
-        completion = client.chat.completions.create(
-            model       = model,
-            messages    = chat_messages,
-            max_tokens  = 2048,
-            temperature = 0.3,
-        )
-        text = completion.choices[0].message.content.strip()
-        if text:
-            print(f"[Groq] ✅ {len(text)} chars received")
-            return text, None
-        return None, 'Empty response from Groq'
+        client = Groq(api_key=api_key)
+        last_err = None
+        for model in models_to_try:
+            try:
+                completion = client.chat.completions.create(
+                    model       = model,
+                    messages    = chat_messages,
+                    max_tokens  = 2048,
+                    temperature = 0.3,
+                )
+                text = completion.choices[0].message.content.strip()
+                if text:
+                    print(f"[Groq] ✅ {model}: {len(text)} chars received")
+                    return text, None
+                last_err = 'Empty response from Groq'
+            except Exception as e:
+                last_err = str(e)
+                print(f"[Groq] ❌ {model}: {last_err}")
+                err_l = last_err.lower()
+                if any(k in err_l for k in (
+                    'model_not_found', 'does not exist', 'decommissioned',
+                    'invalid model', 'unsupported', 'vision', 'image_url',
+                )):
+                    continue
+                return None, last_err
+        return None, last_err or 'No Groq model available'
 
     except Exception as e:
         err = str(e)
@@ -127,9 +194,9 @@ def call_groq(prompt, lang='', system_prompt=None, messages=None):
 
 
 # ── Main entry point ──────────────────────────────────────────────────────────
-def call_claude_ai(prompt, lang='', system_prompt=None, messages=None):
+def call_claude_ai(prompt, lang='', system_prompt=None, messages=None, image=None):
     """Single entry point — uses Groq via official SDK (no Cloudflare block)."""
-    text, err = call_groq(prompt, lang, system_prompt, messages)
+    text, err = call_groq(prompt, lang, system_prompt, messages, image=image)
     if text:
         return text, None
     return None, err

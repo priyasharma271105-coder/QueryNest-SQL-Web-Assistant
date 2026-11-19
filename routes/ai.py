@@ -34,7 +34,13 @@ def smart_search():
     use_ai      = data.get('use_ai', False)
     forced_lang = data.get('lang', '').strip().lower()
     limit       = int(data.get('limit', 1))
+    image       = data.get('image') or None
     user_id     = session['user_id']
+
+    if image:
+        use_ai = True
+        if not query:
+            query = 'Is image se related complete working code / SQL query do'
 
     if not query:
         return jsonify({'success': False, 'message': 'Empty query'})
@@ -46,7 +52,7 @@ def smart_search():
     det_lang = forced_lang if forced_lang in ['sql','mysql','mongodb','python','java','c','cpp'] \
                else detect_language(norm)
 
-    if not forced_lang and not is_programming_topic(norm):
+    if not image and not forced_lang and not is_programming_topic(norm):
         return jsonify({
             'success': False, 'source': 'out_of_scope',
             'message': '❌ **QueryNest sirf programming aur database queries ke liye hai!**\n\n'
@@ -93,7 +99,7 @@ def smart_search():
         })
 
     lang_hint       = det_lang or 'python'
-    ai_text, ai_err = call_claude_ai(query, lang_hint)
+    ai_text, ai_err = call_claude_ai(query, lang_hint, image=image)
     if ai_text:
         db = db_module.get_db()
         save_ai_answer(db, query, ai_text, lang_hint, 'claude_ai')
@@ -124,6 +130,7 @@ def ai_chat():
         return jsonify({'error': 'Not logged in'}), 401
 
     data = request.get_json() or {}
+    image = data.get('image') or None
 
     simple_message = data.get('message', '').strip()
     simple_lang    = data.get('lang', '').strip().lower()
@@ -184,6 +191,9 @@ def ai_chat():
         elif any(kw in msg_lower for kw in PROG_KEYWORDS):
             eff_lang = 'python'
 
+    if not message and image:
+        message = 'Is image ko padho. Code, SQL, error, ya programming question ho to complete working solution do.'
+
     if not message:
         msg = '⚠️ Empty message received.'
         return jsonify({'reply': msg, 'content': [{'type': 'text', 'text': msg}]})
@@ -199,7 +209,7 @@ def ai_chat():
         'poem', 'essay', 'history', 'geography'
     ]
     msg_lower = message.lower()
-    if any(kw in msg_lower for kw in NON_PROG_KEYWORDS):
+    if not image and any(kw in msg_lower for kw in NON_PROG_KEYWORDS):
         reply = (
             "😄 Yaar, main **programming AI** hoon — Maggi banana nahi jaanta! 🍜\n\n"
             "Main sirf **code aur database** ke sawaalon mein help kar sakta hoon:\n\n"
@@ -234,7 +244,8 @@ def ai_chat():
     # ── Try real AI first ────────────────────────────────────────
     ai_text, ai_err = call_claude_ai(message, eff_lang,
                                      system_prompt=system_prompt,
-                                     messages=trimmed_msgs)
+                                     messages=trimmed_msgs,
+                                     image=image)
     if ai_text:
         db = db_module.get_db()
         save_ai_answer(db, message, ai_text, eff_lang, 'claude_ai')

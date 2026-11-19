@@ -132,18 +132,42 @@ function appendMsg(box, role, html) {
 
 // ── Format AI response ─────────────────────────────────────────
 function formatAIText(text) {
-    // Code blocks
+    const codeBlocks = [];
+
+    // 1. Extract code blocks and protect them with placeholders
     text = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, function (_, l, code) {
-        let escaped = esc(code.trim());
+        const placeholder = '___CODEBLOCK_' + codeBlocks.length + '___';
+        const langLabel = (l || 'code').toUpperCase();
+        // Preserve indentation: normalize CRLF and trim only leading/trailing blank lines
+        let cleanCode = code.replace(/\r\n/g, '\n').replace(/^\n+|\s+$/g, '');
+        let escaped = esc(cleanCode);
         escaped = escaped
             .replace(/(\/\/[^\n]*)/g,  '<span style="color:#6ee7b7;font-style:italic;">$1</span>')
             .replace(/(--\s[^\n]*)/g,  '<span style="color:#6ee7b7;font-style:italic;">$1</span>')
             .replace(/((?:^|\n)(#[^\n]*))/g, '$1<span style="color:#6ee7b7;font-style:italic;">$2</span>');
-        return '<pre style="background:#0e0022;border:1px solid rgba(107,76,227,.4);border-radius:8px;padding:12px;margin:8px 0;font-family:\'JetBrains Mono\',monospace;font-size:12px;overflow-x:auto;color:#a5f3fc;white-space:pre;">' + escaped + '</pre>';
+
+        const blockHtml = '<div class="code-wrap" style="margin:8px 0;border-radius:10px;overflow:hidden;border:1px solid rgba(107,76,227,.4);background:#0e0022;">'
+            + '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(107,76,227,.25);">'
+            + '<span style="font-size:11px;font-weight:700;color:#a78bfa;letter-spacing:.04em;">' + esc(langLabel) + '</span>'
+            + '<button type="button" class="code-copy" onclick="copyCodeBlock(this)" style="background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.35);color:#c4b5fd;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:700;">📋 Copy</button>'
+            + '</div>'
+            + '<pre style="background:transparent;border:none;border-radius:0;padding:12px;margin:0;font-family:\'JetBrains Mono\',monospace;font-size:12px;overflow-x:auto;color:#a5f3fc;white-space:pre;">' + escaped + '</pre>'
+            + '</div>';
+
+        codeBlocks.push(blockHtml);
+        return placeholder;
     });
+
+    // 2. Format inline markdown and convert line breaks ONLY on non-code text
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     text = text.replace(/`([^`]+)`/g,     '<code style="background:rgba(107,76,227,.3);padding:2px 5px;border-radius:4px;font-size:12px;font-family:monospace;">$1</code>');
     text = text.replace(/\n/g, '<br>');
+
+    // 3. Restore protected code blocks
+    text = text.replace(/___CODEBLOCK_(\d+)___/g, function (_, idx) {
+        return codeBlocks[Number(idx)];
+    });
+
     return text;
 }
 
@@ -175,3 +199,47 @@ window.askAIFromSearch = function askAIFromSearch(query) {
 function esc(s) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+window.copyCodeBlock = function copyCodeBlock(btn) {
+    const wrap = btn && btn.closest ? btn.closest('.code-wrap') : null;
+    const pre = wrap ? wrap.querySelector('pre') : null;
+    if (!pre) return;
+
+    let text = '';
+    if (pre.querySelector('br')) {
+        const clone = pre.cloneNode(true);
+        clone.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+        text = clone.textContent || '';
+    } else {
+        text = pre.textContent || '';
+    }
+    text = text.replace(/\r\n/g, '\n');
+    if (!text) return;
+
+    const orig = btn.textContent;
+    const done = function () {
+        btn.textContent = '✅ Copied!';
+        btn.style.color = '#6ee7b7';
+        setTimeout(function () {
+            btn.textContent = orig;
+            btn.style.color = '#c4b5fd';
+        }, 1800);
+    };
+    const fallback = function () {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () { fallback(); done(); });
+    } else {
+        fallback();
+        done();
+    }
+};

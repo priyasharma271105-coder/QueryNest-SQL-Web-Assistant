@@ -13,11 +13,19 @@
         .msg.user .bubble{background:linear-gradient(135deg,#6b4ce3,#ec4899);color:#fff;border-bottom-right-radius:4px}
         .msg.bot  .bubble{background:rgba(107,76,227,0.12);border:1.5px solid rgba(107,76,227,0.3);color:#e2d9f3;border-bottom-left-radius:4px}
         .bubble pre{background:#0d1117;border:1px solid rgba(107,76,227,0.4);border-radius:8px;padding:12px;margin:8px 0;overflow-x:auto;font-family:'Courier New',monospace;font-size:12.5px;color:#a5f3fc;white-space:pre}
+        .code-wrap{margin:8px 0;border-radius:10px;overflow:hidden;border:1px solid rgba(107,76,227,0.4);background:#0d1117}
+        .code-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;background:rgba(255,255,255,0.05);border-bottom:1px solid rgba(107,76,227,0.25)}
+        .code-bar span{font-size:11px;font-weight:700;color:#a78bfa;letter-spacing:.04em;text-transform:uppercase}
+        .code-copy{background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.35);color:#c4b5fd;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Poppins',sans-serif}
+        .code-copy:hover{background:rgba(167,139,250,0.28)}
+        .code-copy.ok{background:rgba(16,185,129,0.2);border-color:rgba(16,185,129,0.45);color:#6ee7b7}
+        .bubble .code-wrap pre{margin:0;border:none;border-radius:0;background:transparent}
         .bubble code{background:rgba(107,76,227,0.25);padding:2px 6px;border-radius:4px;font-size:12px;font-family:monospace}
         .bubble strong{color:#c4b5fd}
         .bubble a{color:#a78bfa}
         @keyframes blink{0%,100%{opacity:.2;transform:scale(.85)}50%{opacity:1;transform:scale(1)}}
         #srContent pre{background:#0d1117;border:1px solid rgba(107,76,227,0.4);border-radius:10px;padding:16px;margin:10px 0;overflow-x:auto;font-family:'Courier New',monospace;font-size:13px;color:#a5f3fc;white-space:pre;line-height:1.6}
+        #srContent .code-wrap pre{margin:0;border:none;border-radius:0}
         #srContent code{background:rgba(107,76,227,0.25);padding:2px 7px;border-radius:4px;font-size:12.5px;font-family:monospace;color:#c4b5fd}
         #srContent strong{color:#e2d9f3}
         #srContent::-webkit-scrollbar{width:5px}
@@ -45,6 +53,12 @@
         .key-banner{background:rgba(107,76,227,0.15);border:1px dashed rgba(107,76,227,0.4);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:rgba(200,180,255,0.7);display:none}
         .key-banner input{background:rgba(0,0,0,0.3);border:1px solid rgba(107,76,227,0.4);border-radius:8px;padding:6px 10px;color:#e2d9f3;font-size:12px;font-family:monospace;width:300px;outline:none;margin:6px 4px 0 0}
         .key-banner button{background:linear-gradient(135deg,#7c3aed,#ec4899);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+        .bubble img.chat-pic{max-width:220px;max-height:180px;border-radius:10px;margin-top:8px;display:block;border:1px solid rgba(255,255,255,0.15)}
+        .img-preview-chip{display:none;align-items:center;gap:10px;margin:0 0 10px;background:rgba(107,76,227,0.15);border:1px solid rgba(107,76,227,0.35);border-radius:12px;padding:8px 12px}
+        .img-preview-chip img{width:52px;height:52px;object-fit:cover;border-radius:8px}
+        .img-preview-chip span{flex:1;color:#c4b5fd;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .img-preview-chip button{background:none;border:none;color:#f9a8d4;cursor:pointer;font-size:16px}
+        .btn-mic.has-img{background:#7c3aed;border-color:#c4b5fd}
     </style>
 </head>
 <body>
@@ -64,6 +78,7 @@
         <div class="nav-tab" onclick="switchTab(this,'cpp')">C++</div>
       </div>
       <div class="nav-right">
+        <button class="btn-back" onclick="location.href='/search'" style="background:linear-gradient(135deg,#6b4ce3,#ec4899);color:#fff;border:none;font-weight:700;">🔍 Search</button>
         <button class="btn-back" onclick="location.href='/ide'" style="background:linear-gradient(135deg,#6b4ce3,#ec4899);color:#fff;border:none;font-weight:700;">🖥️ IDE</button>
         <button class="btn-back" onclick="history.back()">← Back</button>
         <div class="user-info">Hello, <strong id="nav-user">User</strong></div>
@@ -83,34 +98,9 @@
     <div class="search-section">
       <div class="search-box">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Search queries... e.g. 'prime number in c'">
+        <input type="text" id="searchInput" placeholder="Search queries... e.g. 'create house table'">
         <button id="searchMicBtn" title="Voice search — Hindi ya English bolein" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px 8px;color:#a78bfa;vertical-align:middle;">🎤</button>
-        <button class="btn-search" onclick="doSearch()">Search</button>
-      </div>
-    </div>
-
-    <!-- Search result — improved interactive panel -->
-    <div id="srPanel" style="display:none;max-width:900px;margin:0 auto 40px;animation:fadeIn .3s ease;">
-      <div style="background:rgba(22,4,40,0.97);border:2px solid rgba(107,76,227,0.4);border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.5);">
-        <!-- Panel header -->
-        <div style="background:linear-gradient(135deg,rgba(107,76,227,0.25),rgba(168,85,247,0.15));border-bottom:1px solid rgba(107,76,227,0.25);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
-          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-            <div id="srIcon" style="font-size:20px;flex-shrink:0;">📖</div>
-            <div id="srTitle" style="font-size:16px;font-weight:800;color:#e2d9f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-            <span id="srSourceBadge" style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;background:rgba(107,76,227,0.3);color:#c4b5fd;letter-spacing:.05em;"></span>
-            <button onclick="copySrCode()" title="Copy code" style="background:rgba(255,255,255,0.07);border:1px solid rgba(107,76,227,0.3);color:#a78bfa;border-radius:8px;padding:5px 11px;cursor:pointer;font-size:13px;">📋 Copy</button>
-            <button onclick="document.getElementById('srPanel').style.display='none'" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#a78bfa;border-radius:8px;padding:5px 11px;cursor:pointer;font-size:14px;">✕</button>
-          </div>
-        </div>
-        <!-- Panel body -->
-        <div id="srContent" style="padding:22px;color:#c4b5fd;font-size:14px;line-height:1.85;max-height:60vh;overflow-y:auto;"></div>
-        <!-- Panel footer actions -->
-        <div id="srFooter" style="border-top:1px solid rgba(107,76,227,0.2);padding:12px 20px;display:none;align-items:center;gap:10px;background:rgba(0,0,0,0.2);">
-          <span style="color:rgba(200,180,255,0.4);font-size:12px;flex:1;">Aur detail chahiye?</span>
-          <button id="srAskAI" onclick="askAIFromSearch()" style="background:linear-gradient(135deg,#6b4ce3,#a855f7);border:none;color:#fff;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;">🤖 AI se poochho</button>
-        </div>
+        <button class="btn-search" onclick="goToSearchPage()">Search</button>
       </div>
     </div>
 
@@ -163,8 +153,15 @@
         </div>
 
         <!-- Input -->
+        <div class="img-preview-chip" id="chatImgChip">
+          <img id="chatImgThumb" alt="preview">
+          <span id="chatImgName">image attached</span>
+          <button type="button" onclick="clearChatImage()" title="Remove">✕</button>
+        </div>
         <div class="chat-row">
           <input type="text" id="chatInput" placeholder="Kuch bhi poochho... e.g. 'happy number in python'" autocomplete="off">
+          <input type="file" id="chatImage" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" style="display:none">
+          <button class="btn-mic" id="imgBtn" title="Attach image">📎</button>
           <button class="btn-mic" id="micBtn" title="Voice">🎤</button>
           <button class="btn-go"  id="sendBtn">Send 📤</button>
         </div>
@@ -196,16 +193,72 @@
 
 var curLang = '';  // '' = All languages
 var chatHistory = [];  // conversation history for multi-turn AI
+var pendingChatImage = null;
 
 // ── HTML helpers ───────────────────────────────────────────────
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function fmt(text){
-  text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, function(_,l,c){ return '<pre>'+esc(c.trim())+'</pre>'; });
+  var codeBlocks = [];
+  // 1. Extract and protect code blocks
+  text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, function(_,l,c){
+    var placeholder = '___CODEBLOCK_' + codeBlocks.length + '___';
+    var label = (l || 'code').toUpperCase();
+    var cleanCode = c.replace(/\r\n/g, '\n').replace(/^\n+|\s+$/g, '');
+    var html = '<div class="code-wrap">'
+      + '<div class="code-bar"><span>'+esc(label)+'</span>'
+      + '<button type="button" class="code-copy" onclick="copyCodeBlock(this)">📋 Copy</button></div>'
+      + '<pre>'+esc(cleanCode)+'</pre></div>';
+    codeBlocks.push(html);
+    return placeholder;
+  });
+  // 2. Format inline styles and newlines only outside code blocks
   text = text.replace(/`([^`\n]+)`/g,'<code>$1</code>');
   text = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
   text = text.replace(/\*(.*?)\*/g,'<em>$1</em>');
   text = text.replace(/\n/g,'<br>');
+  // 3. Restore code blocks with pristine indentation and line breaks
+  text = text.replace(/___CODEBLOCK_(\d+)___/g, function(_, idx){
+    return codeBlocks[Number(idx)];
+  });
   return text;
+}
+function copyCodeBlock(btn){
+  var wrap = btn && btn.closest ? btn.closest('.code-wrap') : null;
+  var pre = wrap ? wrap.querySelector('pre') : null;
+  if (!pre) return;
+  var text = '';
+  if (pre.querySelector('br')) {
+    var clone = pre.cloneNode(true);
+    clone.querySelectorAll('br').forEach(function(br){ br.replaceWith('\n'); });
+    text = clone.textContent || '';
+  } else {
+    text = pre.textContent || '';
+  }
+  text = text.replace(/\r\n/g, '\n');
+  if (!text) return;
+  var done = function(){
+    btn.classList.add('ok');
+    var orig = btn.textContent;
+    btn.textContent = '✅ Copied!';
+    setTimeout(function(){ btn.textContent = orig; btn.classList.remove('ok'); }, 1800);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(function(){ fallbackCopy(text); done(); });
+  } else {
+    fallbackCopy(text);
+    done();
+  }
+}
+function fallbackCopy(text){
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly','');
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
 }
 function addMsg(role, html){
   var box=document.getElementById('chatBox');
@@ -246,11 +299,16 @@ function showSavedPrograms(lang) {
 }
 
 function loadSaved(title) {
-  var input = document.getElementById('searchInput');
-  if (input) {
-    input.value = title;
-    doSearch();
-  }
+  goToSearchPage(title);
+}
+function goToSearchPage(forcedQuery){
+  var raw = (forcedQuery != null) ? forcedQuery : (document.getElementById('searchInput').value || '').trim();
+  var q = (typeof QNVoice !== 'undefined' && QNVoice.isDevanagari && QNVoice.isDevanagari(raw))
+        ? QNVoice.translateToEnglish(raw) : raw;
+  if (!q) { location.href = '/search'; return; }
+  var url = '/search?q=' + encodeURIComponent(q);
+  if (curLang) url += '&lang=' + encodeURIComponent(curLang);
+  location.href = url;
 }
 function pickLang(lang){
   curLang = (lang === 'all' || !lang) ? '' : lang;
@@ -263,7 +321,7 @@ function pickLang(lang){
 }
 
 // ── AI CALL (via Flask backend) ───────────────────────
-function callClaudeAI(message, lang) {
+function callClaudeAI(message, lang, image) {
   var langName = (lang || 'python').toUpperCase();
 
   var systemPrompt =
@@ -291,7 +349,8 @@ function callClaudeAI(message, lang) {
       message: message,
       lang: lang || 'python',
       system: systemPrompt,
-      messages: msgs
+      messages: msgs,
+      image: image || null
     })
   })
   .then(function(r) { return r.json(); })
@@ -315,18 +374,65 @@ function callClaudeAI(message, lang) {
 }
 
 // ── SEND CHAT ──────────────────────────────────────────────────
+function fileToImagePayload(file){
+  return new Promise(function(resolve, reject){
+    if (!file) { resolve(null); return; }
+    var ok = /image\/(png|jpe?g|webp|gif)/i.test(file.type);
+    if (!ok) { reject(new Error('Sirf PNG, JPG, WEBP ya GIF chalegi.')); return; }
+    if (file.size > 4 * 1024 * 1024) { reject(new Error('Image 4MB se chhoti honi chahiye.')); return; }
+    var reader = new FileReader();
+    reader.onload = function(){
+      var dataUrl = String(reader.result || '');
+      var parts = dataUrl.split(',');
+      resolve({
+        mime: file.type === 'image/jpg' ? 'image/jpeg' : file.type,
+        data: parts[1] || '',
+        name: file.name,
+        preview: dataUrl
+      });
+    };
+    reader.onerror = function(){ reject(new Error('Image read nahi hui.')); };
+    reader.readAsDataURL(file);
+  });
+}
+function showChatImage(img){
+  pendingChatImage = img;
+  document.getElementById('chatImgThumb').src = img.preview;
+  document.getElementById('chatImgName').textContent = img.name || 'image attached';
+  document.getElementById('chatImgChip').style.display = 'flex';
+  var imgBtn = document.getElementById('imgBtn');
+  if (imgBtn) imgBtn.classList.add('has-img');
+}
+function clearChatImage(){
+  pendingChatImage = null;
+  var fi = document.getElementById('chatImage');
+  if (fi) fi.value = '';
+  var chip = document.getElementById('chatImgChip');
+  if (chip) chip.style.display = 'none';
+  var imgBtn = document.getElementById('imgBtn');
+  if (imgBtn) imgBtn.classList.remove('has-img');
+}
+
 function sendChat(){
   var input = document.getElementById('chatInput');
   var btn   = document.getElementById('sendBtn');
   var msg   = input.value.trim();
-  if(!msg) return;
+  var img   = pendingChatImage;
+  if(!msg && !img) return;
+  if(!msg && img) msg = 'Is image ko padho aur complete working solution do.';
 
-  addMsg('user', esc(msg));
+  var userHtml = esc(msg);
+  if (img && img.preview) {
+    userHtml += '<img class="chat-pic" src="'+img.preview+'" alt="attached">';
+  }
+  addMsg('user', userHtml);
   input.value = '';
+  var sentImage = img ? { mime: img.mime, data: img.data } : null;
+  clearChatImage();
   btn.disabled = true;
   showTyping();
 
-  callClaudeAI(msg, curLang || 'python')
+  callClaudeAI(msg, curLang || 'python', sentImage)
   .then(function(reply) {
     removeTyping();
     addMsg('bot', fmt(reply));
@@ -368,133 +474,65 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Voice for Search bar
+  // Voice for Search bar — opens dedicated search page
   if (document.getElementById('searchMicBtn')) {
     QNVoice.init('searchMicBtn', 'searchInput', {
-      onResult: function(translatedText) {
-        setTimeout(function() { doSearch(); }, 300);
+      onResult: function() {
+        setTimeout(function() { goToSearchPage(); }, 300);
+      }
+    });
+  }
+
+  var imgBtn = document.getElementById('imgBtn');
+  var imgInput = document.getElementById('chatImage');
+  if (imgBtn && imgInput) {
+    imgBtn.onclick = function(){ imgInput.click(); };
+    imgInput.addEventListener('change', function(){
+      var file = this.files && this.files[0];
+      if (!file) return;
+      fileToImagePayload(file).then(showChatImage).catch(function(err){
+        addMsg('bot', '⚠️ ' + esc(err.message || String(err)));
+        clearChatImage();
+      });
+    });
+  }
+  function attachDroppedFile(file){
+    if (!file) return;
+    fileToImagePayload(file).then(showChatImage).catch(function(err){
+      addMsg('bot', '⚠️ ' + esc(err.message || String(err)));
+    });
+  }
+  var dropTargets = ['chatBox', 'chatInput'];
+  dropTargets.forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('dragover', function(e){ e.preventDefault(); });
+    el.addEventListener('drop', function(e){
+      e.preventDefault();
+      var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file && file.type.indexOf('image') === 0) attachDroppedFile(file);
+    });
+  });
+  var chatInput = document.getElementById('chatInput');
+  if (chatInput) {
+    chatInput.addEventListener('paste', function(e){
+      var items = e.clipboardData && e.clipboardData.items;
+      if (!items) return;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') === 0) {
+          e.preventDefault();
+          var file = items[i].getAsFile();
+          fileToImagePayload(file).then(showChatImage).catch(function(err){
+            addMsg('bot', '⚠️ ' + esc(err.message || String(err)));
+          });
+          break;
+        }
       }
     });
   }
 });
 
-// ── Search ─────────────────────────────────────────────────────
-var _lastSearchQuery = '';
-
-function doSearch(useAI){
-  var raw = document.getElementById('searchInput').value.trim();
-  var q = (typeof QNVoice !== 'undefined' && QNVoice.isDevanagari && QNVoice.isDevanagari(raw))
-        ? QNVoice.translateToEnglish(raw) : raw;
-  if (!q) return;
-  _lastSearchQuery = q;
-  var forceAI = useAI === true;
-
-  var srPanel   = document.getElementById('srPanel');
-  var srTitle   = document.getElementById('srTitle');
-  var srContent = document.getElementById('srContent');
-  var srIcon    = document.getElementById('srIcon');
-  var srBadge   = document.getElementById('srSourceBadge');
-  var srFooter  = document.getElementById('srFooter');
-
-  // Show panel with loading state
-  srIcon.textContent    = forceAI ? '🤖' : '🔍';
-  srTitle.textContent   = forceAI ? 'AI soch raha hai...' : 'Searching database...';
-  srBadge.textContent   = forceAI ? 'AI' : 'Searching...';
-  srFooter.style.display = 'none';
-  srContent.innerHTML   = '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;">'
-    + '<div class="t-bub" style="display:inline-flex;gap:5px;"><span style="width:8px;height:8px;background:#a78bfa;border-radius:50%;animation:blink 1.2s ease-in-out infinite;display:inline-block;"></span>'
-    + '<span style="width:8px;height:8px;background:#a78bfa;border-radius:50%;animation:blink 1.2s ease-in-out .2s infinite;display:inline-block;"></span>'
-    + '<span style="width:8px;height:8px;background:#a78bfa;border-radius:50%;animation:blink 1.2s ease-in-out .4s infinite;display:inline-block;"></span></div>'
-    + '<span style="color:rgba(200,180,255,0.5);font-size:13px;">' + (forceAI ? 'AI generating answer...' : 'Looking through database...') + '</span></div>';
-  srPanel.style.display = 'block';
-  srPanel.scrollIntoView({behavior:'smooth', block:'nearest'});
-
-  fetch('/api/search', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    credentials: 'include',
-    body: JSON.stringify({query: q, lang: curLang||'', use_ai: forceAI})
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    // If not found in DB, auto-retry with AI
-    if (!forceAI && (d.source==='not_found' || !d.success || (d.result && !d.result.content))) {
-      srIcon.textContent  = '🤖';
-      srTitle.textContent = 'AI se poochh raha hoon...';
-      srBadge.textContent = 'AI';
-      srContent.innerHTML = '<div style="color:rgba(200,180,255,0.5);font-size:13px;padding:8px 0;">Database mein nahi mila — AI se puchh raha hoon... ✨</div>';
-      doSearch(true);
-      return;
-    }
-
-    // Source badge
-    var sourceLabel = {
-      'database':   '📊 Database',
-      'local_json': '📁 Library',
-      'builtin':    '⚡ Built-in',
-      'ai':         '🤖 AI Generated',
-      'claude_ai':  '🤖 Claude AI'
-    }[d.source] || (forceAI ? '🤖 AI' : '📖 Found');
-
-    srBadge.textContent   = sourceLabel;
-    srIcon.textContent    = forceAI ? '🤖' : '✅';
-
-    if (d.result && d.result.content) {
-      srTitle.textContent = d.result.title || q;
-      srContent.innerHTML = fmt(d.result.content);
-      srFooter.style.display = 'flex';
-    } else if (d.success === false && d.message) {
-      srIcon.textContent  = '❌';
-      srTitle.textContent = 'Result nahi mila';
-      srBadge.textContent = '';
-      srContent.innerHTML = '<div style="color:rgba(220,200,255,0.75);font-size:14px;padding:4px 0;">'
-        + fmt(d.message)
-        + '</div><div style="margin-top:14px;">'
-        + '<button onclick="askAIFromSearch()" style="background:linear-gradient(135deg,#6b4ce3,#a855f7);border:none;color:#fff;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;">🤖 AI se puchho</button></div>';
-    } else {
-      srTitle.textContent = q;
-      srContent.innerHTML = '<div style="color:rgba(220,200,255,0.7);font-size:14px;">Koi result nahi mila.</div>';
-      srFooter.style.display = 'flex';
-    }
-  })
-  .catch(function(err){
-    srIcon.textContent  = '⚠️';
-    srTitle.textContent = 'Error';
-    srContent.innerHTML = '<div style="color:#f87171;font-size:13px;">Connection error: ' + String(err) + '</div>';
-  });
-}
-
-function askAIFromSearch() {
-  if (!_lastSearchQuery) return;
-  // Put query in AI chat and trigger AI
-  var input = document.getElementById('chatInput') || document.getElementById('searchInput');
-  var chatInput = document.getElementById('chatInput');
-  if (chatInput) {
-    chatInput.value = _lastSearchQuery;
-    document.getElementById('srPanel').style.display = 'none';
-    chatInput.scrollIntoView({behavior:'smooth'});
-    // Trigger send if sendMsg exists
-    if (typeof sendMsg === 'function') { setTimeout(sendMsg, 100); }
-  } else {
-    doSearch(true);
-  }
-}
-
-function copySrCode() {
-  var content = document.getElementById('srContent');
-  var pre = content ? content.querySelector('pre') : null;
-  var text = pre ? pre.textContent : (content ? content.innerText : '');
-  if (!text) return;
-  navigator.clipboard.writeText(text).then(function(){
-    var btn = event.target;
-    var orig = btn.innerHTML;
-    btn.innerHTML = '✅ Copied!';
-    btn.style.color = '#22c55e';
-    setTimeout(function(){ btn.innerHTML = orig; btn.style.color = ''; }, 1800);
-  }).catch(function(){ /* fallback silent */ });
-}
-
-document.getElementById('searchInput').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
+document.getElementById('searchInput').addEventListener('keydown',function(e){if(e.key==='Enter')goToSearchPage();});
 
 // ── Load username ──────────────────────────────────────────────
 fetch('/api/me',{credentials:'include'})
@@ -511,13 +549,28 @@ function saveKey(k) { /* no-op */ }
 // ── On load ────────────────────────────────────────────────────
 window.onload = function() {
   checkKeyBanner();
-  // Update welcome bubble
   var box = document.getElementById('chatBox');
   var msg = box ? box.querySelector('.bubble') : null;
   if (msg) {
     msg.innerHTML = '👋 Hi! Main <strong>QueryNest AI</strong> hoon!<br>'
       + 'Kuch bhi poochho — SQL, Python, MongoDB, Java, C, C++ 🚀<br>'
+      + '📎 Image bhi attach kar sakte ho (code screenshot / error photo).<br>'
       + '<small style="color:rgba(200,180,255,0.4);font-size:11px;">⚡ QueryNest AI — Ready!</small>';
+  }
+  var params = new URLSearchParams(location.search);
+  var lang = (params.get('lang') || '').toLowerCase();
+  if (lang) {
+    var chip = document.querySelector('.chip[data-l="'+lang+'"]');
+    if (chip) setLang(lang, chip);
+    document.querySelectorAll('.nav-tab').forEach(function(t){
+      t.classList.remove('active');
+    });
+  }
+  var ask = params.get('ask');
+  if (ask) {
+    document.getElementById('chatInput').value = ask;
+    document.getElementById('chatBox').scrollIntoView({behavior:'smooth', block:'center'});
+    setTimeout(function(){ sendChat(); }, 400);
   }
 };
 </script>

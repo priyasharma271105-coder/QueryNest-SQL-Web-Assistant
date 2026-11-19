@@ -91,6 +91,10 @@ nav {
   text-decoration: none;
 }
 .nbtn:hover { color: var(--text); border-color: var(--border2); }
+.n-back {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-right: 4px;
+}
 .n-run {
   background: var(--accent); border-color: transparent; color: #fff;
   box-shadow: 0 2px 12px rgba(99,120,255,0.4); padding: 5px 16px;
@@ -333,21 +337,30 @@ kbd {
     <div class="nav-logo-icon">🦅</div>
     QueryNest
   </a>
-  <span class="ide-badge">Query IDE</span>
+  <span class="ide-badge" id="ideBadge">Query IDE</span>
 
   <div class="lang-tabs" style="margin-left:14px">
-    <div class="ltab l-sql active" onclick="setLang('sql',this)">
+    <div class="ltab ltab-db l-sql active" onclick="setLang('sql',this)">
       <span class="dot dot-sql"></span> SQL
     </div>
-    <div class="ltab l-mysql" onclick="setLang('mysql',this)">
+    <div class="ltab ltab-db l-mysql" onclick="setLang('mysql',this)">
       <span class="dot dot-mysql"></span> MySQL
     </div>
-    <div class="ltab l-mongodb" onclick="setLang('mongodb',this)">
+    <div class="ltab ltab-db l-mongodb" onclick="setLang('mongodb',this)">
       <span class="dot dot-mongodb"></span> MongoDB
     </div>
-    <div style="width:1px;background:rgba(255,255,255,0.1);margin:4px 6px;"></div>
-    <div class="ltab l-python" onclick="setLang('python',this)">
+    <div class="lang-divider" style="width:1px;background:rgba(255,255,255,0.1);margin:4px 6px;"></div>
+    <div class="ltab ltab-prog l-python" onclick="setLang('python',this)">
       <span class="dot dot-python"></span> Python
+    </div>
+    <div class="ltab ltab-prog l-java" onclick="setLang('java',this)">
+      <span class="dot dot-java"></span> Java
+    </div>
+    <div class="ltab ltab-prog l-c" onclick="setLang('c',this)">
+      <span class="dot dot-c"></span> C
+    </div>
+    <div class="ltab ltab-prog l-cpp" onclick="setLang('cpp',this)">
+      <span class="dot dot-cpp"></span> C++
     </div>
 
   </div>
@@ -356,7 +369,8 @@ kbd {
     <div class="status-dot" id="statusDot"></div>
     <span class="nav-user" id="nav-user">User</span>
     <button class="nbtn n-run" id="runBtn" onclick="runQuery()" title="Ctrl+Enter">▶ Run</button>
-    <a class="nbtn" href="/home">🏠 Home</a>
+    <button class="nbtn n-back" type="button" onclick="goBack()" title="Previous page">← Back</button>
+    <a class="nbtn" href="/home" onclick="persistCurrentDraft()">🏠 Home</a>
     <button class="nbtn" onclick="if(confirm('Logout?'))window.location.href='/logout'">Logout</button>
   </div>
 </nav>
@@ -380,7 +394,7 @@ kbd {
     <div class="editor-area">
       <div class="line-nums" id="lineNums">1</div>
       <textarea id="codeInput" spellcheck="false"
-        oninput="updateLineNums()"
+        oninput="updateLineNums(); scheduleSaveDraft()"
         onkeydown="handleEditorKey(event)"
         onscroll="document.getElementById('lineNums').scrollTop=this.scrollTop"
         placeholder="-- Write your SQL query here and click ▶ Run Query or press Ctrl+Enter"></textarea>
@@ -391,7 +405,7 @@ kbd {
       <span><kbd>Ctrl+S</kbd> Save</span>
       <span><kbd>Ctrl+L</kbd> Clear</span>
       <span><kbd>Tab</kbd> Indent</span>
-      <span><kbd>1–7</kbd> Switch Lang</span>
+      <span id="switchShortcut"><kbd>1–7</kbd> Switch Lang</span>
     </div>
   </div>
 
@@ -447,8 +461,11 @@ kbd {
 let curLang = 'sql';
 let lastResults = []; // for CSV export
 let sortCol = -1, sortDir = 1;
+const DRAFT_KEY = 'qn_ide_drafts';
+const LANG_KEY  = 'qn_ide_lang';
+let saveDraftTimer = null;
 
-const PROG_LANGS = new Set(['python','c','cpp']);
+const PROG_LANGS = new Set(['python','java','c','cpp']);
 
 const FILE_LABEL = {
   sql: 'query.sql', mysql: 'query.sql', mongodb: 'query.js',
@@ -638,29 +655,134 @@ int main() {
 }`
 };
 
+function loadDrafts() {
+  try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}'); }
+  catch { return {}; }
+}
+
+function saveDrafts(drafts) {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts)); } catch {}
+}
+
+function persistCurrentDraft() {
+  const ta = document.getElementById('codeInput');
+  if (!ta || !curLang) return;
+  const drafts = loadDrafts();
+  drafts[curLang] = ta.value;
+  saveDrafts(drafts);
+  try { localStorage.setItem(LANG_KEY, curLang); } catch {}
+}
+
+function scheduleSaveDraft() {
+  clearTimeout(saveDraftTimer);
+  saveDraftTimer = setTimeout(persistCurrentDraft, 250);
+}
+
+function codeForLang(lang) {
+  const drafts = loadDrafts();
+  if (Object.prototype.hasOwnProperty.call(drafts, lang)) return drafts[lang];
+  return STARTER[lang] || '';
+}
+
+function goBack() {
+  persistCurrentDraft();
+  const ref = document.referrer || '';
+  const sameSite = ref.indexOf(location.origin) === 0;
+  const fromIde  = /\/ide\/?(\?|$)/.test(ref);
+  if (sameSite && !fromIde && window.history.length > 1) {
+    history.back();
+    return;
+  }
+  window.location.href = '/home';
+}
+
 // ── Init ──────────────────────────────────────────────────────
+let ideCategory = '';
+
 window.addEventListener('DOMContentLoaded', () => {
   fetch('/api/me', {credentials:'include'}).then(r=>r.json()).then(d=>{
     if(d.success) document.getElementById('nav-user').textContent = '👤 ' + (d.user.name||'User').split(' ')[0];
   }).catch(()=>{});
 
-  // Load from sessionStorage (code sent from search page)
+  const urlParams = new URLSearchParams(window.location.search);
+  const pathParts = window.location.pathname.replace(/^\/|\/$/g, '').split('/');
+  ideCategory = (urlParams.get('category') || urlParams.get('type') || urlParams.get('mode') || (pathParts[0] === 'ide' && pathParts[1] ? pathParts[1] : '') || '{{ category|default("") }}').toLowerCase().trim();
+
+  const DB_LANGS = ['sql', 'mysql', 'mongodb'];
+  const PROG_LANG_LIST = ['python', 'java', 'c', 'cpp'];
+  const knownLangs = Object.keys(FILE_LABEL);
+
   const pendingCode = sessionStorage.getItem('ide_code');
-  const pendingLang = sessionStorage.getItem('ide_lang') || 'sql';
-  const dbLangs = ['sql','mysql','mongodb'];
-  const lang = dbLangs.includes(pendingLang) ? pendingLang : 'sql';
+  const pendingLang = sessionStorage.getItem('ide_lang');
+
+  // Category specific UI customization
+  if (ideCategory === 'database' || ideCategory === 'db') {
+    // Show only SQL, MySQL, and MongoDB
+    document.querySelectorAll('.ltab-prog').forEach(el => el.style.display = 'none');
+    const div = document.querySelector('.lang-divider');
+    if (div) div.style.display = 'none';
+    const badge = document.getElementById('ideBadge') || document.querySelector('.ide-badge');
+    if (badge) badge.textContent = 'Database Solutions';
+    document.title = 'QueryNest — Database Solutions';
+    const shortKbd = document.getElementById('switchShortcut');
+    if (shortKbd) shortKbd.innerHTML = '<kbd>1–3</kbd> Switch DB';
+    const outTab = document.getElementById('rtab-output');
+    if (outTab) outTab.style.display = 'none';
+  } else if (ideCategory === 'programming' || ideCategory === 'prog' || ideCategory === 'code') {
+    // Show only Python, Java, C, and C++
+    document.querySelectorAll('.ltab-db').forEach(el => el.style.display = 'none');
+    const div = document.querySelector('.lang-divider');
+    if (div) div.style.display = 'none';
+    const badge = document.getElementById('ideBadge') || document.querySelector('.ide-badge');
+    if (badge) badge.textContent = 'Programming Resources';
+    document.title = 'QueryNest — Programming Resources';
+    const shortKbd = document.getElementById('switchShortcut');
+    if (shortKbd) shortKbd.innerHTML = '<kbd>1–4</kbd> Switch Lang';
+    const tableTab = document.getElementById('rtab-table');
+    if (tableTab) tableTab.style.display = 'none';
+    const outTab = document.getElementById('rtab-output');
+    if (outTab) outTab.style.display = '';
+  }
 
   if (pendingCode) {
     sessionStorage.removeItem('ide_code');
     sessionStorage.removeItem('ide_lang');
+    let lang = knownLangs.includes(pendingLang) ? pendingLang : 'python';
+    if ((ideCategory === 'database' || ideCategory === 'db') && !DB_LANGS.includes(lang)) {
+      lang = 'sql';
+    } else if ((ideCategory === 'programming' || ideCategory === 'prog' || ideCategory === 'code') && !PROG_LANG_LIST.includes(lang)) {
+      lang = 'python';
+    }
+    const drafts = loadDrafts();
+    drafts[lang] = pendingCode;
+    saveDrafts(drafts);
+    curLang = lang;
     document.getElementById('codeInput').value = pendingCode;
     setLang(lang);
     updateLineNums();
     tlog('✅ Code loaded — auto-running...', 'info');
     setTimeout(() => runQuery(), 400);
   } else {
-    setLang('sql');
+    let savedLang = 'sql';
+    if (ideCategory === 'database' || ideCategory === 'db') {
+      try { savedLang = localStorage.getItem('qn_ide_db_lang') || localStorage.getItem(LANG_KEY) || 'sql'; } catch {}
+      if (!DB_LANGS.includes(savedLang)) savedLang = 'sql';
+    } else if (ideCategory === 'programming' || ideCategory === 'prog' || ideCategory === 'code') {
+      try { savedLang = localStorage.getItem('qn_ide_prog_lang') || localStorage.getItem(LANG_KEY) || 'python'; } catch {}
+      if (!PROG_LANG_LIST.includes(savedLang)) savedLang = 'python';
+    } else {
+      try { savedLang = localStorage.getItem(LANG_KEY) || 'sql'; } catch {}
+      if (!knownLangs.includes(savedLang)) savedLang = 'sql';
+    }
+    curLang = savedLang;
+    document.getElementById('codeInput').value = codeForLang(savedLang);
+    setLang(savedLang);
   }
+
+  window.addEventListener('beforeunload', persistCurrentDraft);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') persistCurrentDraft();
+  });
 
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey||e.metaKey) && e.key === 'Enter') { e.preventDefault(); runQuery(); }
@@ -671,19 +793,46 @@ window.addEventListener('DOMContentLoaded', () => {
                    || _active === document.getElementById('ideStdinInput')
                    || _active?.tagName === 'INPUT'
                    || _active?.tagName === 'TEXTAREA';
-    if (e.key === '1' && !e.ctrlKey && !_isTyping) setLang('sql');
-    if (e.key === '2' && !e.ctrlKey && !_isTyping) setLang('mysql');
-    if (e.key === '3' && !e.ctrlKey && !_isTyping) setLang('mongodb');
-    if (e.key === '4' && !e.ctrlKey && !_isTyping) setLang('python');
-    if (e.key === '5' && !e.ctrlKey && !_isTyping) setLang('java');
-    if (e.key === '6' && !e.ctrlKey && !_isTyping) setLang('c');
-    if (e.key === '7' && !e.ctrlKey && !_isTyping) setLang('cpp');
+    if (!e.ctrlKey && !_isTyping) {
+      if (ideCategory === 'database' || ideCategory === 'db') {
+        if (e.key === '1') setLang('sql');
+        if (e.key === '2') setLang('mysql');
+        if (e.key === '3') setLang('mongodb');
+      } else if (ideCategory === 'programming' || ideCategory === 'prog' || ideCategory === 'code') {
+        if (e.key === '1') setLang('python');
+        if (e.key === '2') setLang('java');
+        if (e.key === '3') setLang('c');
+        if (e.key === '4') setLang('cpp');
+      } else {
+        if (e.key === '1') setLang('sql');
+        if (e.key === '2') setLang('mysql');
+        if (e.key === '3') setLang('mongodb');
+        if (e.key === '4') setLang('python');
+        if (e.key === '5') setLang('java');
+        if (e.key === '6') setLang('c');
+        if (e.key === '7') setLang('cpp');
+      }
+    }
   });
 });
 
 // ── Language Switch ───────────────────────────────────────────
 function setLang(lang, el) {
+  const ta = document.getElementById('codeInput');
+  if (ta && curLang && lang !== curLang) {
+    const drafts = loadDrafts();
+    drafts[curLang] = ta.value;
+    saveDrafts(drafts);
+  }
   curLang = lang;
+  try {
+    localStorage.setItem(LANG_KEY, lang);
+    if (ideCategory === 'database' || ideCategory === 'db') {
+      localStorage.setItem('qn_ide_db_lang', lang);
+    } else if (ideCategory === 'programming' || ideCategory === 'prog' || ideCategory === 'code') {
+      localStorage.setItem('qn_ide_prog_lang', lang);
+    }
+  } catch {}
   document.querySelectorAll('.ltab').forEach(t => t.classList.remove('active'));
   if (el) { el.classList.add('active'); }
   else {
@@ -692,18 +841,40 @@ function setLang(lang, el) {
     });
   }
   document.getElementById('file-label').textContent = FILE_LABEL[lang] || 'query.sql';
-  const ta = document.getElementById('codeInput');
-  if (!ta.value.trim()) { ta.value = STARTER[lang] || ''; updateLineNums(); }
+  const placeholders = {
+    sql: '-- Write your SQL query here and click ▶ Run or press Ctrl+Enter',
+    mysql: '-- Write your MySQL query here and click ▶ Run or press Ctrl+Enter',
+    mongodb: '// Write your MongoDB query here and click ▶ Run or press Ctrl+Enter',
+    python: '# Write your Python code here and click ▶ Run or press Ctrl+Enter',
+    java: '// Write your Java code here and click ▶ Run or press Ctrl+Enter',
+    c: '// Write your C code here and click ▶ Run or press Ctrl+Enter',
+    cpp: '// Write your C++ code here and click ▶ Run or press Ctrl+Enter'
+  };
+  if (ta) {
+    ta.value = codeForLang(lang);
+    if (placeholders[lang]) ta.placeholder = placeholders[lang];
+    updateLineNums();
+  }
 
-  // Show/hide Output tab based on lang type
+  // Show/hide Output tab based on category and lang type
   const outTab = document.getElementById('rtab-output');
-  if (PROG_LANGS.has(lang)) {
+  const tableTab = document.getElementById('rtab-table');
+  if (ideCategory === 'database' || ideCategory === 'db') {
+    if (outTab) outTab.style.display = 'none';
+    if (tableTab) tableTab.style.display = '';
+    switchTab('table');
+  } else if (ideCategory === 'programming' || ideCategory === 'prog' || ideCategory === 'code') {
+    if (tableTab) tableTab.style.display = 'none';
     if (outTab) outTab.style.display = '';
-    // Switch to output tab when switching to prog lang
     switchTab('output');
   } else {
-    if (outTab) outTab.style.display = 'none';
-    switchTab('table');
+    if (PROG_LANGS.has(lang)) {
+      if (outTab) outTab.style.display = '';
+      switchTab('output');
+    } else {
+      if (outTab) outTab.style.display = 'none';
+      switchTab('table');
+    }
   }
 
   setStatus('ready');
@@ -907,7 +1078,7 @@ async function runQueryWithStdin(stdinData) {
   setTimeout(() => setStatus('ready'), 5000);
 }
 
-// ── Backend Compiler — uses Flask /api/execute (Python, C, C++) ────────
+// ── Backend Compiler — uses Flask /api/execute (Python, Java, C, C++) ────────
 async function runViaJudge0(code, lang, stdinData) {
   // Directly use Flask backend — no external Judge0 dependency
   const body = { code, lang };
@@ -1529,7 +1700,7 @@ function handleEditorKey(e) {
     e.preventDefault();
     const s=ta.selectionStart,end=ta.selectionEnd;
     ta.value=ta.value.substring(0,s)+'  '+ta.value.substring(end);
-    ta.selectionStart=ta.selectionEnd=s+2; updateLineNums(); return;
+    ta.selectionStart=ta.selectionEnd=s+2; updateLineNums(); scheduleSaveDraft(); return;
   }
   if (e.key === 'Enter') {
     const s=ta.selectionStart;
@@ -1540,13 +1711,14 @@ function handleEditorKey(e) {
     const ins='\n'+indent;
     ta.value=ta.value.substring(0,s)+ins+ta.value.substring(ta.selectionEnd);
     ta.selectionStart=ta.selectionEnd=s+ins.length;
-    updateLineNums(); ta.scrollTop=ta.scrollHeight;
+    updateLineNums(); scheduleSaveDraft(); ta.scrollTop=ta.scrollHeight;
   }
 }
 
 function clearEditor() {
   const ta = document.getElementById('codeInput');
   ta.value=''; updateLineNums(); ta.focus();
+  persistCurrentDraft();
   setStatus('ready'); toast('Editor cleared');
 }
 

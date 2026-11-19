@@ -1,8 +1,7 @@
- __pycache__/
+__pycache__/
 *.py[cod]
 *.pyc
 .env
-config.py
 *.egg-info/
 dist/
 build/
@@ -12,3 +11,4 @@ data/saved_queries/*/
 data/saved_programs/*/
 !data/saved_queries/.gitkeep
 !data/saved_programs/.gitkeep
+config.py

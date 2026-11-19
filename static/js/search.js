@@ -1638,6 +1638,45 @@ function loadInIDE() {
     window.location.href = '/ide';
 }
 
+function copyCodeBlock(btn) {
+    const wrap = btn && btn.closest ? btn.closest('.code-wrap') : null;
+    const pre = wrap ? wrap.querySelector('pre') : null;
+    if (!pre) return;
+    let text = '';
+    if (pre.querySelector('br')) {
+        const clone = pre.cloneNode(true);
+        clone.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+        text = clone.textContent || '';
+    } else {
+        text = pre.textContent || '';
+    }
+    text = text.replace(/\r\n/g, '\n');
+    if (!text) return;
+    const orig = btn.textContent;
+    const done = function () {
+        btn.textContent = '✅ Copied!';
+        btn.style.color = '#6ee7b7';
+        setTimeout(function () {
+            btn.textContent = orig;
+            btn.style.color = '#c4b5fd';
+        }, 1800);
+    };
+    const fallback = function () {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () { fallback(); done(); });
+    } else {
+        fallback();
+        done();
+    }
+}
+
 // Copy code to clipboard
 function copySearchCode() {
     if (!lastSearchCode) return;
@@ -1690,10 +1729,14 @@ function formatSearchContent(text) {
     // Remove section headers
     text = text.replace(/^###[^\n]*\n?/gm, '');
 
-    // Render code blocks
+    const codeBlocks = [];
+
+    // Render code blocks protected by placeholders
     text = text.replace(/```([\w+]*)?\n?([\s\S]*?)```/g, function (_, l, code) {
+        const placeholder = '___CODEBLOCK_' + codeBlocks.length + '___';
         const langLabel = (l || 'code').toUpperCase();
-        let escaped = code.trim()
+        let cleanCode = code.replace(/\r\n/g, '\n').replace(/^\n+|\s+$/g, '');
+        let escaped = cleanCode
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
@@ -1702,10 +1745,15 @@ function formatSearchContent(text) {
             .replace(/(\/\/[^\n]*)/g,          '<span style="color:#6ee7b7;font-style:italic;">$1</span>')
             .replace(/(--\s[^\n]*)/g,           '<span style="color:#6ee7b7;font-style:italic;">$1</span>')
             .replace(/((?:^|\n)(#[^\n]*))/g,    '$1<span style="color:#6ee7b7;font-style:italic;">$2</span>');
-        return '<div style="margin:8px 0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);">'
-            + '<div style="background:rgba(255,255,255,.05);padding:4px 12px;font-size:11px;color:rgba(220,200,255,.45);font-weight:700;letter-spacing:.05em;">' + langLabel + '</div>'
+        const blockHtml = '<div class="code-wrap" style="margin:8px 0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);">'
+            + '<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);padding:4px 12px;font-size:11px;color:rgba(220,200,255,.45);font-weight:700;letter-spacing:.05em;">'
+            + '<span>' + langLabel + '</span>'
+            + '<button type="button" class="code-copy" onclick="copyCodeBlock(this)" style="background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.35);color:#c4b5fd;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:700;">📋 Copy</button>'
+            + '</div>'
             + '<pre style="margin:0;padding:14px;background:rgba(0,0,0,.4);overflow-x:auto;font-size:12.5px;line-height:1.75;white-space:pre;color:#e2e8f0;">' + escaped + '</pre>'
             + '</div>';
+        codeBlocks.push(blockHtml);
+        return placeholder;
     });
 
     // Inline markdown
@@ -1714,6 +1762,13 @@ function formatSearchContent(text) {
     text = text.replace(/^[-•]\s+(.+)$/gm,  '<li style="margin:3px 0;color:rgba(220,200,255,.75);">$1</li>');
     text = text.replace(/\n\n+/g, '<br><br>');
     text = text.replace(/\n/g, '<br>');
+
+    // Restore code blocks
+    text = text.replace(/___CODEBLOCK_(\d+)___/g, function (_, idx) {
+        return codeBlocks[Number(idx)];
+    });
+    return text;
+}
 
     return '<div style="font-size:13.5px;color:rgba(220,200,255,.8);line-height:1.7;">' + text + '</div>';
 }
